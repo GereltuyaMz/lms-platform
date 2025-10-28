@@ -5,9 +5,13 @@ import Image from "next/image";
 import { ChevronDown, Menu } from "lucide-react";
 import { Button } from "../ui/button";
 import { useState, useEffect } from "react";
+import { UserNav } from "./UserNav";
+import { createClient } from "@/lib/supabase/client";
+import type { User } from "@supabase/supabase-js";
 
 export const Header = () => {
   const [isScrolled, setIsScrolled] = useState(false);
+  const [user, setUser] = useState<User | null>(null);
 
   useEffect(() => {
     let ticking = false;
@@ -25,6 +29,24 @@ export const Header = () => {
 
     window.addEventListener("scroll", handleScroll, { passive: true });
     return () => window.removeEventListener("scroll", handleScroll);
+  }, []);
+
+  useEffect(() => {
+    const supabase = createClient();
+
+    // Get initial user
+    supabase.auth.getUser().then(({ data: { user } }) => {
+      setUser(user);
+    });
+
+    // Listen for auth changes
+    const {
+      data: { subscription },
+    } = supabase.auth.onAuthStateChange((_event, session) => {
+      setUser(session?.user ?? null);
+    });
+
+    return () => subscription.unsubscribe();
   }, []);
 
   return (
@@ -66,31 +88,37 @@ export const Header = () => {
           </ul>
         </div>
         <div className="hidden md:flex items-center gap-4">
-          <Link href="/login">
-            <Button
-              variant="outline"
-              size="lg"
-              className="rounded-3xl font-bold"
-            >
-              Sign In
-            </Button>
-          </Link>
-          <div
-            className={`transition-all duration-300 ease-in-out ${
-              isScrolled
-                ? "opacity-100 transform"
-                : "opacity-0 transform pointer-events-none"
-            }`}
-          >
-            <Link href="/signup">
-              <Button
-                size="lg"
-                className="rounded-3xl font-bold bg-primary hover:bg-primary/90"
+          {user ? (
+            <UserNav user={user} />
+          ) : (
+            <>
+              <Link href="/signin">
+                <Button
+                  variant="outline"
+                  size="lg"
+                  className="rounded-3xl font-bold"
+                >
+                  Sign In
+                </Button>
+              </Link>
+              <div
+                className={`transition-all duration-300 ease-in-out ${
+                  isScrolled
+                    ? "opacity-100 transform"
+                    : "opacity-0 transform pointer-events-none"
+                }`}
               >
-                Get Started
-              </Button>
-            </Link>
-          </div>
+                <Link href="/signup">
+                  <Button
+                    size="lg"
+                    className="rounded-3xl font-bold bg-primary hover:bg-primary/90"
+                  >
+                    Get Started
+                  </Button>
+                </Link>
+              </div>
+            </>
+          )}
         </div>
         <Button variant="outline" size="icon" className="md:hidden">
           <Menu />
