@@ -121,8 +121,8 @@ $$ LANGUAGE plpgsql;
 -- Trigger to update last_login_at on auth events
 -- Note: This trigger is on auth.users table, requires admin privileges
 -- You may need to run this separately in Supabase SQL Editor
-CREATE TRIGGER on_auth_user_login
-  AFTER UPDATE OF last_sign_in_at ON auth.users
-  FOR EACH ROW
-  WHEN (OLD.last_sign_in_at IS DISTINCT FROM NEW.last_sign_in_at)
-  EXECUTE FUNCTION update_last_login();
+-- CREATE TRIGGER on_auth_user_login
+--   AFTER UPDATE OF last_sign_in_at ON auth.users
+--   FOR EACH ROW
+--   WHEN (OLD.last_sign_in_at IS DISTINCT FROM NEW.last_sign_in_at)
+--   EXECUTE FUNCTION update_last_login();

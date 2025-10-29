@@ -73,7 +73,7 @@ export const Header = () => {
           </Link>
           <ul className="hidden md:flex gap-6">
             <li>
-              <Link href="/course">Courses</Link>
+              <Link href="/courses">Courses</Link>
             </li>
             <li>
               <Link href="/shop">Shop</Link>

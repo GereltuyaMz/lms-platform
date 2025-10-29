@@ -1,38 +1,78 @@
-// // This file will be auto-generated from your Supabase schema
-// // Run: supabase gen types typescript --project-id your-project-ref > src/types/supabase.ts
+import type {
+  Category,
+  Course,
+  CourseCategory,
+  Lesson,
+  Enrollment,
+  LessonProgress,
+  CategoryInsert,
+  CourseInsert,
+  CourseCategoryInsert,
+  LessonInsert,
+  EnrollmentInsert,
+  LessonProgressInsert,
+  CategoryUpdate,
+  CourseUpdate,
+  CourseCategoryUpdate,
+  LessonUpdate,
+  EnrollmentUpdate,
+  LessonProgressUpdate,
+  CourseStatsResult,
+  CourseLevel,
+  LessonType,
+} from './database'
 
-// // For now, you can use this placeholder type
-// export type Database = {
-//   public: {
-//     Tables: {
-//       // Add your table definitions here
-//       // Example:
-//       // users: {
-//       //   Row: {
-//       //     id: string
-//       //     email: string
-//       //     created_at: string
-//       //   }
-//       //   Insert: {
-//       //     id?: string
-//       //     email: string
-//       //     created_at?: string
-//       //   }
-//       //   Update: {
-//       //     id?: string
-//       //     email?: string
-//       //     created_at?: string
-//       //   }
-//       // }
-//     };
-//     Views: {
-//       // Add your view definitions here
-//     };
-//     Functions: {
-//       // Add your function definitions here
-//     };
-//     Enums: {
-//       // Add your enum definitions here
-//     };
-//   };
-// };
+export type Json =
+  | string
+  | number
+  | boolean
+  | null
+  | { [key: string]: Json | undefined }
+  | Json[]
+
+export interface Database {
+  public: {
+    Tables: {
+      categories: {
+        Row: Category
+        Insert: CategoryInsert
+        Update: CategoryUpdate
+      }
+      courses: {
+        Row: Course
+        Insert: CourseInsert
+        Update: CourseUpdate
+      }
+      course_categories: {
+        Row: CourseCategory
+        Insert: CourseCategoryInsert
+        Update: CourseCategoryUpdate
+      }
+      lessons: {
+        Row: Lesson
+        Insert: LessonInsert
+        Update: LessonUpdate
+      }
+      enrollments: {
+        Row: Enrollment
+        Insert: EnrollmentInsert
+        Update: EnrollmentUpdate
+      }
+      lesson_progress: {
+        Row: LessonProgress
+        Insert: LessonProgressInsert
+        Update: LessonProgressUpdate
+      }
+    }
+    Functions: {
+      calculate_course_stats: {
+        Args: { course_uuid: string }
+        Returns: CourseStatsResult[]
+      }
+    }
+    Enums: {
+      course_level: CourseLevel
+      lesson_type: LessonType
+    }
+  }
+}
