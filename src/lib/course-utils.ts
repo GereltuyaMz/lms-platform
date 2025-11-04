@@ -10,3 +10,18 @@ export const getLevelColor = (level: string) => {
       return "bg-gray-100 text-gray-800 hover:bg-gray-200 hover:text-gray-900 transition-colors"
   }
 }
+
+export const getLessonIconType = (lessonType: string) => {
+  switch (lessonType) {
+    case "video":
+      return "video"
+    case "text":
+      return "text"
+    case "quiz":
+      return "quiz"
+    case "assignment":
+      return "assignment"
+    default:
+      return "video"
+  }
+}

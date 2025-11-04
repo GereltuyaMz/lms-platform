@@ -15,6 +15,7 @@ export interface CourseWithCategories extends Course {
     category_id: string
     categories: Category | null
   }[]
+  lesson_count?: number
 }
 
 export interface CourseWithStats extends Course {

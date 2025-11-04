@@ -178,8 +178,8 @@ WHERE cat.slug = 'mathematics'
     'advanced-calculus',
     'statistics-essentials',
     'linear-algebra-fundamentals',
-    'matematikiyn-undes',
-    'geometriyn-suur'
+    'matematikiin-undes',
+    'geometriin-suur'
   )
 ON CONFLICT DO NOTHING;
 
@@ -236,7 +236,7 @@ FROM courses c
 CROSS JOIN categories cat
 WHERE cat.slug = 'physics'
   AND c.slug IN (
-    'fizikin-undes',
+    'fizikiin-undes',
     'physics-mechanics'
   )
 ON CONFLICT DO NOTHING;
@@ -248,7 +248,7 @@ FROM courses c
 CROSS JOIN categories cat
 WHERE cat.slug = 'chemistry'
   AND c.slug IN (
-    'khimiyn-undes',
+    'khimiin-undes',
     'chemistry-for-beginners'
   )
 ON CONFLICT DO NOTHING;

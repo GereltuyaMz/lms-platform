@@ -6,9 +6,9 @@ import {
   FilterCourses,
   type FilterState,
 } from "@/components/courses/FilterCourses";
-import { CourseCard } from "@/components/courses/CourseCard";
+import { CoursesList } from "@/components/courses/CoursesList";
+import { CoursesPagination } from "@/components/courses/CoursesPagination";
 import { Button } from "@/components/ui/button";
-import { ChevronLeft, ChevronRight } from "lucide-react";
 import type { Category, CourseWithCategories } from "@/types/database";
 
 type CoursesClientWrapperProps = {
@@ -29,7 +29,6 @@ export const CoursesClientWrapper = ({
   const router = useRouter();
   const searchParams = useSearchParams();
 
-  // Initialize filters from URL params
   const [filters, setFilters] = useState<FilterState>(() => {
     const topicsParam = searchParams.get("topics");
     const levelParam = searchParams.get("level");
@@ -117,104 +116,12 @@ export const CoursesClientWrapper = ({
             </Button>
           </div> */}
         </div>
-
-        <div className="space-y-4">
-          {initialCourses.length > 0 ? (
-            initialCourses.map((course) => (
-              <CourseCard
-                key={course.id}
-                title={course.title}
-                description={course.description || ""}
-                instructor={{ name: "TBD", avatar: undefined }}
-                duration={`${course.duration_hours || 0} hours`}
-                lessons={0}
-                level={course.level}
-                price={course.price}
-                originalPrice={course.original_price || undefined}
-                thumbnail={course.thumbnail_url || undefined}
-              />
-            ))
-          ) : (
-            <div className="text-center py-12">
-              <p className="text-muted-foreground">
-                No courses found matching your filters.
-              </p>
-            </div>
-          )}
-        </div>
-
-        {/* Pagination */}
-        {totalPages > 1 && (
-          <div className="mt-8 flex items-center justify-center gap-2">
-            <Button
-              variant="ghost"
-              size="icon"
-              onClick={() => handlePageChange(currentPage - 1)}
-              disabled={currentPage === 1}
-            >
-              <ChevronLeft className="h-4 w-4" />
-            </Button>
-            <Button
-              variant="ghost"
-              size="sm"
-              onClick={() => handlePageChange(currentPage - 1)}
-              disabled={currentPage === 1}
-            >
-              Previous
-            </Button>
-
-            {/* Page numbers */}
-            {Array.from({ length: totalPages }, (_, i) => i + 1).map((page) => {
-              // Show first page, last page, current page, and pages around current
-              const showPage =
-                page === 1 ||
-                page === totalPages ||
-                (page >= currentPage - 1 && page <= currentPage + 1);
-
-              const showEllipsis =
-                (page === currentPage - 2 && currentPage > 3) ||
-                (page === currentPage + 2 && currentPage < totalPages - 2);
-
-              if (showEllipsis) {
-                return (
-                  <span key={page} className="px-2">
-                    ...
-                  </span>
-                );
-              }
-
-              if (!showPage) return null;
-
-              return (
-                <Button
-                  key={page}
-                  variant={currentPage === page ? "default" : "ghost"}
-                  size="sm"
-                  onClick={() => handlePageChange(page)}
-                >
-                  {page}
-                </Button>
-              );
-            })}
-
-            <Button
-              variant="ghost"
-              size="sm"
-              onClick={() => handlePageChange(currentPage + 1)}
-              disabled={currentPage === totalPages}
-            >
-              Next
-            </Button>
-            <Button
-              variant="ghost"
-              size="icon"
-              onClick={() => handlePageChange(currentPage + 1)}
-              disabled={currentPage === totalPages}
-            >
-              <ChevronRight className="h-4 w-4" />
-            </Button>
-          </div>
-        )}
+        <CoursesList courses={initialCourses} />
+        <CoursesPagination
+          currentPage={currentPage}
+          totalPages={totalPages}
+          onPageChange={handlePageChange}
+        />
       </main>
     </div>
   );

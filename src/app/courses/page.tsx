@@ -88,6 +88,20 @@ const CoursesPage = async ({ searchParams }: PageProps) => {
     console.error("Error fetching courses:", coursesError);
   }
 
+  // Fetch lesson counts for each course using the database function
+  const coursesWithLessonCount = await Promise.all(
+    (courses || []).map(async (course) => {
+      const { data: stats } = await supabase.rpc("calculate_course_stats", {
+        course_uuid: course.id,
+      });
+
+      return {
+        ...course,
+        lesson_count: stats?.[0]?.lesson_count || 0,
+      };
+    })
+  );
+
   const totalPages = count ? Math.ceil(count / pageSize) : 0;
 
   return (
@@ -116,7 +130,7 @@ const CoursesPage = async ({ searchParams }: PageProps) => {
       {/* Pass categories and courses to client wrapper */}
       <CoursesClientWrapper
         categories={categories || []}
-        initialCourses={courses || []}
+        initialCourses={coursesWithLessonCount}
         currentPage={page}
         totalPages={totalPages}
         totalCount={count || 0}

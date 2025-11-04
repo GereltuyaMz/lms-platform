@@ -64,7 +64,6 @@ export default function LoginForm() {
       setMessage({ type: "error", text: error.message });
     } else {
       setMessage({ type: "success", text: "Logged in successfully!" });
-      // Redirect or refresh
       window.location.href = "/dashboard";
     }
     setLoading(false);

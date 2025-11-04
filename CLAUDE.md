@@ -5,6 +5,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 ## Project Overview
 
 This is an LMS (Learning Management System) platform built with Next.js 15, TypeScript, and Supabase. The project uses the Next.js App Router architecture with server-side rendering and modern React patterns.
+If need more detail of the project read this file: @lms-doc.md
 
 ## Tech Stack
 
@@ -25,18 +26,6 @@ bun install
 
 # Run development server with Turbopack
 bun dev
-# or
-npm run dev
-
-# Build for production (uses Turbopack)
-npm run build
-
-# Start production server
-npm run start
-
-# Run linter
-npm run lint
-```
 
 ## Architecture
 
@@ -75,24 +64,26 @@ The app uses Next.js route groups for organization:
 ### Component Organization
 
 ```
+
 src/
 ├── components/
-│   ├── auth/          # Authentication-related components
-│   ├── home/          # Landing page sections (Hero, WhyChooseUs, etc.)
-│   ├── layout/        # Layout components (Header, Footer)
-│   └── ui/            # shadcn/ui components (50+ components)
+│ ├── auth/ # Authentication-related components
+│ ├── home/ # Landing page sections (Hero, WhyChooseUs, etc.)
+│ ├── layout/ # Layout components (Header, Footer)
+│ └── ui/ # shadcn/ui components (50+ components)
 ├── app/
-│   ├── (auth)/        # Auth route group
-│   ├── api/           # API routes
-│   │   └── auth/
-│   │       └── signup/route.ts  # OAuth callback handler
-│   ├── layout.tsx     # Root layout with Header/Footer
-│   └── page.tsx       # Landing page composition
+│ ├── (auth)/ # Auth route group
+│ ├── api/ # API routes
+│ │ └── auth/
+│ │ └── signup/route.ts # OAuth callback handler
+│ ├── layout.tsx # Root layout with Header/Footer
+│ └── page.tsx # Landing page composition
 ├── lib/
-│   ├── supabase/      # Supabase client configs
-│   └── utils.ts       # Utility functions (cn helper for class merging)
-└── types/             # TypeScript type definitions
-```
+│ ├── supabase/ # Supabase client configs
+│ └── utils.ts # Utility functions (cn helper for class merging)
+└── types/ # TypeScript type definitions
+
+````
 
 ### Path Aliases
 
@@ -101,7 +92,7 @@ The project uses `@/*` as an alias for `src/*`:
 ```typescript
 import { Button } from "@/components/ui/button"
 import { createClient } from "@/lib/supabase/server"
-```
+````
 
 ### Styling Patterns
 
@@ -117,34 +108,30 @@ import { createClient } from "@/lib/supabase/server"
 3. **Session Management**: Middleware refreshes sessions on every request
 4. **Protected Routes**: Not yet implemented (placeholder in middleware)
 
-## Environment Variables
-
-Required in `.env.local`:
-
-```bash
-NEXT_PUBLIC_SUPABASE_URL=your-project-url
-NEXT_PUBLIC_SUPABASE_ANON_KEY=your-anon-key
-```
-
 ## Important Patterns
 
 ### When Adding New Features
 
 1. **Server vs Client Components**: Default to Server Components. Only use "use client" when you need:
+
    - Browser APIs (localStorage, window)
    - Event handlers (onClick, onChange)
    - React hooks (useState, useEffect)
    - Interactive shadcn/ui components
 
 2. **Authentication**:
+
    - Use `src/lib/supabase/server` for Server Components/Actions
    - Use `src/lib/supabase/client` for Client Components
    - Always check which context you're in before importing
 
 3. **UI Components**:
+
    - All shadcn/ui components are in `src/components/ui`
    - Use `cn()` utility for conditional class merging
    - Follow existing component patterns from shadcn
+   - Add cursor-pointer classname when the element is interactive
+   - Use the shadcn component if possible, if the design element not in the shadcn then create the element yourself
 
 4. **Styling**:
    - Use Tailwind utility classes
@@ -154,7 +141,43 @@ NEXT_PUBLIC_SUPABASE_ANON_KEY=your-anon-key
 ## Current State
 
 - Landing page with marketing sections implemented
-- Auth UI pages built but not yet functional (forms need wiring)
+- Auth UI pages built, fucntional now
 - OAuth callback handler exists for Google sign-in
 - Middleware configured but route protection not yet active
 - Design system partially implemented (Nunito font, basic components)
+- database structure for courses, lessons, user profiles created
+- Courses page implemented, fully functional (filter, pagination)
+
+## Developer Preferences
+
+1. Be concise and direct — write code and explanations only when necessary. Avoid filler or self-explaining comments.
+2. Limit comments to logic that is complex, non-obvious, or needs future context.
+3. Follow project conventions — match existing folder structure, naming, linting, and formatting. Don’t invent new patterns unless explicitly told.
+4. Understand the current context before coding — analyze existing files, read nearby code, and infer intent from structure.
+5. If uncertain, ask in chat — don’t make assumptions that change architecture or dependencies.
+6. Think long-term — suggest scalable, maintainable patterns when relevant.
+
+### Coding Style
+
+- Use **arrow functions** and **named exports** for all React components.
+- Limit files to **≤170 lines**; if longer, split into smaller components.
+- Prefer **type** over **interface** in UI-related files (`components`, `pages`).
+  - Exception: use `interface` if extending another type or describing an object shape more clearly.
+- Maintain consistent **imports order** (React → libraries → local files).
+- Always use **TypeScript strict mode** and explicit return types where possible.
+- Keep component files self-contained — avoid unnecessary props drilling or global state unless required.
+- Use clear, semantic naming for files and variables and specific (e.g., `LessonCard`, not `Card1`).
+- Destructure imports when possible (eg. import { foo } from 'bar') and spread operators
+- Be sure to typecheck when you’re done making a series of code changes
+- Make sure to use the `/src/types` that we created, to limit repeated types in UI if possible
+- If the function is gonna used 2+ places then make the function in `/src/lib/utils.ts` file
+- Mobile-first approach: Start with mobile styles, add md: and lg: for larger screens
+  - Reusable patterns: If you use the same responsive grid/layout 2+ times, extract it to /src/lib/utils.ts or a shared component
+  - Test breakpoints: Common responsive issues happen at md (768px) and lg (1024px)
+  - Typography scale: Use responsive text sizes (text-base md:text-lg lg:text-xl)
+  - Spacing: Use responsive padding/margin (p-4 md:p-6 lg:p-8)
+- If the imported component, function, hook and etc... not used anymore then delete the import
+
+### Database structure
+
+Read the `/supabase/migrations` to understand the current database structure, the commented ones are not yet implemented one

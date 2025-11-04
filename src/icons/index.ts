@@ -1,0 +1,10 @@
+export { StopwatchIcon } from "./Time";
+export { VideoIcon } from "./Video";
+export { BoltIcon } from "./Lightning";
+export { PlayIcon } from "./Play";
+export { DumbbellIcon } from "./Dumbbell";
+export { EyeIcon } from "./Eye";
+export { BoardIcon } from "./Lesson";
+export { NotebookIcon } from "./Note";
+export { FacebookIcon } from "./Facebook";
+export { InstagramIcon } from "./Instagram";
