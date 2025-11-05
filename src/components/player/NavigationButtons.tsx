@@ -2,29 +2,39 @@
 
 import { ChevronLeft, ChevronRight, CheckCircle } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import Link from "next/link";
 
 type NavigationButtonsProps = {
-  hasPrevious: boolean;
-  hasNext: boolean;
+  previousLessonUrl?: string;
+  nextLessonUrl?: string;
   isCompleted: boolean;
 };
 
 export const NavigationButtons = ({
-  hasPrevious,
-  hasNext,
+  previousLessonUrl,
+  nextLessonUrl,
   isCompleted,
 }: NavigationButtonsProps) => {
   return (
     <div className="flex items-center justify-between gap-4">
       {/* Previous Button */}
-      <Button
-        variant="outline"
-        disabled={!hasPrevious}
-        className="flex items-center gap-2"
-      >
-        <ChevronLeft className="w-4 h-4" />
-        Previous Lesson
-      </Button>
+      {previousLessonUrl ? (
+        <Button variant="outline" asChild className="flex items-center gap-2">
+          <Link href={previousLessonUrl}>
+            <ChevronLeft className="w-4 h-4" />
+            Previous Lesson
+          </Link>
+        </Button>
+      ) : (
+        <Button
+          variant="outline"
+          disabled
+          className="flex items-center gap-2"
+        >
+          <ChevronLeft className="w-4 h-4" />
+          Previous Lesson
+        </Button>
+      )}
 
       <div className="flex items-center gap-3">
         {/* Mark as Complete Button */}
@@ -43,13 +53,19 @@ export const NavigationButtons = ({
         )}
 
         {/* Next Button */}
-        <Button
-          disabled={!hasNext}
-          className="flex items-center gap-2"
-        >
-          Next Lesson
-          <ChevronRight className="w-4 h-4" />
-        </Button>
+        {nextLessonUrl ? (
+          <Button asChild className="flex items-center gap-2">
+            <Link href={nextLessonUrl}>
+              Next Lesson
+              <ChevronRight className="w-4 h-4" />
+            </Link>
+          </Button>
+        ) : (
+          <Button disabled className="flex items-center gap-2">
+            Next Lesson
+            <ChevronRight className="w-4 h-4" />
+          </Button>
+        )}
       </div>
     </div>
   );

@@ -78,7 +78,7 @@ CREATE TABLE lessons (
   section_title TEXT, -- Virtual grouping: "Getting started", "Learning approach", etc.
   content TEXT, -- Rich text content for text lessons
   video_url TEXT, -- URL to video (could be Supabase Storage)
-  duration_minutes INTEGER, -- Duration in minutes
+  duration_seconds INTEGER, -- Duration in seconds for precise timestamps (e.g., 490 = 8:10)
   order_index INTEGER NOT NULL, -- Order within the course
   lesson_type lesson_type DEFAULT 'video' NOT NULL,
   is_preview BOOLEAN DEFAULT false NOT NULL, -- Free preview lessons
@@ -87,7 +87,7 @@ CREATE TABLE lessons (
 
   UNIQUE(course_id, slug),
   UNIQUE(course_id, order_index),
-  CONSTRAINT duration_positive CHECK (duration_minutes IS NULL OR duration_minutes > 0)
+  CONSTRAINT duration_positive CHECK (duration_seconds IS NULL OR duration_seconds > 0)
 );
 
 -- =====================================================
@@ -168,13 +168,13 @@ $$ LANGUAGE plpgsql;
 CREATE OR REPLACE FUNCTION calculate_course_stats(course_uuid UUID)
 RETURNS TABLE (
   lesson_count BIGINT,
-  total_duration_minutes INTEGER
+  total_duration_seconds INTEGER
 ) AS $$
 BEGIN
   RETURN QUERY
   SELECT
     COUNT(*) as lesson_count,
-    COALESCE(SUM(duration_minutes), 0)::INTEGER as total_duration_minutes
+    COALESCE(SUM(duration_seconds), 0)::INTEGER as total_duration_seconds
   FROM lessons
   WHERE course_id = course_uuid;
 END;

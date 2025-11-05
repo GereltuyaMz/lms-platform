@@ -11,19 +11,21 @@ import {
 import { Badge } from "@/components/ui/badge";
 import { VideoIcon, DumbbellIcon, BoardIcon, BoltIcon } from "@/icons";
 import { getLevelColor } from "@/lib/course-utils";
+import { formatDuration } from "@/lib/utils";
 import type { Course } from "@/types/database";
 
 type CourseHeroProps = {
   course: Course;
   lessonCount: number;
-  totalDurationMinutes: number;
+  totalDurationSeconds: number;
 };
 
 export const CourseHero = ({
   course,
   lessonCount,
-  totalDurationMinutes,
+  totalDurationSeconds,
 }: CourseHeroProps) => {
+  const totalDurationMinutes = Math.floor(totalDurationSeconds / 60);
   return (
     <div className="bg-gray-50 border-b">
       <div className="container mx-auto   px-4 py-14 max-w-[1400px]">
@@ -89,9 +91,9 @@ export const CourseHero = ({
                   <VideoIcon width={24} height={24} fill="#3B82F6" />
                   <span className="text-base">
                     <strong className="font-bold">
-                      {totalDurationMinutes}
+                      {formatDuration(totalDurationMinutes)}
                     </strong>
-                    min video
+                    {" "}video
                   </span>
                 </div>
                 <div className="flex items-center gap-3">

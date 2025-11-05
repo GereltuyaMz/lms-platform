@@ -8,12 +8,13 @@ import {
   AccordionItem,
   AccordionTrigger,
 } from "@/components/ui/accordion";
+import Link from "next/link";
 
 type LessonItem = {
   id: string;
   title: string;
   duration: string;
-  type: "video" | "quiz";
+  type: "video" | "quiz" | "text" | "assignment";
   completed: boolean;
   current?: boolean;
   locked?: boolean;
@@ -26,18 +27,20 @@ type LessonSection = {
 
 type LessonSidebarProps = {
   courseTitle: string;
+  courseSlug: string;
   lessons: LessonSection[];
   progress: {
     completed: number;
     total: number;
     percentage: number;
-    streak: number;
+    streak?: number;
     totalXp: number;
   };
 };
 
 export const LessonSidebar = ({
   courseTitle,
+  courseSlug,
   lessons,
   progress,
 }: LessonSidebarProps) => {
@@ -58,76 +61,107 @@ export const LessonSidebar = ({
               <Progress value={progress.percentage} className="h-2" />
             </div>
             <div className="flex items-center justify-between pt-2 border-t">
-              <div className="flex items-center gap-1.5">
+              {/* <div className="flex items-center gap-1.5">
                 <span className="text-lg">🔥</span>
                 <span className="text-sm font-semibold">{progress.streak} day streak</span>
-              </div>
+              </div> */}
               <div className="flex items-center gap-1.5">
                 <span className="text-lg">⭐</span>
-                <span className="text-sm font-semibold">{progress.totalXp} XP</span>
+                <span className="text-sm font-semibold">
+                  {progress.totalXp} XP
+                </span>
               </div>
             </div>
           </div>
         </div>
 
         {/* Lessons List */}
-        <Accordion type="multiple" defaultValue={lessons.map((_, i) => `section-${i}`)}>
+        <Accordion
+          type="multiple"
+          defaultValue={lessons.map((_, i) => `section-${i}`)}
+        >
           {lessons.map((section, index) => (
-            <AccordionItem key={index} value={`section-${index}`} className="border-b">
+            <AccordionItem
+              key={index}
+              value={`section-${index}`}
+              className="border-b"
+            >
               <AccordionTrigger className="text-sm font-semibold hover:no-underline">
                 {section.section}
               </AccordionTrigger>
               <AccordionContent>
                 <div className="space-y-1">
-                  {section.items.map((item) => (
-                    <button
-                      key={item.id}
-                      disabled={item.locked}
-                      className={`
-                        w-full text-left p-3 rounded-lg transition-colors
-                        ${item.current
-                          ? "bg-blue-50 border border-blue-200"
-                          : item.locked
-                            ? "opacity-50 cursor-not-allowed"
-                            : "hover:bg-gray-50"
-                        }
-                      `}
-                    >
-                      <div className="flex items-start gap-3">
-                        {/* Icon */}
-                        <div className="flex-shrink-0 mt-0.5">
-                          {item.locked ? (
-                            <Lock className="w-4 h-4 text-gray-400" />
-                          ) : item.completed ? (
-                            <CheckCircle2 className="w-4 h-4 text-green-500" />
-                          ) : item.current ? (
-                            <PlayCircle className="w-4 h-4 text-blue-500" />
-                          ) : (
-                            <Circle className="w-4 h-4 text-gray-300" />
-                          )}
-                        </div>
+                  {section.items.map((item) => {
+                    const lessonUrl = `/courses/${courseSlug}/learn/${item.id}`;
 
-                        {/* Content */}
-                        <div className="flex-1 min-w-0">
-                          <p
-                            className={`text-sm font-medium mb-1 ${
-                              item.current
-                                ? "text-blue-700"
-                                : item.completed
-                                  ? "text-gray-500"
-                                  : "text-gray-700"
-                            }`}
-                          >
-                            {item.title}
-                          </p>
-                          <div className="flex items-center gap-2 text-xs text-muted-foreground">
-                            <span>{item.type === "video" ? "📹" : "📝"}</span>
-                            <span>{item.duration}</span>
+                    if (item.locked) {
+                      return (
+                        <div
+                          key={item.id}
+                          className="w-full text-left p-3 rounded-lg transition-colors opacity-50 cursor-not-allowed"
+                        >
+                          <div className="flex items-start gap-3">
+                            <div className="flex-shrink-0 mt-0.5">
+                              <Lock className="w-4 h-4 text-gray-400" />
+                            </div>
+                            <div className="flex-1 min-w-0">
+                              <p className="text-sm font-medium mb-1 text-gray-700">
+                                {item.title}
+                              </p>
+                              <div className="flex items-center gap-2 text-xs text-muted-foreground">
+                                <span>{item.type === "video" ? "📹" : "📝"}</span>
+                                <span>{item.duration}</span>
+                              </div>
+                            </div>
                           </div>
                         </div>
-                      </div>
-                    </button>
-                  ))}
+                      );
+                    }
+
+                    return (
+                      <Link
+                        key={item.id}
+                        href={lessonUrl}
+                        className={`
+                          block w-full text-left p-3 rounded-lg transition-colors cursor-pointer
+                          ${
+                            item.current
+                              ? "bg-blue-50 border border-blue-200"
+                              : "hover:bg-gray-50"
+                          }
+                        `}
+                      >
+                        <div className="flex items-start gap-3">
+                          <div className="flex-shrink-0 mt-0.5">
+                            {item.completed ? (
+                              <CheckCircle2 className="w-4 h-4 text-green-500" />
+                            ) : item.current ? (
+                              <PlayCircle className="w-4 h-4 text-blue-500" />
+                            ) : (
+                              <Circle className="w-4 h-4 text-gray-300" />
+                            )}
+                          </div>
+                          <div className="flex-1 min-w-0">
+                            <p
+                              className={`text-sm font-medium mb-1 ${
+                                item.current
+                                  ? "text-blue-700"
+                                  : item.completed
+                                  ? "text-gray-500"
+                                  : "text-gray-700"
+                              }`}
+                            >
+                              {item.title}
+                            </p>
+                            <div className="flex items-center gap-2 text-xs text-muted-foreground">
+                              <span>{item.type === "video" ? "📹" : "📝"}</span>
+                              <span>{item.duration}</span>
+                            </div>
+                          </div>
+                        </div>
+                      </Link>
+                    );
+                  })}
                 </div>
               </AccordionContent>
             </AccordionItem>

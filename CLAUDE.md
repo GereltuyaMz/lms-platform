@@ -5,7 +5,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 ## Project Overview
 
 This is an LMS (Learning Management System) platform built with Next.js 15, TypeScript, and Supabase. The project uses the Next.js App Router architecture with server-side rendering and modern React patterns.
-If need more detail of the project read this file: @lms-doc.md
+If need more detail of the project read this file: `/lms-doc.md`
 
 ## Tech Stack
 
@@ -138,15 +138,9 @@ import { createClient } from "@/lib/supabase/server"
    - Follow mobile-first responsive design
    - Reference commented Tailwind config for intended design system
 
-## Current State
+## Current State(Progress)
 
-- Landing page with marketing sections implemented
-- Auth UI pages built, fucntional now
-- OAuth callback handler exists for Google sign-in
-- Middleware configured but route protection not yet active
-- Design system partially implemented (Nunito font, basic components)
-- database structure for courses, lessons, user profiles created
-- Courses page implemented, fully functional (filter, pagination)
+please read `/PROGRESS.md`
 
 ## Developer Preferences
 
@@ -169,7 +163,7 @@ import { createClient } from "@/lib/supabase/server"
 - Use clear, semantic naming for files and variables and specific (e.g., `LessonCard`, not `Card1`).
 - Destructure imports when possible (eg. import { foo } from 'bar') and spread operators
 - Be sure to typecheck when you’re done making a series of code changes
-- Make sure to use the `/src/types` that we created, to limit repeated types in UI if possible
+- Make sure to use the `/src/types/database` that created based on supabase table, to limit repeated types in UI if possible
 - If the function is gonna used 2+ places then make the function in `/src/lib/utils.ts` file
 - Mobile-first approach: Start with mobile styles, add md: and lg: for larger screens
   - Reusable patterns: If you use the same responsive grid/layout 2+ times, extract it to /src/lib/utils.ts or a shared component
@@ -180,4 +174,5 @@ import { createClient } from "@/lib/supabase/server"
 
 ### Database structure
 
-Read the `/supabase/migrations` to understand the current database structure, the commented ones are not yet implemented one
+- Read the `/supabase/migrations/*` to understand the current database structure and what function we could use in the frontend, if it's not usable, then think about is the function need to implemented in supabase's function or trigger, the commented ones are not yet implemented one
+- Read the `/supabase/seeds/*` to understand the current data content

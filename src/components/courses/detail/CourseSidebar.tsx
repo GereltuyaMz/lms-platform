@@ -8,6 +8,7 @@ type CourseSidebarProps = {
   price: number;
   originalPrice: number | null;
   thumbnailUrl: string | null;
+  firstLessonId: string | null;
 };
 
 export const CourseSidebar = ({
@@ -15,6 +16,7 @@ export const CourseSidebar = ({
   price,
   originalPrice,
   thumbnailUrl,
+  firstLessonId,
 }: CourseSidebarProps) => {
   return (
     <div className="sticky top-4">
@@ -59,8 +61,12 @@ export const CourseSidebar = ({
           </div>
 
           <div className="space-y-3">
-            <Button asChild className="w-full bg-primary text-white h-12 text-base font-semibold">
-              <Link href={`/courses/${courseSlug}/learn/lesson-1`}>
+            <Button
+              asChild
+              className="w-full bg-primary text-white h-12 text-base font-semibold"
+              disabled={!firstLessonId}
+            >
+              <Link href={firstLessonId ? `/courses/${courseSlug}/learn/${firstLessonId}` : "#"}>
                 Enroll now
               </Link>
             </Button>

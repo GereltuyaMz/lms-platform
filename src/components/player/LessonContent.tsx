@@ -32,12 +32,6 @@ export const LessonContent = ({ overview, resources }: LessonContentProps) => {
           >
             📄 Resources
           </TabsTrigger>
-          <TabsTrigger
-            value="notes"
-            className="rounded-none border-b-2 border-transparent data-[state=active]:border-blue-500 data-[state=active]:bg-transparent"
-          >
-            📔 Notes
-          </TabsTrigger>
         </TabsList>
 
         {/* Overview Tab */}
@@ -55,31 +49,15 @@ export const LessonContent = ({ overview, resources }: LessonContentProps) => {
                 </li>
                 <li className="flex items-start gap-2">
                   <span className="text-blue-500 mt-1">•</span>
-                  <span>Learn about essential geometry tools and their uses</span>
+                  <span>
+                    Learn about essential geometry tools and their uses
+                  </span>
                 </li>
                 <li className="flex items-start gap-2">
                   <span className="text-blue-500 mt-1">•</span>
                   <span>Practice basic measurement techniques</span>
                 </li>
               </ul>
-            </div>
-
-            <div>
-              <h4 className="font-semibold mb-2">Topics Covered:</h4>
-              <div className="space-y-2">
-                <div className="flex items-center gap-3 text-sm">
-                  <span className="text-blue-500 font-mono">00:15</span>
-                  <span className="text-muted-foreground">Introduction to geometry</span>
-                </div>
-                <div className="flex items-center gap-3 text-sm">
-                  <span className="text-blue-500 font-mono">02:30</span>
-                  <span className="text-muted-foreground">Basic tools overview</span>
-                </div>
-                <div className="flex items-center gap-3 text-sm">
-                  <span className="text-blue-500 font-mono">04:15</span>
-                  <span className="text-muted-foreground">Practical examples</span>
-                </div>
-              </div>
             </div>
           </div>
         </TabsContent>
@@ -103,7 +81,9 @@ export const LessonContent = ({ overview, resources }: LessonContentProps) => {
                   </div>
                   <div>
                     <p className="font-medium text-sm">{resource.name}</p>
-                    <p className="text-xs text-muted-foreground">{resource.size}</p>
+                    <p className="text-xs text-muted-foreground">
+                      {resource.size}
+                    </p>
                   </div>
                 </div>
                 <Button variant="ghost" size="sm">
@@ -112,51 +92,6 @@ export const LessonContent = ({ overview, resources }: LessonContentProps) => {
                 </Button>
               </div>
             ))}
-          </div>
-
-          <div className="mt-6 p-4 bg-blue-50 rounded-lg border border-blue-100">
-            <h4 className="font-semibold text-sm mb-2 text-blue-900">
-              💡 Additional Resources
-            </h4>
-            <ul className="space-y-1 text-sm text-blue-700">
-              <li>
-                <a href="#" className="hover:underline">
-                  → Khan Academy: Geometry Basics
-                </a>
-              </li>
-              <li>
-                <a href="#" className="hover:underline">
-                  → Interactive Geometry Tool
-                </a>
-              </li>
-            </ul>
-          </div>
-        </TabsContent>
-
-        {/* Notes Tab */}
-        <TabsContent value="notes" className="p-6">
-          <h3 className="text-lg font-semibold mb-3">My Notes</h3>
-          <p className="text-sm text-muted-foreground mb-4">
-            Take notes while watching the lesson. Your notes are automatically saved.
-          </p>
-
-          <div className="border rounded-lg p-4 min-h-[300px] bg-gray-50">
-            <textarea
-              placeholder="Start typing your notes here..."
-              className="w-full h-full min-h-[280px] bg-transparent resize-none outline-none text-sm"
-            />
-          </div>
-
-          <div className="flex justify-between items-center mt-4">
-            <span className="text-xs text-muted-foreground">
-              Last saved: Just now
-            </span>
-            <div className="flex gap-2">
-              <Button variant="outline" size="sm">
-                Clear
-              </Button>
-              <Button size="sm">Save Notes</Button>
-            </div>
           </div>
         </TabsContent>
       </Tabs>

@@ -42,7 +42,7 @@ const CourseDetailPage = async ({ params }: PageProps) => {
 
   const courseStats = stats?.[0] || {
     lesson_count: 0,
-    total_duration_minutes: 0,
+    total_duration_seconds: 0,
   };
 
   const { data: lessons } = await supabase
@@ -61,13 +61,16 @@ const CourseDetailPage = async ({ params }: PageProps) => {
     return acc;
   }, {} as Record<string, typeof lessons>);
 
+  // Get first lesson ID for enrollment link
+  const firstLessonId = lessons?.[0]?.id || null;
+
   return (
     <div className="min-h-screen bg-white">
       {/* Course Hero Section */}
       <CourseHero
         course={course}
         lessonCount={courseStats.lesson_count}
-        totalDurationMinutes={courseStats.total_duration_minutes}
+        totalDurationSeconds={courseStats.total_duration_seconds}
       />
 
       {/* Main Content */}
@@ -86,6 +89,7 @@ const CourseDetailPage = async ({ params }: PageProps) => {
               price={course.price}
               originalPrice={course.original_price}
               thumbnailUrl={course.thumbnail_url}
+              firstLessonId={firstLessonId}
             />
           </div>
         </div>

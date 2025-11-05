@@ -54,7 +54,7 @@ export interface Lesson {
   section_title: string | null
   content: string | null
   video_url: string | null
-  duration_minutes: number | null
+  duration_seconds: number | null
   order_index: number
   lesson_type: LessonType
   is_preview: boolean
@@ -88,4 +88,60 @@ export interface LessonProgress {
   last_position_seconds: number
   created_at: string
   updated_at: string
+}
+
+// =====================================================
+// QUIZ_QUESTIONS
+// =====================================================
+
+export interface QuizQuestion {
+  id: string
+  lesson_id: string
+  question: string
+  explanation: string
+  order_index: number
+  points: number
+  created_at: string
+  updated_at: string
+}
+
+// =====================================================
+// QUIZ_OPTIONS
+// =====================================================
+
+export interface QuizOption {
+  id: string
+  question_id: string
+  option_text: string
+  is_correct: boolean
+  order_index: number
+  created_at: string
+}
+
+// =====================================================
+// QUIZ_ATTEMPTS
+// =====================================================
+
+export interface QuizAttempt {
+  id: string
+  enrollment_id: string
+  lesson_id: string
+  score: number
+  total_questions: number
+  points_earned: number
+  completed_at: string
+}
+
+// =====================================================
+// QUIZ_ANSWERS
+// =====================================================
+
+export interface QuizAnswer {
+  id: string
+  attempt_id: string
+  question_id: string
+  selected_option_id: string
+  is_correct: boolean
+  points_earned: number
+  answered_at: string
 }

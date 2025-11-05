@@ -39,10 +39,11 @@ export const CourseContent = ({ lessonsBySection }: CourseContentProps) => {
   };
 
   const calculateSectionDuration = (lessons: Lesson[]) => {
-    const totalMinutes = lessons.reduce(
-      (sum, lesson) => sum + (lesson.duration_minutes || 0),
+    const totalSeconds = lessons.reduce(
+      (sum, lesson) => sum + (lesson.duration_seconds || 0),
       0
     );
+    const totalMinutes = Math.floor(totalSeconds / 60);
     return formatDuration(totalMinutes);
   };
 
@@ -108,8 +109,8 @@ export const CourseContent = ({ lessonsBySection }: CourseContentProps) => {
                           </div>
                         ) : null}
                         <span className="text-md text-muted-foreground min-w-[50px] text-right">
-                          {lesson.duration_minutes
-                            ? formatTime(lesson.duration_minutes * 60)
+                          {lesson.duration_seconds
+                            ? formatTime(lesson.duration_seconds)
                             : "—"}
                         </span>
                       </div>

@@ -4,6 +4,10 @@ import type {
   Lesson,
   Enrollment,
   LessonProgress,
+  QuizQuestion,
+  QuizOption,
+  QuizAttempt,
+  QuizAnswer,
 } from './tables'
 
 // =====================================================
@@ -62,10 +66,65 @@ export interface LessonProgressWithDetails extends LessonProgress {
 }
 
 // =====================================================
+// QUIZ QUERIES
+// =====================================================
+
+// Quiz question with all options
+export interface QuizQuestionWithOptions extends QuizQuestion {
+  options: QuizOption[]
+}
+
+// Quiz attempt with all answers
+export interface QuizAttemptWithAnswers extends QuizAttempt {
+  answers: QuizAnswer[]
+}
+
+// Quiz answer with question and option details
+export interface QuizAnswerWithDetails extends QuizAnswer {
+  question: QuizQuestion
+  selected_option: QuizOption
+}
+
+// Complete quiz data for a lesson (for taking quiz)
+export interface QuizData {
+  lesson_id: string
+  questions: QuizQuestionWithOptions[]
+}
+
+// =====================================================
 // FUNCTION RETURN TYPES
 // =====================================================
 
 export interface CourseStatsResult {
   lesson_count: number
-  total_duration_minutes: number
+  total_duration_seconds: number
+}
+
+// Return type for get_quiz_questions function
+export interface GetQuizQuestionsResult {
+  question_id: string
+  question: string
+  explanation: string
+  order_index: number
+  points: number
+  option_id: string
+  option_text: string
+  option_order: number
+}
+
+// Return type for calculate_quiz_stats function
+export interface QuizStatsResult {
+  score: number
+  total_questions: number
+  points_earned: number
+  percentage: number
+}
+
+// Return type for get_best_quiz_attempt function
+export interface BestQuizAttemptResult {
+  attempt_id: string
+  score: number
+  total_questions: number
+  points_earned: number
+  completed_at: string
 }
