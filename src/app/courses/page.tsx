@@ -2,6 +2,9 @@ import Image from "next/image";
 import { createClient } from "@/lib/supabase/server";
 import { CoursesClientWrapper } from "@/components/courses/CoursesClientWrapper";
 
+// Revalidate page every 5 minutes (300 seconds) to cache course data
+export const revalidate = 300;
+
 type PageProps = {
   searchParams: Promise<{ [key: string]: string | string[] | undefined }>;
 };
@@ -15,18 +18,14 @@ const CoursesPage = async ({ searchParams }: PageProps) => {
   const topicsParam = params.topics as string | undefined;
   const levelParam = params.level as string | undefined;
 
-  const { data: categories, error: categoriesError } = await supabase
+  const { data: categories } = await supabase
     .from("categories")
     .select("*")
     .order("name");
 
-  if (categoriesError) {
-    console.error("Error fetching categories:", categoriesError);
-  }
-
-  // Build query for courses with filters
+  // Build query for courses with filters using the optimized view
   let query = supabase
-    .from("courses")
+    .from("courses_with_stats")
     .select(
       `
       *,
@@ -88,20 +87,7 @@ const CoursesPage = async ({ searchParams }: PageProps) => {
     console.error("Error fetching courses:", coursesError);
   }
 
-  // Fetch lesson counts for each course using the database function
-  const coursesWithLessonCount = await Promise.all(
-    (courses || []).map(async (course) => {
-      const { data: stats } = await supabase.rpc("calculate_course_stats", {
-        course_uuid: course.id,
-      });
-
-      return {
-        ...course,
-        lesson_count: stats?.[0]?.lesson_count || 0,
-      };
-    })
-  );
-
+  // No need to fetch lesson counts separately - they're already in the view!
   const totalPages = count ? Math.ceil(count / pageSize) : 0;
 
   return (
@@ -130,7 +116,7 @@ const CoursesPage = async ({ searchParams }: PageProps) => {
       {/* Pass categories and courses to client wrapper */}
       <CoursesClientWrapper
         categories={categories || []}
-        initialCourses={coursesWithLessonCount}
+        initialCourses={courses || []}
         currentPage={page}
         totalPages={totalPages}
         totalCount={count || 0}
