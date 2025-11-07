@@ -80,6 +80,17 @@
 
 ---
 
+## 🔧 Configuration Needed
+
+### Google OAuth Setup
+- [ ] Enable Google provider in Supabase (Authentication → Providers)
+- [ ] Create OAuth credentials in Google Cloud Console
+- [ ] Add redirect URI in Google Console: `https://pedpzfvyjnkapqylfbqi.supabase.co/auth/v1/callback`
+- [ ] Add Client ID & Secret to Supabase
+- [ ] Set Site URL in Supabase: `http://localhost:3000`
+
+---
+
 ## 🚧 Implementation Plan
 
 ### Phase 0: Dashboard UI (Current Priority)

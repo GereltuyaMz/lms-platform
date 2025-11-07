@@ -15,7 +15,7 @@ export const ShopTab = () => {
             </div>
             <h3 className="text-xl font-bold mb-2">Shop Coming Soon</h3>
             <p className="text-muted-foreground mb-6 max-w-md mx-auto">
-              Our shop is under construction. Soon you'll be able to purchase
+              Our shop is under construction. Soon you&apos;ll be able to purchase
               exclusive content, power-ups, and more using your XP points!
             </p>
             <Button disabled variant="outline">

@@ -16,7 +16,7 @@ export const MyCoursesTab = ({ courses }: MyCoursesTabProps) => {
     return (
       <div className="text-center py-12">
         <p className="text-muted-foreground mb-4">
-          You haven't enrolled in any courses yet
+          You haven&apos;t enrolled in any courses yet
         </p>
         <Link href="/courses">
           <Button>Browse Courses</Button>
