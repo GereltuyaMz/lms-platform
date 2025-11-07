@@ -92,7 +92,7 @@ const CoursesPage = async ({ searchParams }: PageProps) => {
 
   return (
     <div className="container mx-auto px-4 py-20">
-      <section className="py-5 md:py-10">
+      <section>
         <div className="container mx-auto px-4 max-w-[1400px]">
           <div className="grid md:grid-cols-2 gap-6 md:gap-8 items-center">
             <div>
@@ -110,8 +110,6 @@ const CoursesPage = async ({ searchParams }: PageProps) => {
           </div>
         </div>
       </section>
-
-      <h1 className="mb-8 text-4xl font-bold">All courses</h1>
 
       {/* Pass categories and courses to client wrapper */}
       <CoursesClientWrapper

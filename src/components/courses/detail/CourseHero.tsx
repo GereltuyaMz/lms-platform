@@ -1,13 +1,5 @@
 import Image from "next/image";
-import Link from "next/link";
-import {
-  Breadcrumb,
-  BreadcrumbItem,
-  BreadcrumbLink,
-  BreadcrumbList,
-  BreadcrumbPage,
-  BreadcrumbSeparator,
-} from "@/components/ui/breadcrumb";
+import { CourseBreadcrumb } from "@/components/courses/CourseBreadcrumb";
 import { Badge } from "@/components/ui/badge";
 import { VideoIcon, DumbbellIcon, BoardIcon, BoltIcon } from "@/icons";
 import { getLevelColor } from "@/lib/course-utils";
@@ -29,21 +21,7 @@ export const CourseHero = ({
   return (
     <div className="bg-gray-50 border-b">
       <div className="container mx-auto   px-4 py-14 max-w-[1400px]">
-        <Breadcrumb className="mb-6">
-          <BreadcrumbList>
-            <BreadcrumbItem>
-              <BreadcrumbLink asChild>
-                <Link href="/courses">Courses</Link>
-              </BreadcrumbLink>
-            </BreadcrumbItem>
-            <BreadcrumbSeparator />
-            <BreadcrumbItem>
-              <BreadcrumbPage className="font-bold">
-                {course.title}
-              </BreadcrumbPage>
-            </BreadcrumbItem>
-          </BreadcrumbList>
-        </Breadcrumb>
+        <CourseBreadcrumb courseTitle={course.title} />
 
         {/* Course Info Card */}
         <div className="bg-white rounded-2xl border p-8 md:p-12">

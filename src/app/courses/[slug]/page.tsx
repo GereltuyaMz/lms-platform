@@ -9,6 +9,8 @@ type PageProps = {
   params: Promise<{ slug: string }>;
 };
 
+export const revalidate = 3600;
+
 const CourseDetailPage = async ({ params }: PageProps) => {
   const { slug } = await params;
   const supabase = await createClient();
@@ -36,20 +38,22 @@ const CourseDetailPage = async ({ params }: PageProps) => {
     notFound();
   }
 
-  const { data: stats } = await supabase.rpc("calculate_course_stats", {
-    course_uuid: course.id,
-  });
+  // Parallel queries for stats and lessons
+  const [{ data: stats }, { data: lessons }] = await Promise.all([
+    supabase.rpc("calculate_course_stats", {
+      course_uuid: course.id,
+    }),
+    supabase
+      .from("lessons")
+      .select("*")
+      .eq("course_id", course.id)
+      .order("order_index"),
+  ]);
 
   const courseStats = stats?.[0] || {
     lesson_count: 0,
     total_duration_seconds: 0,
   };
-
-  const { data: lessons } = await supabase
-    .from("lessons")
-    .select("*")
-    .eq("course_id", course.id)
-    .order("order_index");
 
   // Group lessons by section
   const lessonsBySection = (lessons || []).reduce((acc, lesson) => {

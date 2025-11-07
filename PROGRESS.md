@@ -1,318 +1,185 @@
 # 📊 LMS Platform - Development Progress
 
-**Last Updated:** November 5, 2025
+**Last Updated:** November 6, 2025
 
 ---
 
 ## ✅ Completed Features
 
-### 1. **Database Schema & Setup**
-- ✅ Created comprehensive database schema
-  - `user_profiles`, `courses`, `lessons`, `enrollments`, `lesson_progress`
-  - Support for categories, course stats, and progress tracking
-- ✅ **Quiz Database Schema** (NEW)
-  - `quiz_questions` - Questions with explanations and points
-  - `quiz_options` - Multiple choice options with correct answer flags
-  - `quiz_attempts` - User quiz attempt tracking
-  - `quiz_answers` - Individual answers within attempts
-- ✅ Migrated from `duration_minutes` to `duration_seconds` for precise timestamps
-- ✅ Implemented Supabase RPC functions:
-  - `calculate_course_stats()` - Returns lesson count and total duration
-  - `update_enrollment_progress()` - Auto-updates progress percentages
-  - `transliterate_mongolian()` - Slug generation for Mongolian text
-  - `get_quiz_questions()` - Fetches quiz questions with options
-  - `validate_quiz_answer()` - Checks answer correctness
-  - `calculate_quiz_stats()` - Calculates quiz scores and percentages
-  - `get_best_quiz_attempt()` - Gets user's best quiz attempt
-- ✅ Created seed data for 17 courses with realistic lesson durations (e.g., 8:10, 16:23)
-- ✅ Created quiz seed data for 7 quizzes across different courses
-- ✅ Storage bucket setup (`course-videos`) for video hosting
+### Database & Backend
+- Complete schema: `user_profiles`, `courses`, `lessons`, `enrollments`, `lesson_progress`, quiz tables
+- RPC functions: `calculate_course_stats()`, `update_enrollment_progress()`, quiz validation
+- Database view `courses_with_stats` for optimized queries (eliminates N+1)
+- Seed data: 17 courses + 7 quizzes with realistic content
+- Storage bucket setup for course videos
 
-### 2. **Frontend - Courses Page**
-- ✅ Course listing with filtering (All, Mathematics, Algebra, etc.)
-- ✅ Pagination (6 courses per page)
-- ✅ Course cards showing:
-  - Thumbnail, title, description
-  - Level badge (Beginner/Intermediate/Advanced)
-  - Stats (lessons, duration, price)
-- ✅ Fully functional with real Supabase data
+### Core Pages
+- **Courses Page**: Filtering, pagination (6/page), course cards with stats
+- **Course Detail**: Hero section, accordion lesson list, stats, "Enroll Now" button
+- **Lesson Detail**: Video player, quiz system, sidebar navigation, content tabs, breadcrumbs
 
-### 3. **Frontend - Course Detail Page**
-- ✅ Course hero section with breadcrumbs
-- ✅ Course stats (lesson count, total duration, level)
-- ✅ Course content accordion (lessons grouped by section)
-- ✅ Lesson durations formatted as MM:SS (e.g., "8:10")
-- ✅ Course sidebar with pricing
-- ✅ "Enroll Now" button linked to first lesson (bypassing payment for now)
-- ✅ Preview lessons indicator
+### Video System
+- react-player v3 integration
+- Plays MP4 from Supabase Storage
+- Progress tracking hooks (ready for auth)
+- Resume capability, error handling
 
-### 4. **Frontend - Lesson Detail Page**
-- ✅ **Video Player (react-player v3)**
-  - Plays MP4 videos from Supabase Storage
-  - Native browser controls
-  - Progress tracking hooks (ready for auth)
-  - Completion callback
-  - Resume capability (seek to saved position)
-  - Error handling with debugging UI
-- ✅ **Quiz Player** (NEW)
-  - Interactive quiz component with real Supabase data
-  - Multiple choice questions with radio buttons
-  - Submit answer with instant feedback
-  - Correct/incorrect indicators with explanations
-  - Progress bar showing question X of Y
-  - Navigation between questions (Previous/Next)
-  - Results screen with score and XP calculation
-  - Retry functionality
-  - Proper state management (no selected answer by default)
-- ✅ **Lesson Navigation** (NEW)
-  - Previous/Next lesson buttons fully functional
-  - Clickable lessons in sidebar
-  - Works for all lesson types (video, text, quiz, assignment)
-  - URL updates on navigation
-  - Edge cases handled (first/last lesson)
-- ✅ Lesson sidebar with progress tracking UI
-  - Grouped by section
-  - Shows lesson type (video/quiz/assignment)
-  - Duration display (MM:SS format or "Quiz")
-  - Current lesson indicator
-  - Progress bar (0% for now, ready for auth)
-  - Clickable lesson navigation
-- ✅ Breadcrumb navigation
-- ✅ Lesson info card (title, XP reward)
-- ✅ Lesson content tabs (Overview, Resources, Q&A)
-- ✅ Loading state (`loading.tsx`)
-- ✅ All data fetched from Supabase
+### Quiz System
+- Multiple choice questions with instant feedback
+- Progress bar, navigation (Previous/Next)
+- Results screen with scoring
+- Retry functionality
+- Real-time data from Supabase
 
-### 5. **Utility Functions & Helpers**
-- ✅ `formatTime(seconds)` - Converts seconds to MM:SS
-- ✅ `formatDuration(minutes)` - Converts minutes to "Xh Ymin"
-- ✅ Supabase storage helper functions:
-  - `uploadVideo()` - Upload videos programmatically
-  - `getVideoUrl()` - Get public video URLs
-  - `deleteVideo()` - Remove videos
-- ✅ TypeScript types for all database tables and queries
-  - **Quiz types added:** `QuizQuestion`, `QuizOption`, `QuizAttempt`, `QuizAnswer`
-  - **Query types added:** `QuizQuestionWithOptions`, `QuizData`, `QuizStatsResult`, etc.
+### Lesson Navigation
+- Previous/Next buttons functional
+- Clickable sidebar lessons
+- Works for all lesson types (video/text/quiz/assignment)
+- URL updates on navigation
 
-### 6. **Authentication**
-- ✅ Sign up/Sign in pages (UI complete)
-- ✅ Google OAuth integration
-- ✅ Middleware for session management
-- ⏳ Not yet connected to lesson progress tracking
+### Performance Optimizations
+- Database view reduces courses page from 11 queries to 1 query
+- Next.js revalidation (300s) for caching
+- Parallelized queries with Promise.all
+- Loading skeletons for courses page with filtering states
+
+### Code Quality Improvements
+- Extracted utility functions to `/src/lib/lesson-utils.ts`
+- Created `LessonRenderer` component for type-specific rendering
+- Shared `CourseBreadcrumb` component (DRY principle)
+- Proper TypeScript types (no `any` types)
+- Lesson page reduced from 292 to 161 lines (45% reduction)
+
+### Authentication
+- Sign up/Sign in pages with UI complete
+- Google OAuth integration
+- Middleware for session management
+- Not yet connected to progress tracking
 
 ---
 
 ## 📋 Current State
 
-### **What's Working:**
-1. ✅ Browse courses page with filtering
-2. ✅ View course details with lesson list
-3. ✅ Click "Enroll Now" → Goes to first lesson
-4. ✅ Watch videos from Supabase Storage
-5. ✅ Navigate between lessons (Previous/Next buttons + sidebar clicks)
-6. ✅ Take interactive quizzes with real data from Supabase
-7. ✅ See quiz results and retry
-8. ✅ See lesson sidebar with all course content
-9. ✅ All durations display realistically (8:10, 16:23, etc.)
+### What's Working
+1. Browse courses with filtering and pagination
+2. View course details with lesson lists
+3. Enroll in courses (bypasses payment)
+4. Watch videos from Supabase Storage
+5. Navigate between lessons (buttons + sidebar)
+6. Take interactive quizzes with feedback
+7. All durations display as MM:SS (8:10, 16:23)
+8. Fast page loads with optimized queries
 
-### **What's Ready But Not Connected:**
-- Video progress tracking (hooks ready, needs auth integration)
+### What's Ready But Not Connected
+- Video progress tracking (hooks ready, needs auth)
 - Mark lesson as complete (UI ready, needs backend)
-- Resume from saved position (code ready, needs lesson_progress data)
-- Quiz attempt saving (need to save attempts to database with auth)
+- Resume from saved position (needs lesson_progress data)
+- Quiz attempt saving (needs auth integration)
+- Enrollment checks (anyone can access any lesson)
+- XP awards (static values, not calculated)
 
 ---
 
-## 🚧 In Progress
+## 🚧 Implementation Plan
 
-### **Ready for Deployment**
-- All TypeScript checks passing ✅
-- Quiz system fully functional with Supabase data ✅
-- Lesson navigation working ✅
-- Need to apply migrations to production database
+### Phase 0: Dashboard UI (Current Priority)
+Build complete user dashboard with **mock data** first:
+- Profile header with avatar, name, XP, level display
+- "My Courses" section showing enrolled courses with progress bars
+- XP breakdown section (video completions, quiz scores, achievements)
+- Achievements/badges section with earned badges
+- Profile edit form (name, bio, avatar upload)
+
+**Goal:** Complete UI layout before implementing backend logic
 
 ---
 
-## 📝 To-Do List (Prioritized)
+### Phase 1: Enrollment System
+- Create enrollment on "Enroll Now" click
+- Check enrollment before allowing lesson access
+- Lock lessons based on enrollment status
+- Update dashboard "My Courses" to show real enrollments
 
-### **Phase 1: Navigation & Core Functionality** ✅ COMPLETED
-1. ✅ **Lesson Navigation** - DONE
-   - ✅ Make Previous/Next buttons functional
-   - ✅ Make sidebar lesson links clickable
-   - ✅ Handle edge cases (first/last lesson)
-   - ✅ Update URL on navigation
+---
 
-2. ✅ **Quiz Component** - DONE
-   - ✅ Quiz database schema created
-   - ✅ Quiz component with real Supabase data
-   - ✅ Multiple choice questions
-   - ✅ Instant feedback with explanations
-   - ✅ Results screen with scoring
-   - ✅ Retry functionality
+### Phase 2: Video Progress Tracking
+- Save `last_position_seconds` to `lesson_progress` table
+- Resume from saved position on lesson load
+- Mark lesson as complete when video ends
+- Update enrollment progress percentage
+- Show completion checkmarks in sidebar
 
-3. ⏳ **Other Lesson Types** (Next)
-   - Assignment component (UI placeholder exists)
-   - Text lesson component (basic UI exists, needs styling)
+---
 
-### **Phase 2: Progress Tracking** (Requires Auth)
-4. ⏳ **Video Progress Tracking**
-   - Save `last_position_seconds` to database
-   - Resume from saved position
-   - Mark lesson as complete when video ends
-   - Update progress bar in sidebar
+### Phase 3: Quiz Attempt Tracking
+- Save quiz attempts to database with user_id
+- Track best score per quiz
+- Award XP on quiz completion
+- Show quiz completion status in sidebar
+- Display quiz scores in dashboard
 
-5. ⏳ **Quiz Attempt Tracking**
-   - Save quiz attempts to database (schema ready)
-   - Track user's best score per quiz
-   - Show completion status in sidebar
-   - Award XP for quiz completion
+---
 
-6. ⏳ **Enrollment System**
-   - Create enrollment on "Enroll Now"
-   - Check if user is enrolled before allowing access
-   - Lock lessons based on enrollment
+### Phase 4: XP System
+- Create `xp_transactions` table
+- Award XP on video completion
+- Award XP on quiz completion (score-based)
+- Update total XP in user profile
+- Display real XP in dashboard
+- Add XP gain animations
 
-7. ⏳ **XP & Gamification**
-   - Award XP on lesson completion
-   - Award XP on quiz completion (formula ready: score * 20)
-   - Update total XP in user profile
-   - Display XP progress in sidebar
-   - Add XP animations
+---
 
-### **Phase 3: Enhanced Features**
-8. ⏳ **Resources & Downloads**
-   - Upload lesson resources to Supabase Storage
-   - Download links for PDFs, worksheets
-   - Preview PDFs inline
+### Phase 5: Profile Edit Functionality
+- Connect profile edit form to Supabase
+- Update user_profiles table
+- Handle avatar upload to Storage
+- Real-time profile updates
 
-9. ⏳ **Assignment Submissions**
-   - File upload for assignments
-   - Instructor review system
-   - Grading interface
+---
 
-### **Phase 4: Payment Integration**
-10. ⏳ **Payment Flow**
-   - Integrate payment gateway
-   - Course purchase flow
-   - Payment verification
-   - Enrollment after payment
-
-### **Phase 5: Polish**
-11. ⏳ **User Dashboard**
-    - My Courses page
-    - Progress overview
-    - Achievements/badges
-    - Learning streak
-
-12. ⏳ **Video Quality Options**
-    - Multiple resolution support
-    - Auto quality switching
-    - Quality selector UI
-
-13. ⏳ **Migrate to Bunny.net CDN** (Future)
-    - Better video delivery
-    - Lower costs at scale
-    - Global CDN
+### Phase 6: Connect Sidebar Progress
+- Fetch real lesson completion data
+- Update progress bar with actual percentages
+- Show completed lesson indicators
+- Calculate and display total course XP earned
 
 ---
 
 ## 📊 Database Structure
 
-### **Core Tables:**
-- ✅ `user_profiles` - User data, XP, role
-- ✅ `courses` - Course info, pricing, thumbnails
-- ✅ `lessons` - Lesson content, `duration_seconds`, video URLs
-- ✅ `categories` - Course categorization
-- ✅ `course_categories` - Many-to-many relationship
-- ✅ `enrollments` - User course enrollments, progress %
-- ✅ `lesson_progress` - Individual lesson tracking, last position
+### Core Tables
+- `user_profiles` - User data, XP, role
+- `courses` - Course info, pricing, thumbnails
+- `lessons` - Lesson content, duration_seconds, video URLs
+- `categories` - Course categorization
+- `enrollments` - User course enrollments, progress %
+- `lesson_progress` - Individual lesson tracking, last position
 
-### **Quiz Tables (NEW - ✅ Created):**
-- ✅ `quiz_questions` - Questions with explanations and points
-- ✅ `quiz_options` - Multiple choice options with correct answer flags
-- ✅ `quiz_attempts` - User quiz attempts with scores
-- ✅ `quiz_answers` - Individual answers within attempts
+### Quiz Tables
+- `quiz_questions` - Questions with explanations and points
+- `quiz_options` - Multiple choice options with correct answer flags
+- `quiz_attempts` - User quiz attempts with scores
+- `quiz_answers` - Individual answers within attempts
 
-### **Future Tables (Not Yet Created):**
-- ⏳ `xp_transactions` - XP award history
-- ⏳ `badges` - Achievement definitions
-- ⏳ `user_badges` - User achievements
-- ⏳ `payments` - Payment records
+### Views
+- `courses_with_stats` - Pre-calculated lesson counts and durations
 
----
-
-## 🎯 Technical Decisions Made
-
-### **Video Storage:**
-- **Current:** Supabase Storage
-- **Format:** MP4 with H.264 codec
-- **Free Plan Limit:** 50MB per file, 1GB total
-- **Recommended:** Upgrade to Pro ($25/month) for 100GB
-
-### **Video Player:**
-- **Library:** react-player v3.3.3
-- **Prop:** `src` (not `url` - v3 breaking change)
-- **Import:** Dynamic import with `ssr: false` (Next.js compatibility)
-- **Controls:** Native browser controls (for now)
-
-### **Duration Format:**
-- **Database:** Stored as `duration_seconds` (INTEGER)
-- **Display:** Formatted as MM:SS (e.g., "8:10", "16:23")
-- **Function:** `calculate_course_stats()` returns seconds, converted to minutes for display
-
-### **Authentication:**
-- **Provider:** Supabase Auth
-- **Method:** Google OAuth + Email/Password
-- **Session:** Managed via middleware
+### Future Tables
+- `xp_transactions` - XP award history (Phase 4)
+- `badges` - Achievement definitions
+- `user_badges` - User achievements
 
 ---
 
 ## 🐛 Known Issues
 
-1. ⚠️ **Lesson progress not saved** - Requires auth integration
-2. ⚠️ **No enrollment check** - Anyone can access any lesson
-3. ⚠️ **XP is static** - Not calculated from actual progress
-4. ⚠️ **Quiz attempts not saved** - Need auth to save to database
-5. ⚠️ **Assignment pages placeholder** - Need to build full component
-6. ⚠️ **Text lessons need better styling** - Basic UI exists
-
----
-
-## 📚 Documentation Created
-
-1. ✅ `CLAUDE.md` - Developer guidelines and project structure
-2. ✅ `lms-doc.md` - Project overview and MVP features
-3. ✅ `SUPABASE_VIDEO_SETUP.md` - Complete video setup guide
-4. ✅ `supabase/migrations/README_MIGRATIONS.md` - Migration guide
-5. ✅ `PROGRESS.md` - This file
-
----
-
-## 🚀 Next Steps (Immediate)
-
-**Recommended Priority:**
-
-1. **Deploy to Production** ✅ Ready
-   - All TypeScript checks passing
-   - Quiz system functional
-   - Lesson navigation working
-   - Apply migrations: `003_create_quiz_schema.sql`, `003_seed_quiz_questions.sql`
-
-2. **Text Lesson Styling** (1-2 hours)
-   - Add proper prose styling
-   - Better typography
-   - Content formatting
-
-3. **Assignment Component** (2-3 hours)
-   - Design assignment UI
-   - File upload interface
-   - Submission tracking
-
-4. **Connect Auth to Progress** (3-4 hours)
-   - Save video progress
-   - Save quiz attempts
-   - Mark lessons complete
-   - Update sidebar UI
+1. Lesson progress not saved (requires auth integration)
+2. No enrollment check (anyone can access any lesson)
+3. XP is static (not calculated from actual progress)
+4. Quiz attempts not saved (need auth)
+5. Assignment pages are placeholders
+6. Text lessons need better styling
 
 ---
 
@@ -320,49 +187,30 @@
 
 **Frontend:**
 - Next.js 15.5.5 (App Router, Turbopack)
-- React 19
-- TypeScript (strict mode)
-- Tailwind CSS v4
-- shadcn/ui components
+- React 19, TypeScript (strict mode)
+- Tailwind CSS v4, shadcn/ui
 - react-player 3.3.3
 
 **Backend:**
-- Supabase (PostgreSQL)
-- Supabase Auth
-- Supabase Storage
+- Supabase (PostgreSQL, Auth, Storage)
 - Row Level Security (RLS)
 
 **Tools:**
 - Bun (package manager)
-- Git
 
 ---
 
 ## 📈 Project Health
 
 - **TypeScript:** ✅ All files type-safe, no errors
-- **Database:** ✅ Schema complete, migrations ready (including quiz schema)
+- **Database:** ✅ Schema complete with optimized views
+- **Performance:** ✅ Optimized queries, fast page loads
 - **Video Storage:** ✅ Working with Supabase
-- **Quiz System:** ✅ Fully functional with real data
+- **Quiz System:** ✅ Fully functional
 - **Lesson Navigation:** ✅ Working for all lesson types
-- **Authentication:** ⚠️ UI ready, not integrated with progress tracking
+- **Authentication:** ⚠️ UI ready, not integrated with progress
 - **Deployment:** ✅ Ready for production
 
 ---
 
-## 🎓 Learning Outcomes So Far
-
-1. ✅ Supabase Storage setup and file hosting
-2. ✅ react-player v3 integration with Next.js
-3. ✅ Dynamic imports for SSR compatibility
-4. ✅ Database RPC functions for complex queries
-5. ✅ Migration from YouTube placeholders to real MP4 files
-6. ✅ Precise duration tracking (seconds vs minutes)
-7. ✅ Quiz system with database normalization
-8. ✅ React state management for interactive components
-9. ✅ Next.js navigation patterns with URL updates
-10. ✅ TypeScript type generation from database schema
-
----
-
-**Questions or blockers? See [Issues](#) or contact the team.**
+**Next Immediate Step:** Build Dashboard UI (Phase 0)

@@ -162,7 +162,7 @@ please read `/PROGRESS.md`
 - Keep component files self-contained — avoid unnecessary props drilling or global state unless required.
 - Use clear, semantic naming for files and variables and specific (e.g., `LessonCard`, not `Card1`).
 - Destructure imports when possible (eg. import { foo } from 'bar') and spread operators
-- Be sure to typecheck when you’re done making a series of code changes
+- Be sure to typecheck when you’re done making a series of code changes, DO NOT UUSE ANY TYPE!!
 - Make sure to use the `/src/types/database` that created based on supabase table, to limit repeated types in UI if possible
 - If the function is gonna used 2+ places then make the function in `/src/lib/utils.ts` file
 - Mobile-first approach: Start with mobile styles, add md: and lg: for larger screens
@@ -171,6 +171,7 @@ please read `/PROGRESS.md`
   - Typography scale: Use responsive text sizes (text-base md:text-lg lg:text-xl)
   - Spacing: Use responsive padding/margin (p-4 md:p-6 lg:p-8)
 - If the imported component, function, hook and etc... not used anymore then delete the import
+- Use DRY Principle, KISS principle, and Separation of Concerns on every code file
 
 ### Database structure
 

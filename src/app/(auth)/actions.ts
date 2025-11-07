@@ -3,6 +3,7 @@
 import { createClient } from "@/lib/supabase/server";
 import { redirect } from "next/navigation";
 import { headers } from "next/headers";
+import { revalidatePath } from "next/cache";
 
 export const signUpAction = async (formData: FormData) => {
   const supabase = await createClient();
@@ -59,6 +60,7 @@ export const signUpAction = async (formData: FormData) => {
     };
   }
 
+  revalidatePath("/", "layout");
   redirect("/dashboard");
 };
 
@@ -116,6 +118,7 @@ export const signInAction = async (formData: FormData) => {
     return { error: error.message };
   }
 
+  revalidatePath("/", "layout");
   redirect("/dashboard");
 };
 
@@ -127,5 +130,6 @@ export const signOutAction = async () => {
     return { error: error.message };
   }
 
+  revalidatePath("/", "layout");
   redirect("/");
 };
