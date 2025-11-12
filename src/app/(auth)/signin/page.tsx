@@ -10,10 +10,12 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { signInSchema, type SignInFormData } from "@/lib/validations";
 import { signInWithGoogleAction, signInAction } from "@/app/(auth)/actions";
 import { useState, useTransition } from "react";
+import { useRouter } from "next/navigation";
 
 export default function SignInPage() {
   const [isPending, startTransition] = useTransition();
   const [serverError, setServerError] = useState<string>("");
+  const router = useRouter();
 
   const {
     register,
@@ -35,6 +37,8 @@ export default function SignInPage() {
 
       if (result?.error) {
         setServerError(result.error);
+      } else if (result?.success) {
+        router.push("/dashboard");
       }
     });
   };

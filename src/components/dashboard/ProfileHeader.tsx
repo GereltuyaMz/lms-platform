@@ -1,10 +1,10 @@
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Card, CardContent } from "@/components/ui/card";
 import { getInitials } from "@/lib/utils";
-import type { MockUserStats } from "@/lib/mock-data";
+import type { UserStats } from "@/lib/actions/user-profile";
 
 type ProfileHeaderProps = {
-  userStats: MockUserStats;
+  userStats: UserStats;
 };
 
 export const ProfileHeader = ({ userStats }: ProfileHeaderProps) => {

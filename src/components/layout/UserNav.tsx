@@ -13,6 +13,7 @@ import { signOutAction } from "@/app/(auth)/actions";
 import { LogOut, User as UserIcon } from "lucide-react";
 import { useTransition } from "react";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 
 type User = {
   id: string;
@@ -29,10 +30,14 @@ type UserNavProps = {
 
 export const UserNav = ({ user }: UserNavProps) => {
   const [isPending, startTransition] = useTransition();
+  const router = useRouter();
 
   const handleSignOut = () => {
     startTransition(async () => {
-      await signOutAction();
+      const result = await signOutAction();
+      if (result?.success) {
+        router.push("/");
+      }
     });
   };
 

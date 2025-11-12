@@ -6,7 +6,8 @@ import type { SupabaseClient } from "@supabase/supabase-js";
 // Transform lessons for sidebar display
 export const transformLessonsForSidebar = (
   allLessons: Lesson[],
-  currentLessonId: string
+  currentLessonId: string,
+  completedLessonIds: string[] = []
 ) => {
   // Group lessons by section
   const lessonsBySection = allLessons.reduce(
@@ -34,7 +35,7 @@ export const transformLessonsForSidebar = (
             ? "Quiz"
             : "Assignment",
       type: lesson.lesson_type,
-      completed: false, // TODO: fetch from lesson_progress when auth is ready
+      completed: completedLessonIds.includes(lesson.id),
       current: lesson.id === currentLessonId,
       locked: false, // TODO: implement lock logic based on enrollment
     })),

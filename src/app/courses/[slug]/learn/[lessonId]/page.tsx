@@ -5,13 +5,15 @@ import { NavigationButtons } from "@/components/player/NavigationButtons";
 import { LessonPageClient } from "@/components/player/LessonPageClient";
 import { CourseBreadcrumb } from "@/components/courses/CourseBreadcrumb";
 import { createClient } from "@/lib/supabase/server";
-import { notFound } from "next/navigation";
+import { notFound, redirect } from "next/navigation";
 import {
   transformLessonsForSidebar,
   calculateCourseProgress,
   getNavigationUrls,
   fetchQuizData,
 } from "@/lib/lesson-utils";
+import { checkEnrollment } from "@/lib/actions/enrollment";
+import { getCourseProgress } from "@/lib/actions/lesson-progress";
 
 // Revalidate page every 5 minutes (300 seconds) to cache lesson data
 export const revalidate = 300;
@@ -36,6 +38,13 @@ export default async function LessonPage({ params }: PageProps) {
 
   if (courseError || !course) {
     notFound();
+  }
+
+  // Check if user is enrolled in the course
+  const enrollmentStatus = await checkEnrollment(course.id);
+  if (!enrollmentStatus.isEnrolled) {
+    // Redirect to course detail page if not enrolled
+    redirect(`/courses/${slug}`);
   }
 
   // Parallelize independent queries for better performance
@@ -71,10 +80,22 @@ export default async function LessonPage({ params }: PageProps) {
     notFound();
   }
 
+  // Fetch lesson progress for this course
+  const { data: progressData } = await getCourseProgress(course.id);
+  const completedLessonIds =
+    progressData
+      ?.filter((p) => p.is_completed)
+      .map((p) => p.lesson_id) || [];
+  const completedCount = completedLessonIds.length;
+
   // Transform data using utility functions
-  const sidebarLessons = transformLessonsForSidebar(allLessons, lessonId);
+  const sidebarLessons = transformLessonsForSidebar(
+    allLessons,
+    lessonId,
+    completedLessonIds
+  );
   const totalLessons = courseStats?.[0]?.lesson_count || allLessons.length;
-  const progress = calculateCourseProgress(totalLessons);
+  const progress = calculateCourseProgress(totalLessons, completedCount);
   const { previousLessonUrl, nextLessonUrl } = getNavigationUrls(
     allLessons,
     lessonId,
@@ -105,7 +126,11 @@ export default async function LessonPage({ params }: PageProps) {
 
           {/* Main Content */}
           <main className="flex-1 p-6 bg-muted">
-            <LessonRenderer lesson={currentLesson} quizData={quizData} />
+            <LessonRenderer
+              lesson={currentLesson}
+              courseId={course.id}
+              quizData={quizData}
+            />
 
             {/* Lesson Info */}
             <div className="bg-white rounded-lg border p-6 mb-6">
@@ -118,7 +143,6 @@ export default async function LessonPage({ params }: PageProps) {
               <NavigationButtons
                 previousLessonUrl={previousLessonUrl}
                 nextLessonUrl={nextLessonUrl}
-                isCompleted={false}
               />
             </div>
 

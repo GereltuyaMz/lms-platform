@@ -5,6 +5,9 @@ import { Button } from "@/components/ui/button";
 import { QuizProgress } from "./QuizProgress";
 import { QuizQuestion } from "./QuizQuestion";
 import { QuizResults } from "./QuizResults";
+import { saveQuizAttempt } from "@/lib/actions/quiz-attempt";
+import { awardQuizCompletionXP } from "@/lib/actions/xp-actions";
+import { toast } from "sonner";
 
 type QuizQuestionData = {
   id: string | number;
@@ -23,13 +26,21 @@ type QuizData = {
 type QuizPlayerProps = {
   title: string;
   quizData: QuizData | null;
+  lessonId: string;
+  courseId: string;
 };
 
-export const QuizPlayer = ({ title, quizData }: QuizPlayerProps) => {
+export const QuizPlayer = ({
+  title,
+  quizData,
+  lessonId,
+  courseId,
+}: QuizPlayerProps) => {
   const [currentQuestion, setCurrentQuestion] = useState(0);
   const [selectedAnswer, setSelectedAnswer] = useState<number | null>(null);
   const [showExplanation, setShowExplanation] = useState(false);
   const [score, setScore] = useState(0);
+  const [userAnswers, setUserAnswers] = useState<Record<number, number>>({});
 
   // If no quiz data, show error message
   if (!quizData || quizData.questions.length === 0) {
@@ -53,19 +64,64 @@ export const QuizPlayer = ({ title, quizData }: QuizPlayerProps) => {
   const handleSubmit = () => {
     if (selectedAnswer !== null) {
       setShowExplanation(true);
+      // Save the user's answer
+      setUserAnswers({ ...userAnswers, [currentQuestion]: selectedAnswer });
       if (isCorrect) {
         setScore(score + 1);
       }
     }
   };
 
-  const handleNext = () => {
+  const handleNext = async () => {
     if (currentQuestion < quizData.questions.length - 1) {
       setCurrentQuestion(currentQuestion + 1);
       setSelectedAnswer(null);
       setShowExplanation(false);
     } else {
+      // Quiz finished - save attempt to database
+      await saveQuizAttemptToDatabase();
       setCurrentQuestion(-1);
+    }
+  };
+
+  const saveQuizAttemptToDatabase = async () => {
+    if (!quizData) return;
+
+    // Calculate total points earned
+    const pointsEarned = quizData.questions.reduce((total, question, index) => {
+      const userAnswer = userAnswers[index];
+      const isCorrect = userAnswer === question.correctAnswer;
+      return total + (isCorrect ? (question.points || 10) : 0);
+    }, 0);
+
+    // Prepare answers array (we don't have option IDs in the current structure)
+    // For now, we'll skip saving individual answers
+    const answers: any[] = [];
+
+    const result = await saveQuizAttempt(
+      lessonId,
+      courseId,
+      score,
+      quizData.questions.length,
+      pointsEarned,
+      answers
+    );
+
+    // Award XP if quiz attempt saved successfully
+    if (result.success && result.attemptId) {
+      const scorePercentage = (score / quizData.questions.length) * 100;
+
+      const xpResult = await awardQuizCompletionXP(
+        result.attemptId,
+        lessonId,
+        scorePercentage
+      );
+
+      if (xpResult.success && xpResult.xpAwarded) {
+        toast.success(`🎉 +${xpResult.xpAwarded} XP`, {
+          description: `Quiz completed with ${Math.round(scorePercentage)}%!`,
+        });
+      }
     }
   };
 
@@ -82,6 +138,7 @@ export const QuizPlayer = ({ title, quizData }: QuizPlayerProps) => {
     setScore(0);
     setSelectedAnswer(null);
     setShowExplanation(false);
+    setUserAnswers({});
   };
 
   return (

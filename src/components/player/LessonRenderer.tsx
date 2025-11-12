@@ -5,16 +5,23 @@ import type { QuizData } from "@/types/quiz";
 
 type LessonRendererProps = {
   lesson: Lesson;
+  courseId: string;
   quizData?: QuizData | null;
 };
 
-export const LessonRenderer = ({ lesson, quizData }: LessonRendererProps) => {
+export const LessonRenderer = ({
+  lesson,
+  courseId,
+  quizData,
+}: LessonRendererProps) => {
   switch (lesson.lesson_type) {
     case "video":
       return (
         <VideoPlayer
           videoUrl={lesson.video_url || ""}
           title={lesson.title}
+          lessonId={lesson.id}
+          courseId={courseId}
         />
       );
 
@@ -28,7 +35,14 @@ export const LessonRenderer = ({ lesson, quizData }: LessonRendererProps) => {
       );
 
     case "quiz":
-      return <QuizPlayer title={lesson.title} quizData={quizData ?? null} />;
+      return (
+        <QuizPlayer
+          title={lesson.title}
+          quizData={quizData ?? null}
+          lessonId={lesson.id}
+          courseId={courseId}
+        />
+      );
 
     case "assignment":
       return (

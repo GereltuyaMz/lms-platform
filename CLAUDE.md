@@ -142,6 +142,10 @@ import { createClient } from "@/lib/supabase/server"
 
 please read `/PROGRESS.md`
 
+## Gamification System
+
+For XP awards, shop economy, and gamification mechanics, read `/XP-SYSTEM.md`
+
 ## Developer Preferences
 
 1. Be concise and direct — write code and explanations only when necessary. Avoid filler or self-explaining comments.

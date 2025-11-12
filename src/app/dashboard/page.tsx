@@ -7,10 +7,11 @@ import { AchievementsTab } from "@/components/dashboard/AchievementsTab";
 import { ProfileTab } from "@/components/dashboard/ProfileTab";
 import { ShopTab } from "@/components/dashboard/ShopTab";
 import {
-  mockUserStats,
-  mockEnrolledCourses,
-  mockAchievements,
-} from "@/lib/mock-data";
+  getUserEnrollments,
+  getLastAccessedLesson,
+} from "@/lib/actions/enrollment";
+import { getUserStats } from "@/lib/actions/user-profile";
+import { mockAchievements } from "@/lib/mock-data";
 
 export default async function DashboardPage() {
   const supabase = await createClient();
@@ -26,25 +27,71 @@ export default async function DashboardPage() {
     redirect("/signin");
   }
 
-  // TODO: Replace mock data with real user data from Supabase in later phases
   const userEmail = user.email || "";
+
+  // Fetch real user stats and enrollments from database
+  const [
+    { data: userStats, error: userStatsError },
+    { data: enrollments, error: enrollmentsError },
+  ] = await Promise.all([getUserStats(), getUserEnrollments()]);
+
+  // Use empty array if no enrollments or error
+  // Type assertion needed because Supabase infers courses as array but it's actually a single object
+  const rawEnrollments = (enrollments || []) as unknown as Array<{
+    id: string;
+    enrolled_at: string;
+    progress_percentage: number;
+    completed_at: string | null;
+    courses: {
+      id: string;
+      title: string;
+      slug: string;
+      description: string | null;
+      thumbnail_url: string | null;
+      level: string;
+    } | null;
+  }>;
+
+  // Fetch last accessed lesson for each enrollment
+  const enrollmentsWithLastLesson = await Promise.all(
+    rawEnrollments.map(async (enrollment) => {
+      if (!enrollment.courses) return { ...enrollment, lastLessonId: null };
+
+      const lastLessonId = await getLastAccessedLesson(
+        enrollment.courses.id,
+        enrollment.courses.slug
+      );
+
+      return {
+        ...enrollment,
+        lastLessonId,
+      };
+    })
+  );
+
+  const userEnrollments = enrollmentsWithLastLesson;
+
+  // If no user stats, redirect to sign in (profile should exist if authenticated)
+  if (!userStats) {
+    redirect("/signin");
+  }
 
   return (
     <div className="min-h-screen bg-gray-50">
       {/* Profile Header */}
-      <ProfileHeader userStats={mockUserStats} />
+      <ProfileHeader userStats={userStats} />
 
       {/* Dashboard Tabs */}
       <DashboardTabs
-        coursesContent={<MyCoursesTab courses={mockEnrolledCourses} />}
+        coursesContent={<MyCoursesTab enrollments={userEnrollments} />}
         achievementsContent={
           <AchievementsTab achievements={mockAchievements} />
         }
         profileContent={
           <ProfileTab
-            username={mockUserStats.username}
+            username={userStats.username}
             email={userEmail}
-            avatarUrl={mockUserStats.avatarUrl}
+            avatarUrl={userStats.avatarUrl}
           />
         }
         shopContent={<ShopTab />}

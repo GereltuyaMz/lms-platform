@@ -61,7 +61,7 @@ export const signUpAction = async (formData: FormData) => {
   }
 
   revalidatePath("/", "layout");
-  redirect("/dashboard");
+  return { success: true };
 };
 
 export const signInWithGoogleAction = async () => {
@@ -119,7 +119,7 @@ export const signInAction = async (formData: FormData) => {
   }
 
   revalidatePath("/", "layout");
-  redirect("/dashboard");
+  return { success: true };
 };
 
 export const signOutAction = async () => {
@@ -131,5 +131,5 @@ export const signOutAction = async () => {
   }
 
   revalidatePath("/", "layout");
-  redirect("/");
+  return { success: true };
 };

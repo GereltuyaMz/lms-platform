@@ -10,11 +10,13 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { signUpSchema, type SignUpFormData } from "@/lib/validations";
 import { signUpAction, signInWithGoogleAction } from "@/app/(auth)/actions";
 import { useState, useTransition } from "react";
+import { useRouter } from "next/navigation";
 
 export default function SignUpPage() {
   const [isPending, startTransition] = useTransition();
   const [serverError, setServerError] = useState<string>("");
   const [successMessage, setSuccessMessage] = useState<string>("");
+  const router = useRouter();
 
   const {
     register,
@@ -39,7 +41,11 @@ export default function SignUpPage() {
       if (result?.error) {
         setServerError(result.error);
       } else if (result?.success) {
-        setSuccessMessage(result.message || "Account created successfully!");
+        if (result.message) {
+          setSuccessMessage(result.message);
+        } else {
+          router.push("/dashboard");
+        }
       }
     });
   };

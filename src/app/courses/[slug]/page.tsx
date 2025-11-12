@@ -4,6 +4,7 @@ import { CourseHero } from "@/components/courses/detail/CourseHero";
 import { CourseContent } from "@/components/courses/detail/CourseContent";
 import { CourseSidebar } from "@/components/courses/detail/CourseSidebar";
 import { Instructor } from "@/components/courses/detail/Instructor";
+import { checkEnrollment } from "@/lib/actions/enrollment";
 
 type PageProps = {
   params: Promise<{ slug: string }>;
@@ -68,6 +69,9 @@ const CourseDetailPage = async ({ params }: PageProps) => {
   // Get first lesson ID for enrollment link
   const firstLessonId = lessons?.[0]?.id || null;
 
+  // Check if user is enrolled
+  const enrollmentStatus = await checkEnrollment(course.id);
+
   return (
     <div className="min-h-screen bg-white">
       {/* Course Hero Section */}
@@ -89,11 +93,13 @@ const CourseDetailPage = async ({ params }: PageProps) => {
           {/* Right Sidebar - Pricing & Actions */}
           <div className="lg:col-span-1">
             <CourseSidebar
+              courseId={course.id}
               courseSlug={course.slug}
               price={course.price}
               originalPrice={course.original_price}
               thumbnailUrl={course.thumbnail_url}
               firstLessonId={firstLessonId}
+              isEnrolled={enrollmentStatus.isEnrolled}
             />
           </div>
         </div>

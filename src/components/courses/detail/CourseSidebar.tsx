@@ -1,22 +1,26 @@
-import Link from "next/link";
 import Image from "next/image";
 import { Play } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { EnrollButton } from "./EnrollButton";
 
 type CourseSidebarProps = {
+  courseId: string;
   courseSlug: string;
   price: number;
   originalPrice: number | null;
   thumbnailUrl: string | null;
   firstLessonId: string | null;
+  isEnrolled: boolean;
 };
 
 export const CourseSidebar = ({
+  courseId,
   courseSlug,
   price,
   originalPrice,
   thumbnailUrl,
   firstLessonId,
+  isEnrolled,
 }: CourseSidebarProps) => {
   return (
     <div className="sticky top-4">
@@ -61,15 +65,12 @@ export const CourseSidebar = ({
           </div>
 
           <div className="space-y-3">
-            <Button
-              asChild
-              className="w-full bg-primary text-white h-12 text-base font-semibold"
-              disabled={!firstLessonId}
-            >
-              <Link href={firstLessonId ? `/courses/${courseSlug}/learn/${firstLessonId}` : "#"}>
-                Enroll now
-              </Link>
-            </Button>
+            <EnrollButton
+              courseId={courseId}
+              courseSlug={courseSlug}
+              firstLessonId={firstLessonId}
+              isEnrolled={isEnrolled}
+            />
             <Button
               variant="outline"
               className="w-full h-12 text-base font-semibold"
