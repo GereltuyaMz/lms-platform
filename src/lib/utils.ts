@@ -1,6 +1,6 @@
 import { clsx, type ClassValue } from "clsx";
 import { twMerge } from "tailwind-merge";
-import type { UserProfile, UserStats } from "@/lib/actions/user-profile";
+import type { UserProfile, UserStats } from "@/lib/actions";
 
 export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs));

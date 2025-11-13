@@ -1,6 +1,6 @@
 import Image from "next/image";
 import { createClient } from "@/lib/supabase/server";
-import { CoursesClientWrapper } from "@/components/courses/CoursesClientWrapper";
+import { CoursesClientWrapper } from "@/components/courses";
 
 // Revalidate page every 5 minutes (300 seconds) to cache course data
 export const revalidate = 300;

@@ -1,7 +1,7 @@
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Card, CardContent } from "@/components/ui/card";
 import { getInitials } from "@/lib/utils";
-import type { UserStats } from "@/lib/actions/user-profile";
+import type { UserStats } from "@/lib/actions";
 
 type ProfileHeaderProps = {
   userStats: UserStats;

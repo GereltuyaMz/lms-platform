@@ -176,6 +176,7 @@ For XP awards, shop economy, and gamification mechanics, read `/XP-SYSTEM.md`
   - Spacing: Use responsive padding/margin (p-4 md:p-6 lg:p-8)
 - If the imported component, function, hook and etc... not used anymore then delete the import
 - Use DRY Principle, KISS principle, and Separation of Concerns on every code file
+- Implement Barrel Exports for Better Import Organization
 
 ### Database structure
 

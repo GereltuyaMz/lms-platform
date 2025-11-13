@@ -1,10 +1,12 @@
 import { notFound } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
-import { CourseHero } from "@/components/courses/detail/CourseHero";
-import { CourseContent } from "@/components/courses/detail/CourseContent";
-import { CourseSidebar } from "@/components/courses/detail/CourseSidebar";
-import { Instructor } from "@/components/courses/detail/Instructor";
-import { checkEnrollment } from "@/lib/actions/enrollment";
+import {
+  CourseHero,
+  CourseContent,
+  CourseSidebar,
+  Instructor,
+} from "@/components/courses/detail";
+import { checkEnrollment } from "@/lib/actions";
 
 type PageProps = {
   params: Promise<{ slug: string }>;

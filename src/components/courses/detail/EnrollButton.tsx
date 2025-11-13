@@ -3,7 +3,7 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
-import { createEnrollment } from "@/lib/actions/enrollment";
+import { createEnrollment } from "@/lib/actions";
 import { Loader2 } from "lucide-react";
 
 type EnrollButtonProps = {

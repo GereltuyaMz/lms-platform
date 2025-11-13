@@ -1,7 +1,11 @@
 "use server";
 
-import { createClient } from "@/lib/supabase/server";
-import { revalidatePath } from "next/cache";
+import {
+  getAuthenticatedUser,
+  ensureUserProfile,
+  revalidateUserPages,
+  handleActionError,
+} from "./helpers";
 
 type EnrollmentResult = {
   success: boolean;
@@ -24,13 +28,7 @@ export async function createEnrollment(
   courseId: string
 ): Promise<EnrollmentResult> {
   try {
-    const supabase = await createClient();
-
-    // Get authenticated user
-    const {
-      data: { user },
-      error: authError,
-    } = await supabase.auth.getUser();
+    const { user, supabase, error: authError } = await getAuthenticatedUser();
 
     if (authError || !user) {
       return {
@@ -39,31 +37,13 @@ export async function createEnrollment(
       };
     }
 
-    // Check if user_profile exists, if not create it
-    const { data: profile, error: profileError } = await supabase
-      .from("user_profiles")
-      .select("id")
-      .eq("id", user.id)
-      .single();
-
-    if (profileError || !profile) {
-      // Create user profile if it doesn't exist
-      const { error: createProfileError } = await supabase
-        .from("user_profiles")
-        .insert({
-          id: user.id,
-          email: user.email!,
-          full_name: user.user_metadata?.full_name || "Student",
-          avatar_url: user.user_metadata?.avatar_url || null,
-        });
-
-      if (createProfileError) {
-        console.error("Error creating user profile:", createProfileError);
-        return {
-          success: false,
-          message: "Error creating user profile",
-        };
-      }
+    // Ensure user profile exists
+    const { error: profileError } = await ensureUserProfile(user);
+    if (profileError) {
+      return {
+        success: false,
+        message: profileError,
+      };
     }
 
     // Create enrollment
@@ -93,8 +73,7 @@ export async function createEnrollment(
     }
 
     // Revalidate relevant pages
-    revalidatePath("/dashboard");
-    revalidatePath(`/courses`);
+    revalidateUserPages(["/courses"]);
 
     return {
       success: true,
@@ -102,11 +81,7 @@ export async function createEnrollment(
       enrollmentId: enrollment.id,
     };
   } catch (error) {
-    console.error("Unexpected error in createEnrollment:", error);
-    return {
-      success: false,
-      message: "An unexpected error occurred",
-    };
+    return handleActionError(error, "createEnrollment") as EnrollmentResult;
   }
 }
 
@@ -119,13 +94,7 @@ export async function checkEnrollment(
   courseId: string
 ): Promise<EnrollmentCheckResult> {
   try {
-    const supabase = await createClient();
-
-    // Get authenticated user
-    const {
-      data: { user },
-      error: authError,
-    } = await supabase.auth.getUser();
+    const { user, supabase, error: authError } = await getAuthenticatedUser();
 
     if (authError || !user) {
       return { isEnrolled: false };
@@ -160,16 +129,10 @@ export async function checkEnrollment(
  */
 export async function getUserEnrollments() {
   try {
-    const supabase = await createClient();
-
-    // Get authenticated user
-    const {
-      data: { user },
-      error: authError,
-    } = await supabase.auth.getUser();
+    const { user, supabase, error: authError } = await getAuthenticatedUser();
 
     if (authError || !user) {
-      return { data: null, error: "Not authenticated" };
+      return { data: null, error: authError };
     }
 
     // Get enrollments with course details
@@ -213,7 +176,7 @@ export async function getUserEnrollments() {
  */
 export async function getEnrollmentDetails(enrollmentId: string) {
   try {
-    const supabase = await createClient();
+    const { supabase } = await getAuthenticatedUser();
 
     const { data: enrollment, error } = await supabase
       .from("enrollments")
@@ -262,13 +225,7 @@ export async function getLastAccessedLesson(
   courseSlug: string
 ): Promise<string | null> {
   try {
-    const supabase = await createClient();
-
-    // Get authenticated user
-    const {
-      data: { user },
-      error: authError,
-    } = await supabase.auth.getUser();
+    const { user, supabase, error: authError } = await getAuthenticatedUser();
 
     if (authError || !user) {
       return null;

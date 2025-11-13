@@ -1,9 +1,11 @@
-import { LessonRenderer } from "@/components/player/LessonRenderer";
-import { LessonSidebar } from "@/components/player/LessonSidebar";
-import { LessonContent } from "@/components/player/LessonContent";
-import { NavigationButtons } from "@/components/player/NavigationButtons";
-import { LessonPageClient } from "@/components/player/LessonPageClient";
-import { CourseBreadcrumb } from "@/components/courses/CourseBreadcrumb";
+import {
+  LessonRenderer,
+  LessonSidebar,
+  LessonContent,
+  NavigationButtons,
+  LessonPageClient,
+} from "@/components/player";
+import { CourseBreadcrumb } from "@/components/courses";
 import { createClient } from "@/lib/supabase/server";
 import { notFound, redirect } from "next/navigation";
 import {
@@ -12,8 +14,7 @@ import {
   getNavigationUrls,
   fetchQuizData,
 } from "@/lib/lesson-utils";
-import { checkEnrollment } from "@/lib/actions/enrollment";
-import { getCourseProgress } from "@/lib/actions/lesson-progress";
+import { checkEnrollment, getCourseProgress } from "@/lib/actions";
 
 // Revalidate page every 5 minutes (300 seconds) to cache lesson data
 export const revalidate = 300;

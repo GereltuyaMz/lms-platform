@@ -19,7 +19,6 @@ export const LessonRenderer = ({
       return (
         <VideoPlayer
           videoUrl={lesson.video_url || ""}
-          title={lesson.title}
           lessonId={lesson.id}
           courseId={courseId}
         />

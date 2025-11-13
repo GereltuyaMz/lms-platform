@@ -176,3 +176,35 @@ export async function insertXPTransaction(
 
   return true;
 }
+
+/**
+ * Get course title by ID
+ */
+export async function getCourseTitle(courseId: string): Promise<string> {
+  const supabase = await createClient();
+
+  const { data } = await supabase
+    .from("courses")
+    .select("title")
+    .eq("id", courseId)
+    .single();
+
+  return data?.title || "Course";
+}
+
+/**
+ * Count completed courses for user
+ */
+export async function getCompletedCoursesCount(
+  userId: string
+): Promise<number> {
+  const supabase = await createClient();
+
+  const { data } = await supabase
+    .from("enrollments")
+    .select("id")
+    .eq("user_id", userId)
+    .eq("progress_percentage", 100);
+
+  return data?.length || 0;
+}

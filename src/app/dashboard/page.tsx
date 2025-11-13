@@ -1,16 +1,18 @@
 import { createClient } from "@/lib/supabase/server";
 import { redirect } from "next/navigation";
-import { ProfileHeader } from "@/components/dashboard/ProfileHeader";
-import { DashboardTabs } from "@/components/dashboard/DashboardTabs";
-import { MyCoursesTab } from "@/components/dashboard/MyCoursesTab";
-import { AchievementsTab } from "@/components/dashboard/AchievementsTab";
-import { ProfileTab } from "@/components/dashboard/ProfileTab";
-import { ShopTab } from "@/components/dashboard/ShopTab";
+import {
+  ProfileHeader,
+  DashboardTabs,
+  MyCoursesTab,
+  AchievementsTab,
+  ProfileTab,
+  ShopTab,
+} from "@/components/dashboard";
 import {
   getUserEnrollments,
   getLastAccessedLesson,
-} from "@/lib/actions/enrollment";
-import { getUserStats } from "@/lib/actions/user-profile";
+  getUserStats,
+} from "@/lib/actions";
 import { mockAchievements } from "@/lib/mock-data";
 
 export default async function DashboardPage() {

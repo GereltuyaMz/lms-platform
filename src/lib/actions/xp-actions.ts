@@ -1,7 +1,10 @@
 "use server";
 
-import { createClient } from "@/lib/supabase/server";
-import { revalidatePath } from "next/cache";
+import {
+  getAuthenticatedUser,
+  revalidateUserPages,
+  handleActionError,
+} from "./helpers";
 import {
   hasXPBeenAwarded,
   getEnrollmentId,
@@ -11,6 +14,8 @@ import {
   calculateVideoXP,
   calculateQuizXP,
   insertXPTransaction,
+  getCourseTitle,
+  getCompletedCoursesCount,
 } from "./xp-helpers";
 
 type XPResult = {
@@ -37,12 +42,9 @@ export async function awardVideoCompletionXP(
   durationSeconds: number
 ): Promise<XPResult> {
   try {
-    const supabase = await createClient();
-    const {
-      data: { user },
-    } = await supabase.auth.getUser();
+    const { user, error: authError } = await getAuthenticatedUser();
 
-    if (!user) {
+    if (authError || !user) {
       return { success: false, message: "You must be logged in" };
     }
 
@@ -84,7 +86,7 @@ export async function awardVideoCompletionXP(
       return { success: false, message: "Error awarding XP" };
     }
 
-    revalidatePath("/dashboard");
+    revalidateUserPages();
 
     return {
       success: true,
@@ -92,8 +94,7 @@ export async function awardVideoCompletionXP(
       xpAwarded: amount,
     };
   } catch (error) {
-    console.error("Error in awardVideoCompletionXP:", error);
-    return { success: false, message: "An unexpected error occurred" };
+    return handleActionError(error, "awardVideoCompletionXP") as XPResult;
   }
 }
 
@@ -106,12 +107,9 @@ export async function awardQuizCompletionXP(
   scorePercentage: number
 ): Promise<XPResult> {
   try {
-    const supabase = await createClient();
-    const {
-      data: { user },
-    } = await supabase.auth.getUser();
+    const { user, error: authError } = await getAuthenticatedUser();
 
-    if (!user) {
+    if (authError || !user) {
       return { success: false, message: "You must be logged in" };
     }
 
@@ -155,7 +153,7 @@ export async function awardQuizCompletionXP(
       return { success: false, message: "Error awarding XP" };
     }
 
-    revalidatePath("/dashboard");
+    revalidateUserPages();
 
     return {
       success: true,
@@ -163,8 +161,7 @@ export async function awardQuizCompletionXP(
       xpAwarded: amount,
     };
   } catch (error) {
-    console.error("Error in awardQuizCompletionXP:", error);
-    return { success: false, message: "An unexpected error occurred" };
+    return handleActionError(error, "awardQuizCompletionXP") as XPResult;
   }
 }
 
@@ -173,12 +170,9 @@ export async function awardQuizCompletionXP(
  */
 export async function getUserTotalXP(): Promise<number> {
   try {
-    const supabase = await createClient();
-    const {
-      data: { user },
-    } = await supabase.auth.getUser();
+    const { user, supabase, error: authError } = await getAuthenticatedUser();
 
-    if (!user) return 0;
+    if (authError || !user) return 0;
 
     const { data } = await supabase
       .from("user_profiles")
@@ -200,12 +194,9 @@ export async function getXPTransactions(
   limit: number = 50
 ): Promise<XPTransaction[]> {
   try {
-    const supabase = await createClient();
-    const {
-      data: { user },
-    } = await supabase.auth.getUser();
+    const { user, supabase, error: authError } = await getAuthenticatedUser();
 
-    if (!user) return [];
+    if (authError || !user) return [];
 
     const { data } = await supabase
       .from("xp_transactions")
@@ -218,5 +209,120 @@ export async function getXPTransactions(
   } catch (error) {
     console.error("Error fetching XP transactions:", error);
     return [];
+  }
+}
+
+/**
+ * Award XP for course progress milestones
+ * Checks progress percentage and awards XP for 25%, 50%, 75%, 100% completion
+ */
+export async function awardMilestoneXP(
+  enrollmentId: string,
+  courseId: string,
+  progressPercentage: number
+): Promise<XPResult[]> {
+  try {
+    const { user, error: authError } = await getAuthenticatedUser();
+
+    if (authError || !user) {
+      return [{ success: false, message: "You must be logged in" }];
+    }
+
+    const results: XPResult[] = [];
+
+    // Define milestones and their XP rewards
+    const milestones = [
+      { threshold: 25, xp: 200, label: "25%" },
+      { threshold: 50, xp: 300, label: "50%" },
+      { threshold: 75, xp: 400, label: "75%" },
+      { threshold: 100, xp: 500, label: "100%" },
+    ];
+
+    // Get course title
+    const courseTitle = await getCourseTitle(courseId);
+
+    // Check each milestone
+    for (const milestone of milestones) {
+      if (progressPercentage >= milestone.threshold) {
+        const milestoneId = `${enrollmentId}-${milestone.threshold}`;
+
+        // Check if already awarded
+        const alreadyAwarded = await hasXPBeenAwarded(
+          user.id,
+          "milestone",
+          milestoneId
+        );
+
+        if (!alreadyAwarded) {
+          // Award milestone XP
+          const success = await insertXPTransaction(
+            user.id,
+            milestone.xp,
+            "milestone",
+            milestoneId,
+            `Reached ${milestone.label} completion in "${courseTitle}"`,
+            {
+              course_id: courseId,
+              enrollment_id: enrollmentId,
+              milestone_percentage: milestone.threshold,
+            }
+          );
+
+          if (success) {
+            results.push({
+              success: true,
+              message: `You earned ${milestone.xp} XP for ${milestone.label} completion!`,
+              xpAwarded: milestone.xp,
+            });
+          }
+        }
+      }
+    }
+
+    // Check for first course completion bonus (only at 100%)
+    if (progressPercentage === 100) {
+      const completedCount = await getCompletedCoursesCount(user.id);
+
+      // Award first course bonus if this is their first completed course
+      if (completedCount === 1) {
+        const firstCourseId = `first-course-${user.id}`;
+        const alreadyAwarded = await hasXPBeenAwarded(
+          user.id,
+          "achievement",
+          firstCourseId
+        );
+
+        if (!alreadyAwarded) {
+          const success = await insertXPTransaction(
+            user.id,
+            1000,
+            "achievement",
+            firstCourseId,
+            `Completed your first course: "${courseTitle}"`,
+            {
+              course_id: courseId,
+              achievement_type: "first_course_completion",
+            }
+          );
+
+          if (success) {
+            results.push({
+              success: true,
+              message: "You earned 1,000 XP for completing your first course!",
+              xpAwarded: 1000,
+            });
+          }
+        }
+      }
+    }
+
+    if (results.length > 0) {
+      revalidateUserPages();
+    }
+
+    return results;
+  } catch (error) {
+    const errorResult = handleActionError(error, "awardMilestoneXP");
+    return [errorResult as XPResult];
   }
 }

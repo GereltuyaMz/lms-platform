@@ -24,7 +24,6 @@
 - **Progress tracking fully implemented** (auto-save every 5 seconds)
 - **Resume from saved position** on lesson reload
 - **Auto-mark complete at 90%** video progress
-- Manual "Mark as complete" button
 - Completion badge display
 - Error handling
 
@@ -94,7 +93,6 @@
 6. **Video progress auto-saves** every 5 seconds
 7. **Resume from saved position** when returning to lesson
 8. **Auto-mark complete** when video reaches 90%
-9. **Manual mark complete** button
 10. **Sidebar shows completion status** with checkmarks
 11. **Dashboard shows real enrollments** with progress percentages
 12. **Progress auto-updates** via database trigger
@@ -108,10 +106,11 @@
 20. **XP system fully functional** - awards XP for video and quiz completion
 21. **Real XP displayed in dashboard** with level and league calculations
 22. **XP toast notifications** when earning points
+23. **Milestone bonuses auto-award** at 25%, 50%, 75%, 100% course completion
+24. **First course completion bonus** awards 1,000 XP
 
 ### What's Ready But Not Connected
 - Profile edit functionality (UI exists, not connected to backend)
-- Course milestone XP bonuses (25%, 50%, 75%, 100% completion)
 
 ---
 
@@ -147,7 +146,6 @@
 - ✅ Save `last_position_seconds` to `lesson_progress` table
 - ✅ Resume from saved position on lesson load
 - ✅ Mark lesson as complete when video ends (90%+)
-- ✅ Manual "Mark as complete" button
 - ✅ Update enrollment progress percentage (via DB trigger)
 - ✅ Show completion checkmarks in sidebar
 - ✅ Dashboard progress bars update automatically
@@ -174,10 +172,11 @@
 - ✅ XP gain toast notifications (using Sonner)
 - ✅ Separated XP logic into clean server actions and helper functions
 
-### Phase 4B: Milestone Bonuses (Next)
-- Award course progress milestones (25%, 50%, 75%, 100%)
-- First course completion bonus (1,000 XP)
-- XP transaction history page in dashboard
+### Phase 4B: Milestone Bonuses ✅ COMPLETED
+- ✅ Award course progress milestones (25%, 50%, 75%, 100%)
+- ✅ First course completion bonus (1,000 XP)
+- ✅ Auto-check milestones on lesson/quiz completion
+- ⏳ XP transaction history page in dashboard (Future)
 
 ---
 
@@ -232,6 +231,7 @@
 2. Assignment pages are placeholders
 3. Text lessons need better styling
 4. User data in dashboard still uses mock avatarUrl (should load from profile)
+5. When user log in or sign up the header layout swtill won't change to user avatar immediately, still need manual refresh the page to show
 
 ---
 
@@ -265,9 +265,9 @@
 - **Lesson Navigation:** ✅ Working for all lesson types
 - **Authentication:** ✅ Integrated with all progress tracking
 - **Dashboard:** ✅ Real data from database with live XP
-- **XP System:** ✅ Core functionality complete (Phase 4A)
+- **XP System:** ✅ Core functionality + Milestones complete (Phase 4A & 4B)
 - **Deployment:** ✅ Ready for production
 
 ---
 
-**Next Immediate Step:** Run migration in Supabase, then Phase 4B - Milestone XP Bonuses
+**Next Immediate Step:** Phase 4C - Streak System

@@ -5,8 +5,7 @@ import { Button } from "@/components/ui/button";
 import { QuizProgress } from "./QuizProgress";
 import { QuizQuestion } from "./QuizQuestion";
 import { QuizResults } from "./QuizResults";
-import { saveQuizAttempt } from "@/lib/actions/quiz-attempt";
-import { awardQuizCompletionXP } from "@/lib/actions/xp-actions";
+import { saveQuizAttempt, awardQuizCompletionXP } from "@/lib/actions";
 import { toast } from "sonner";
 
 type QuizQuestionData = {
@@ -94,9 +93,13 @@ export const QuizPlayer = ({
       return total + (isCorrect ? (question.points || 10) : 0);
     }, 0);
 
-    // Prepare answers array (we don't have option IDs in the current structure)
-    // For now, we'll skip saving individual answers
-    const answers: any[] = [];
+    // Prepare answers array (empty for now - quiz structure doesn't have option IDs yet)
+    const answers: Array<{
+      questionId: string;
+      selectedOptionId: string;
+      isCorrect: boolean;
+      pointsEarned: number;
+    }> = [];
 
     const result = await saveQuizAttempt(
       lessonId,
@@ -120,6 +123,19 @@ export const QuizPlayer = ({
       if (xpResult.success && xpResult.xpAwarded) {
         toast.success(`🎉 +${xpResult.xpAwarded} XP`, {
           description: `Quiz completed with ${Math.round(scorePercentage)}%!`,
+        });
+      }
+
+      // Show milestone XP notifications
+      if (result.milestoneResults && result.milestoneResults.length > 0) {
+        console.log("🏆 Milestone XP awarded:", result.milestoneResults);
+        result.milestoneResults.forEach((milestone) => {
+          if (milestone.success && milestone.xpAwarded) {
+            toast.success(`🏆 +${milestone.xpAwarded} XP`, {
+              description: milestone.message,
+              duration: 5000,
+            });
+          }
         });
       }
     }

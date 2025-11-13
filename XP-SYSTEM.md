@@ -1,7 +1,7 @@
 # 🎮 XP & Gamification System
 
-**Version:** 1.0
-**Last Updated:** November 12, 2025
+**Version:** 1.1
+**Last Updated:** November 13, 2025
 
 ---
 
@@ -27,6 +27,17 @@
 
 #### Assignment Submissions
 - **Submit assignment**: 150 XP (future phase)
+
+---
+
+### **Onboarding Rewards**
+
+#### Profile Completion
+- **Complete your profile**: 150 XP (one-time bonus)
+  - Add profile photo
+  - Set date of birth
+  - Choose learning goals
+  - Profile completion indicator shows your progress
 
 ---
 
@@ -113,16 +124,21 @@
 7. First course completion bonus (1,000 XP)
 8. XP transaction history page in dashboard
 
-### **Phase 4C: Streak System**
-9. Track daily activity in `last_activity_date`
-10. Calculate and update streak counters
-11. Apply streak multipliers to XP gains
-12. Streak bonus awards (3/7/30 day milestones)
+### **Phase 4C: Profile Completion**
+9. Award 150 XP for completing profile (one-time)
+10. Dashboard banner for incomplete profiles
+11. Profile completion indicator
 
-### **Phase 4D: Polish**
-13. XP gain animations (toast notifications)
-14. XP progress bar to next reward
-15. Transaction history with filters
+### **Phase 4D: Streak System**
+12. Track daily activity in `last_activity_date`
+13. Calculate and update streak counters
+14. Apply streak multipliers to XP gains
+15. Streak bonus awards (3/7/30 day milestones)
+
+### **Phase 4E: Polish**
+16. XP gain animations (toast notifications)
+17. XP progress bar to next reward
+18. Transaction history with filters
 
 ---
 
@@ -130,6 +146,7 @@
 
 This system encourages:
 
+✅ **Profile investment** - Complete profile for instant 150 XP reward
 ✅ **Regular engagement** - Daily streaks multiply XP
 ✅ **Quality learning** - Higher quiz scores = more XP (first attempt only)
 ✅ **Course completion** - Big bonuses at 100%

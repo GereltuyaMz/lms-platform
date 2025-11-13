@@ -1,12 +1,23 @@
 "use server";
 
-import { createClient } from "@/lib/supabase/server";
-import { revalidatePath } from "next/cache";
+import {
+  getAuthenticatedUser,
+  getUserEnrollment,
+  upsertLessonProgress,
+  checkAndAwardMilestones,
+  revalidateUserPages,
+  handleActionError,
+} from "./helpers";
 
 type QuizAttemptResult = {
   success: boolean;
   message: string;
   attemptId?: string;
+  milestoneResults?: Array<{
+    success: boolean;
+    message: string;
+    xpAwarded?: number;
+  }>;
 };
 
 type QuizAnswer = {
@@ -42,13 +53,7 @@ export async function saveQuizAttempt(
   answers: QuizAnswer[]
 ): Promise<QuizAttemptResult> {
   try {
-    const supabase = await createClient();
-
-    // Get authenticated user
-    const {
-      data: { user },
-      error: authError,
-    } = await supabase.auth.getUser();
+    const { user, supabase, error: authError } = await getAuthenticatedUser();
 
     if (authError || !user) {
       return {
@@ -58,12 +63,10 @@ export async function saveQuizAttempt(
     }
 
     // Get enrollment for this course
-    const { data: enrollment, error: enrollmentError } = await supabase
-      .from("enrollments")
-      .select("id")
-      .eq("user_id", user.id)
-      .eq("course_id", courseId)
-      .single();
+    const { enrollment, error: enrollmentError } = await getUserEnrollment(
+      user.id,
+      courseId
+    );
 
     if (enrollmentError || !enrollment) {
       return {
@@ -115,36 +118,34 @@ export async function saveQuizAttempt(
 
     // Calculate passing score (80%) and mark lesson as complete if passed
     const passingScore = totalQuestions * 0.8;
+    let milestoneResults: Array<{
+      success: boolean;
+      message: string;
+      xpAwarded?: number;
+    }> = [];
+
     if (score >= passingScore) {
-      // Mark lesson as complete in lesson_progress
-      await supabase.from("lesson_progress").upsert(
-        {
-          enrollment_id: enrollment.id,
-          lesson_id: lessonId,
-          is_completed: true,
-          completed_at: new Date().toISOString(),
-          updated_at: new Date().toISOString(),
-        },
-        {
-          onConflict: "enrollment_id,lesson_id",
-        }
-      );
+      // Mark lesson as complete
+      await upsertLessonProgress(enrollment.id, lessonId, {
+        isCompleted: true,
+      });
+
+      // Check for milestone XP and return results
+      milestoneResults = await checkAndAwardMilestones(user.id, courseId);
     }
 
     // Revalidate relevant pages
-    revalidatePath("/dashboard");
+    revalidateUserPages();
 
     return {
       success: true,
       message: "Quiz attempt saved successfully",
       attemptId: attempt.id,
+      milestoneResults:
+        milestoneResults.length > 0 ? milestoneResults : undefined,
     };
   } catch (error) {
-    console.error("Unexpected error in saveQuizAttempt:", error);
-    return {
-      success: false,
-      message: "An unexpected error occurred",
-    };
+    return handleActionError(error, "saveQuizAttempt") as QuizAttemptResult;
   }
 }
 
@@ -159,25 +160,17 @@ export async function getBestQuizScore(
   courseId: string
 ): Promise<BestScoreData | null> {
   try {
-    const supabase = await createClient();
-
-    // Get authenticated user
-    const {
-      data: { user },
-      error: authError,
-    } = await supabase.auth.getUser();
+    const { user, supabase, error: authError } = await getAuthenticatedUser();
 
     if (authError || !user) {
       return null;
     }
 
     // Get enrollment for this course
-    const { data: enrollment, error: enrollmentError } = await supabase
-      .from("enrollments")
-      .select("id")
-      .eq("user_id", user.id)
-      .eq("course_id", courseId)
-      .single();
+    const { enrollment, error: enrollmentError } = await getUserEnrollment(
+      user.id,
+      courseId
+    );
 
     if (enrollmentError || !enrollment) {
       return null;
@@ -221,28 +214,20 @@ export async function getBestQuizScore(
  */
 export async function getQuizAttempts(lessonId: string, courseId: string) {
   try {
-    const supabase = await createClient();
-
-    // Get authenticated user
-    const {
-      data: { user },
-      error: authError,
-    } = await supabase.auth.getUser();
+    const { user, supabase, error: authError } = await getAuthenticatedUser();
 
     if (authError || !user) {
-      return { data: null, error: "Not authenticated" };
+      return { data: null, error: authError };
     }
 
     // Get enrollment for this course
-    const { data: enrollment, error: enrollmentError } = await supabase
-      .from("enrollments")
-      .select("id")
-      .eq("user_id", user.id)
-      .eq("course_id", courseId)
-      .single();
+    const { enrollment, error: enrollmentError } = await getUserEnrollment(
+      user.id,
+      courseId
+    );
 
     if (enrollmentError || !enrollment) {
-      return { data: null, error: "Not enrolled" };
+      return { data: null, error: enrollmentError };
     }
 
     // Get all attempts with their answers
