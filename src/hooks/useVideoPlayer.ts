@@ -21,22 +21,18 @@ export const useVideoPlayer = ({ lessonId }: UseVideoPlayerProps) => {
   const setPlayerRef = useCallback((player: HTMLVideoElement) => {
     if (!player) return;
     playerRef.current = player;
-    console.log("✅ Player ref set:", player);
   }, []);
 
   // Event handlers
   const handleReady = () => {
-    console.log("▶️ Player ready");
     setIsReady(true);
   };
 
   const handlePlay = () => {
-    console.log("▶️ Video playing");
     setIsPlaying(true);
   };
 
   const handlePause = () => {
-    console.log("⏸️ Video paused");
     setIsPlaying(false);
   };
 
@@ -44,7 +40,6 @@ export const useVideoPlayer = ({ lessonId }: UseVideoPlayerProps) => {
     const player = playerRef.current;
     if (!player) return;
 
-    console.log("⏱️ Duration loaded:", Math.floor(player.duration), "seconds");
     setVideoDuration(Math.floor(player.duration));
   };
 

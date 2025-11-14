@@ -28,18 +28,11 @@ export const useVideoProgress = ({
       setProgressLoaded(false);
       xpAwarded.current = false;
 
-      console.log("📥 Loading progress for lesson:", lessonId);
       const progress = await getLessonProgress(lessonId, courseId);
 
       if (progress) {
-        console.log("📊 Progress loaded:", {
-          isCompleted: progress.isCompleted,
-          lastPosition: progress.lastPosition,
-        });
         setIsCompleted(progress.isCompleted);
         setLastSavedPosition(progress.lastPosition);
-      } else {
-        console.log("🆕 No previous progress found");
       }
       setProgressLoaded(true);
     };
@@ -49,12 +42,6 @@ export const useVideoProgress = ({
 
   // Save progress to database
   const saveProgress = async (position: number, completed: boolean) => {
-    console.log("💾 Saving progress:", {
-      position: Math.floor(position),
-      completed,
-      duration: videoDuration,
-    });
-
     const result = await saveVideoProgress(
       lessonId,
       courseId,
@@ -63,17 +50,14 @@ export const useVideoProgress = ({
     );
 
     if (result.success) {
-      console.log("✅ Progress saved successfully");
       setLastSavedPosition(position);
 
       if (completed) {
-        console.log("🎉 Lesson marked as completed!");
         setIsCompleted(true);
 
         // Award XP on first completion
         if (!xpAwarded.current && videoDuration > 0) {
           xpAwarded.current = true;
-          console.log("🎁 Awarding XP...");
 
           const xpResult = await awardVideoCompletionXP(
             lessonId,
@@ -82,18 +66,14 @@ export const useVideoProgress = ({
           );
 
           if (xpResult.success && xpResult.xpAwarded) {
-            console.log("✨ XP awarded:", xpResult.xpAwarded);
             toast.success(`🎉 +${xpResult.xpAwarded} XP`, {
               description: "Lesson completed!",
             });
-          } else {
-            console.log("⚠️ XP award failed or already awarded");
           }
         }
 
         // Show milestone XP notifications
         if (result.milestoneResults && result.milestoneResults.length > 0) {
-          console.log("🏆 Milestone XP awarded:", result.milestoneResults);
           result.milestoneResults.forEach((milestone) => {
             if (milestone.success && milestone.xpAwarded) {
               toast.success(`🏆 +${milestone.xpAwarded} XP`, {
@@ -103,9 +83,27 @@ export const useVideoProgress = ({
             }
           });
         }
+
+        // Show streak bonus notification
+        if (result.streakBonusAwarded && result.streakBonusMessage) {
+          toast.success(`🔥 +${result.streakBonusAwarded} XP`, {
+            description: result.streakBonusMessage,
+            duration: 5000,
+          });
+        }
+
+        // Show streak update (without bonus)
+        if (
+          result.currentStreak &&
+          result.currentStreak > 0 &&
+          !result.streakBonusAwarded
+        ) {
+          toast.success(`🔥 ${result.currentStreak} day streak!`, {
+            description: "Keep it up!",
+            duration: 3000,
+          });
+        }
       }
-    } else {
-      console.error("❌ Failed to save progress:", result.message);
     }
   };
 

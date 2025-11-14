@@ -49,7 +49,7 @@ export const signUpAction = async (formData: FormData) => {
       });
 
     if (profileError) {
-      console.error("Failed to create user profile:", profileError);
+      // Profile creation failed
     }
   }
 

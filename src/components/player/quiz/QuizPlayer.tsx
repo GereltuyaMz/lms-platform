@@ -128,7 +128,6 @@ export const QuizPlayer = ({
 
       // Show milestone XP notifications
       if (result.milestoneResults && result.milestoneResults.length > 0) {
-        console.log("🏆 Milestone XP awarded:", result.milestoneResults);
         result.milestoneResults.forEach((milestone) => {
           if (milestone.success && milestone.xpAwarded) {
             toast.success(`🏆 +${milestone.xpAwarded} XP`, {
@@ -136,6 +135,26 @@ export const QuizPlayer = ({
               duration: 5000,
             });
           }
+        });
+      }
+
+      // Show streak bonus notification
+      if (result.streakBonusAwarded && result.streakBonusMessage) {
+        toast.success(`🔥 +${result.streakBonusAwarded} XP`, {
+          description: result.streakBonusMessage,
+          duration: 5000,
+        });
+      }
+
+      // Show streak update (without bonus)
+      if (
+        result.currentStreak &&
+        result.currentStreak > 0 &&
+        !result.streakBonusAwarded
+      ) {
+        toast.success(`🔥 ${result.currentStreak} day streak!`, {
+          description: "Keep it up!",
+          duration: 3000,
         });
       }
     }

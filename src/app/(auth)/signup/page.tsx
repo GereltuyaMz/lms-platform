@@ -44,6 +44,7 @@ export default function SignUpPage() {
         if (result.message) {
           setSuccessMessage(result.message);
         } else {
+          router.refresh(); // Force Next.js to update server-side auth state
           router.push("/dashboard");
         }
       }
@@ -131,7 +132,7 @@ export default function SignUpPage() {
           <Button
             type="submit"
             disabled={isPending}
-            className="w-full h-12 rounded-3xl bg-primary hover:bg-primary/90 text-white font-medium disabled:opacity-50"
+            className="w-full h-12 rounded-3xl bg-primary hover:bg-primary/90 text-white font-medium disabled:opacity-50 cursor-pointer"
           >
             <p className="text-medium">
               {isPending ? "Creating..." : "Create account"}
@@ -144,7 +145,7 @@ export default function SignUpPage() {
           variant="outline"
           disabled={isPending}
           onClick={handleGoogleSignIn}
-          className="w-10/12 h-12 rounded-lg border-gray-300 hover:bg-gray-50 disabled:opacity-50"
+          className="w-10/12 h-12 rounded-lg border-gray-300 hover:bg-gray-50 disabled:opacity-50 cursor-pointer"
         >
           <Image src="/assets/google.svg" alt="Google" width={32} height={32} />
         </Button>

@@ -26,7 +26,6 @@ export async function uploadVideo(
     });
 
   if (error) {
-    console.error('Error uploading video:', error);
     return null;
   }
 
@@ -74,7 +73,6 @@ export async function deleteVideo(
     .remove([filePath]);
 
   if (error) {
-    console.error('Error deleting video:', error);
     return false;
   }
 

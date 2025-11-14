@@ -17,6 +17,9 @@ type ProgressResult = {
     message: string;
     xpAwarded?: number;
   }>;
+  streakBonusAwarded?: number;
+  streakBonusMessage?: string;
+  currentStreak?: number;
 };
 
 type LessonProgressData = {
@@ -73,7 +76,6 @@ export async function saveVideoProgress(
     );
 
     if (progressError) {
-      console.error("Error saving lesson progress:", progressError);
       return {
         success: false,
         message: "Error saving progress",
@@ -91,6 +93,22 @@ export async function saveVideoProgress(
       milestoneResults = await checkAndAwardMilestones(user.id, courseId);
     }
 
+    // Update user streak on completion
+    let streakBonusAwarded: number | undefined;
+    let streakBonusMessage: string | undefined;
+    let currentStreak: number | undefined;
+
+    if (isCompleted) {
+      const { updateUserStreak } = await import("./streak-actions");
+      const streakResult = await updateUserStreak(user.id);
+
+      if (streakResult.success) {
+        currentStreak = streakResult.currentStreak;
+        streakBonusAwarded = streakResult.streakBonusAwarded;
+        streakBonusMessage = streakResult.streakBonusMessage;
+      }
+    }
+
     // Revalidate relevant pages
     revalidateUserPages();
 
@@ -99,6 +117,9 @@ export async function saveVideoProgress(
       message: "Progress saved successfully",
       milestoneResults:
         milestoneResults.length > 0 ? milestoneResults : undefined,
+      streakBonusAwarded,
+      streakBonusMessage,
+      currentStreak,
     };
   } catch (error) {
     return handleActionError(error, "saveVideoProgress") as ProgressResult;
@@ -154,7 +175,6 @@ export async function getLessonProgress(
       completedAt: progress.completed_at,
     };
   } catch (error) {
-    console.error("Error getting lesson progress:", error);
     return null;
   }
 }
@@ -189,13 +209,11 @@ export async function getCourseProgress(courseId: string) {
       .eq("enrollment_id", enrollment.id);
 
     if (progressError) {
-      console.error("Error fetching course progress:", progressError);
       return { data: null, error: "Error fetching progress" };
     }
 
     return { data: progressData, error: null };
   } catch (error) {
-    console.error("Unexpected error in getCourseProgress:", error);
     return { data: null, error: "An unexpected error occurred" };
   }
 }

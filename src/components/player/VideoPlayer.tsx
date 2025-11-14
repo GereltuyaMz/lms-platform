@@ -44,7 +44,6 @@ export const VideoPlayer = ({
   const handleReady = () => {
     onReady();
     if (progressLoaded && lastSavedPosition > 0 && playerRef.current) {
-      console.log("⏩ Seeking to saved position:", lastSavedPosition);
       playerRef.current.currentTime = lastSavedPosition;
     }
   };
@@ -57,18 +56,15 @@ export const VideoPlayer = ({
     const played = currentTime / player.duration;
 
     if (played >= 0.9 && !isCompleted) {
-      console.log("🎯 90% reached - marking complete");
       saveProgress(currentTime, true);
     }
 
     if (Math.abs(currentTime - lastSavedPosition) >= 5) {
-      console.log("💾 Auto-saving progress at:", Math.floor(currentTime));
       saveProgress(currentTime, false);
     }
   };
 
   const handleEnded = () => {
-    console.log("🏁 Video ended");
     const player = playerRef.current;
     if (!isCompleted && player) {
       saveProgress(player.currentTime, true);

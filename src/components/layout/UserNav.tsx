@@ -36,6 +36,7 @@ export const UserNav = ({ user }: UserNavProps) => {
     startTransition(async () => {
       const result = await signOutAction();
       if (result?.success) {
+        router.refresh(); // Force Next.js to update server-side auth state
         router.push("/");
       }
     });

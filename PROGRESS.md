@@ -108,9 +108,13 @@
 22. **XP toast notifications** when earning points
 23. **Milestone bonuses auto-award** at 25%, 50%, 75%, 100% course completion
 24. **First course completion bonus** awards 1,000 XP
-
-### What's Ready But Not Connected
-- Profile edit functionality (UI exists, not connected to backend)
+25. **Streak system tracks daily activity** and awards bonuses (3/7/30 days)
+26. **Streak displayed in dashboard** with 🔥 fire emoji
+27. **Toast notifications for all XP gains** (lessons, quizzes, milestones, streaks)
+28. **Profile completion bonus** awards 150 XP for completing avatar, DOB, and learning goals
+29. **Onboarding page** guides new users through profile setup
+30. **Dashboard banner** prompts users with incomplete profiles
+31. **Profile edit form** fully functional with backend save
 
 ---
 
@@ -176,15 +180,38 @@
 - ✅ Award course progress milestones (25%, 50%, 75%, 100%)
 - ✅ First course completion bonus (1,000 XP)
 - ✅ Auto-check milestones on lesson/quiz completion
+- ✅ Toast notifications for milestone XP
 - ⏳ XP transaction history page in dashboard (Future)
+
+### Phase 4D: Streak System ✅ COMPLETED
+- ✅ Track daily activity with `last_activity_date`
+- ✅ Calculate streak continuation/reset automatically
+- ✅ Award streak milestone bonuses (3-day: 100 XP, 7-day: 250 XP, 30-day: 1,000 XP)
+- ✅ Display current streak in dashboard
+- ✅ Toast notifications for streak updates and bonuses
+- ✅ Prevent duplicate streak bonus awards
+- ⏳ Streak multipliers on XP (1.1x-1.5x) - Future enhancement
 
 ---
 
-### Phase 5: Profile Edit Functionality
-- Connect profile edit form to Supabase
-- Update user_profiles table
-- Handle avatar upload to Storage
-- Real-time profile updates
+### Phase 4C: Profile Completion ✅ COMPLETED
+- ✅ Database migration for profile completion tracking
+- ✅ RPC function to check profile completion (avatar, DOB, learning goals)
+- ✅ RPC function to award 150 XP for profile completion
+- ✅ Onboarding page with form validation
+- ✅ Dashboard banner for incomplete profiles
+- ✅ Profile tab connected to backend with save functionality
+- ✅ Toast notification for 150 XP profile completion bonus
+- ✅ Redirect to dashboard after profile completion
+- ⏳ Avatar upload to Supabase Storage - Currently uses preview URLs
+
+---
+
+### Phase 5: Profile Edit Functionality ✅ COMPLETED
+- ✅ Connect profile edit form to Supabase
+- ✅ Update user_profiles table (full_name, date_of_birth, learning_goals)
+- ✅ Real-time profile updates with revalidation
+- ⏳ Avatar upload to Storage (preview only, not persisted)
 
 ---
 
@@ -255,8 +282,8 @@
 
 ## 📈 Project Health
 
-- **TypeScript:** ✅ All files type-safe (1 known issue in VideoPlayer)
-- **Database:** ✅ Schema complete with XP system and optimized views
+- **TypeScript:** ✅ All files type-safe (0 errors)
+- **Database:** ✅ Schema complete with XP system, profile completion, and optimized views
 - **Performance:** ✅ Optimized queries, fast page loads
 - **Video Storage:** ✅ Working with Supabase
 - **Video Progress:** ⚠️ Tracking works, resume has seekTo bug
@@ -265,9 +292,10 @@
 - **Lesson Navigation:** ✅ Working for all lesson types
 - **Authentication:** ✅ Integrated with all progress tracking
 - **Dashboard:** ✅ Real data from database with live XP
-- **XP System:** ✅ Core functionality + Milestones complete (Phase 4A & 4B)
+- **XP System:** ✅ Complete (Video, Quiz, Milestones, Streaks, Profile)
+- **Onboarding:** ✅ Profile completion flow implemented
 - **Deployment:** ✅ Ready for production
 
 ---
 
-**Next Immediate Step:** Phase 4C - Streak System
+**Next Immediate Step:** Phase 6 - Connect Sidebar Progress OR implement avatar upload to Supabase Storage

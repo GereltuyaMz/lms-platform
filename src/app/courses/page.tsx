@@ -83,10 +83,6 @@ const CoursesPage = async ({ searchParams }: PageProps) => {
     .order("created_at", { ascending: false })
     .range(startIndex, endIndex);
 
-  if (coursesError) {
-    console.error("Error fetching courses:", coursesError);
-  }
-
   // No need to fetch lesson counts separately - they're already in the view!
   const totalPages = count ? Math.ceil(count / pageSize) : 0;
 

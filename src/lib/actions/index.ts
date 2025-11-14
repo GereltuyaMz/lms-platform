@@ -3,4 +3,6 @@ export * from "./lesson-progress";
 export * from "./quiz-attempt";
 export * from "./user-profile";
 export * from "./xp-actions";
-// Note: xp-helpers is not exported - it's server-only and used internally by xp-actions
+export * from "./streak-actions";
+export * from "./profile-actions";
+// Note: xp-helpers and helpers are not exported - they're server-only and used internally

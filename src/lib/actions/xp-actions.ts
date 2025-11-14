@@ -182,7 +182,6 @@ export async function getUserTotalXP(): Promise<number> {
 
     return data?.total_xp || 0;
   } catch (error) {
-    console.error("Error getting user total XP:", error);
     return 0;
   }
 }
@@ -207,7 +206,6 @@ export async function getXPTransactions(
 
     return data || [];
   } catch (error) {
-    console.error("Error fetching XP transactions:", error);
     return [];
   }
 }

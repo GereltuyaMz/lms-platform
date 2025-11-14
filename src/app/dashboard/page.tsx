@@ -7,11 +7,14 @@ import {
   AchievementsTab,
   ProfileTab,
   ShopTab,
+  ProfileCompletionBanner,
 } from "@/components/dashboard";
 import {
   getUserEnrollments,
   getLastAccessedLesson,
   getUserStats,
+  checkProfileCompletion,
+  getUserProfile,
 } from "@/lib/actions";
 import { mockAchievements } from "@/lib/mock-data";
 
@@ -31,11 +34,18 @@ export default async function DashboardPage() {
 
   const userEmail = user.email || "";
 
-  // Fetch real user stats and enrollments from database
+  // Fetch real user stats, enrollments, profile, and profile completion from database
   const [
     { data: userStats, error: userStatsError },
     { data: enrollments, error: enrollmentsError },
-  ] = await Promise.all([getUserStats(), getUserEnrollments()]);
+    { data: userProfile, error: userProfileError },
+    profileCompletionResult,
+  ] = await Promise.all([
+    getUserStats(),
+    getUserEnrollments(),
+    getUserProfile(),
+    checkProfileCompletion(),
+  ]);
 
   // Use empty array if no enrollments or error
   // Type assertion needed because Supabase infers courses as array but it's actually a single object
@@ -78,10 +88,17 @@ export default async function DashboardPage() {
     redirect("/signin");
   }
 
+  const isProfileComplete = profileCompletionResult.isComplete || false;
+
   return (
     <div className="min-h-screen bg-gray-50">
       {/* Profile Header */}
       <ProfileHeader userStats={userStats} />
+
+      {/* Profile Completion Banner */}
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
+        <ProfileCompletionBanner isProfileComplete={isProfileComplete} />
+      </div>
 
       {/* Dashboard Tabs */}
       <DashboardTabs
@@ -94,6 +111,8 @@ export default async function DashboardPage() {
             username={userStats.username}
             email={userEmail}
             avatarUrl={userStats.avatarUrl}
+            dateOfBirth={userProfile?.date_of_birth || ""}
+            learningGoals={userProfile?.learning_goals || ""}
           />
         }
         shopContent={<ShopTab />}

@@ -170,7 +170,6 @@ export async function insertXPTransaction(
   });
 
   if (error) {
-    console.error("Error inserting XP transaction:", error);
     return false;
   }
 

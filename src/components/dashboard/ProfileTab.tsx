@@ -8,33 +8,74 @@ import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { getInitials } from "@/lib/utils";
-import { Upload } from "lucide-react";
+import { updateUserProfile, checkAndAwardProfileCompletionXP } from "@/lib/actions";
+import { toast } from "sonner";
+import { Upload, Loader2 } from "lucide-react";
 
 type ProfileTabProps = {
   username: string;
   email: string;
   avatarUrl: string;
+  dateOfBirth?: string;
+  learningGoals?: string;
 };
 
 export const ProfileTab = ({
   username: initialUsername,
   email,
-  avatarUrl,
+  avatarUrl: initialAvatarUrl,
+  dateOfBirth: initialDateOfBirth = "",
+  learningGoals: initialLearningGoals = "",
 }: ProfileTabProps) => {
   const [username, setUsername] = useState(initialUsername);
-  const [bio, setBio] = useState("");
+  const [avatarUrl, setAvatarUrl] = useState(initialAvatarUrl);
+  const [dateOfBirth, setDateOfBirth] = useState(initialDateOfBirth);
+  const [learningGoals, setLearningGoals] = useState(initialLearningGoals);
   const [isSaving, setIsSaving] = useState(false);
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleAvatarChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file) {
+      // TODO: Upload to Supabase Storage
+      // For now, create a local preview URL
+      const previewUrl = URL.createObjectURL(file);
+      setAvatarUrl(previewUrl);
+      toast.info("Avatar upload to storage not yet implemented");
+    }
+  };
+
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsSaving(true);
 
-    // Simulate saving
-    setTimeout(() => {
+    try {
+      const result = await updateUserProfile({
+        fullName: username,
+        avatarUrl,
+        dateOfBirth,
+        learningGoals,
+      });
+
+      if (result.success) {
+        // Check and award profile completion XP
+        const xpResult = await checkAndAwardProfileCompletionXP();
+
+        if (xpResult.success && xpResult.xpAwarded) {
+          toast.success(`🎉 +${xpResult.xpAwarded} XP`, {
+            description: "Profile completed!",
+            duration: 5000,
+          });
+        } else {
+          toast.success("Profile updated successfully!");
+        }
+      } else {
+        toast.error(result.message || "Failed to update profile");
+      }
+    } catch (error) {
+      toast.error("An error occurred. Please try again.");
+    } finally {
       setIsSaving(false);
-      // Show success message (Phase 0 - no actual saving)
-      alert("Profile updated successfully! (Mock - not saved)");
-    }, 1000);
+    }
   };
 
   return (
@@ -58,10 +99,20 @@ export const ProfileTab = ({
               )}
             </Avatar>
 
-            <Button variant="outline" className="w-full" disabled>
-              <Upload className="w-4 h-4 mr-2" />
+            <Label
+              htmlFor="avatar-upload"
+              className="cursor-pointer w-full inline-flex items-center justify-center gap-2 px-4 py-2 border border-input rounded-md hover:bg-accent hover:text-accent-foreground transition-colors"
+            >
+              <Upload className="w-4 h-4" />
               Upload Photo
-            </Button>
+            </Label>
+            <Input
+              id="avatar-upload"
+              type="file"
+              accept="image/*"
+              className="hidden"
+              onChange={handleAvatarChange}
+            />
             <p className="text-xs text-muted-foreground text-center">
               JPG, PNG or GIF. Max size 2MB.
             </p>
@@ -101,33 +152,55 @@ export const ProfileTab = ({
                 </p>
               </div>
 
-              {/* Bio */}
+              {/* Date of Birth */}
               <div className="space-y-2">
-                <Label htmlFor="bio">Bio</Label>
+                <Label htmlFor="dateOfBirth">Date of Birth</Label>
+                <Input
+                  id="dateOfBirth"
+                  type="date"
+                  value={dateOfBirth}
+                  onChange={(e) => setDateOfBirth(e.target.value)}
+                  max={new Date().toISOString().split("T")[0]}
+                />
+              </div>
+
+              {/* Learning Goals */}
+              <div className="space-y-2">
+                <Label htmlFor="learningGoals">Learning Goals</Label>
                 <Textarea
-                  id="bio"
-                  value={bio}
-                  onChange={(e) => setBio(e.target.value)}
-                  placeholder="Tell us about yourself..."
+                  id="learningGoals"
+                  value={learningGoals}
+                  onChange={(e) => setLearningGoals(e.target.value)}
+                  placeholder="Describe your learning objectives..."
                   rows={4}
                 />
                 <p className="text-xs text-muted-foreground">
-                  {bio.length} / 500 characters
+                  {learningGoals.length} / 500 characters
                 </p>
               </div>
 
               {/* Action Buttons */}
               <div className="flex gap-3">
-                <Button type="submit" disabled={isSaving}>
-                  {isSaving ? "Saving..." : "Save Changes"}
+                <Button type="submit" disabled={isSaving} className="cursor-pointer">
+                  {isSaving ? (
+                    <>
+                      <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                      Saving...
+                    </>
+                  ) : (
+                    "Save Changes"
+                  )}
                 </Button>
                 <Button
                   type="button"
                   variant="outline"
                   onClick={() => {
                     setUsername(initialUsername);
-                    setBio("");
+                    setAvatarUrl(initialAvatarUrl);
+                    setDateOfBirth(initialDateOfBirth);
+                    setLearningGoals(initialLearningGoals);
                   }}
+                  className="cursor-pointer"
                 >
                   Cancel
                 </Button>

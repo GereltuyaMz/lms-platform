@@ -16,6 +16,10 @@ export type UserProfile = {
   enrollment_count: number;
   completed_courses: number;
   created_at: string;
+  date_of_birth: string | null;
+  learning_goals: string | null;
+  profile_completed_at: string | null;
+  has_completed_onboarding: boolean;
 };
 
 export type UserStats = {
@@ -55,7 +59,6 @@ export async function getUserProfile() {
 
     return { data: profile as UserProfile, error: null };
   } catch (error) {
-    console.error("Error fetching user profile:", error);
     return { data: null, error: "Failed to fetch user profile" };
   }
 }

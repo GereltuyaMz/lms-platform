@@ -18,6 +18,9 @@ type QuizAttemptResult = {
     message: string;
     xpAwarded?: number;
   }>;
+  streakBonusAwarded?: number;
+  streakBonusMessage?: string;
+  currentStreak?: number;
 };
 
 type QuizAnswer = {
@@ -89,7 +92,6 @@ export async function saveQuizAttempt(
       .single();
 
     if (attemptError || !attempt) {
-      console.error("Error creating quiz attempt:", attemptError);
       return {
         success: false,
         message: "Error saving quiz attempt",
@@ -111,7 +113,6 @@ export async function saveQuizAttempt(
         .insert(answerRecords);
 
       if (answersError) {
-        console.error("Error saving quiz answers:", answersError);
         // Continue anyway - attempt is saved
       }
     }
@@ -124,6 +125,10 @@ export async function saveQuizAttempt(
       xpAwarded?: number;
     }> = [];
 
+    let streakBonusAwarded: number | undefined;
+    let streakBonusMessage: string | undefined;
+    let currentStreak: number | undefined;
+
     if (score >= passingScore) {
       // Mark lesson as complete
       await upsertLessonProgress(enrollment.id, lessonId, {
@@ -132,6 +137,16 @@ export async function saveQuizAttempt(
 
       // Check for milestone XP and return results
       milestoneResults = await checkAndAwardMilestones(user.id, courseId);
+
+      // Update user streak on completion
+      const { updateUserStreak } = await import("./streak-actions");
+      const streakResult = await updateUserStreak(user.id);
+
+      if (streakResult.success) {
+        currentStreak = streakResult.currentStreak;
+        streakBonusAwarded = streakResult.streakBonusAwarded;
+        streakBonusMessage = streakResult.streakBonusMessage;
+      }
     }
 
     // Revalidate relevant pages
@@ -143,6 +158,9 @@ export async function saveQuizAttempt(
       attemptId: attempt.id,
       milestoneResults:
         milestoneResults.length > 0 ? milestoneResults : undefined,
+      streakBonusAwarded,
+      streakBonusMessage,
+      currentStreak,
     };
   } catch (error) {
     return handleActionError(error, "saveQuizAttempt") as QuizAttemptResult;
@@ -201,7 +219,6 @@ export async function getBestQuizScore(
       attempts: attempts.length,
     };
   } catch (error) {
-    console.error("Error getting best quiz score:", error);
     return null;
   }
 }
@@ -247,13 +264,11 @@ export async function getQuizAttempts(lessonId: string, courseId: string) {
       .order("completed_at", { ascending: false });
 
     if (attemptsError) {
-      console.error("Error fetching quiz attempts:", attemptsError);
       return { data: null, error: "Error fetching attempts" };
     }
 
     return { data: attempts, error: null };
   } catch (error) {
-    console.error("Unexpected error in getQuizAttempts:", error);
     return { data: null, error: "An unexpected error occurred" };
   }
 }

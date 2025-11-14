@@ -4,3 +4,4 @@ export * from "./MyCoursesTab";
 export * from "./AchievementsTab";
 export * from "./ProfileTab";
 export * from "./ShopTab";
+export * from "./ProfileCompletionBanner";

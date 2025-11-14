@@ -65,7 +65,6 @@ export async function createEnrollment(
         };
       }
 
-      console.error("Error creating enrollment:", enrollmentError);
       return {
         success: false,
         message: "Error enrolling in course",
@@ -118,7 +117,6 @@ export async function checkEnrollment(
       progress: enrollment.progress_percentage,
     };
   } catch (error) {
-    console.error("Error checking enrollment:", error);
     return { isEnrolled: false };
   }
 }
@@ -158,13 +156,11 @@ export async function getUserEnrollments() {
       .order("enrolled_at", { ascending: false });
 
     if (enrollmentError) {
-      console.error("Error fetching enrollments:", enrollmentError);
       return { data: null, error: "Error fetching enrollments" };
     }
 
     return { data: enrollments, error: null };
   } catch (error) {
-    console.error("Unexpected error in getUserEnrollments:", error);
     return { data: null, error: "An unexpected error occurred" };
   }
 }
@@ -202,13 +198,11 @@ export async function getEnrollmentDetails(enrollmentId: string) {
       .single();
 
     if (error) {
-      console.error("Error fetching enrollment details:", error);
       return { data: null, error: "Error fetching enrollment details" };
     }
 
     return { data: enrollment, error: null };
   } catch (error) {
-    console.error("Unexpected error in getEnrollmentDetails:", error);
     return { data: null, error: "An unexpected error occurred" };
   }
 }
@@ -271,7 +265,6 @@ export async function getLastAccessedLesson(
 
     return lastProgress.lesson_id;
   } catch (error) {
-    console.error("Error getting last accessed lesson:", error);
     return null;
   }
 }
