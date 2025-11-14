@@ -45,7 +45,7 @@ export default function SignUpPage() {
           setSuccessMessage(result.message);
         } else {
           router.refresh(); // Force Next.js to update server-side auth state
-          router.push("/dashboard");
+          router.push("/onboarding");
         }
       }
     });

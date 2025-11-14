@@ -9,6 +9,7 @@ import type {
   QuizAttempt,
   QuizAnswer,
 } from './tables'
+import type { CourseLevel } from './enums'
 
 // =====================================================
 // COURSE QUERIES
@@ -53,6 +54,29 @@ export interface EnrollmentWithDetails extends Enrollment {
   course: Course
   lesson_progress: LessonProgress[]
 }
+
+// Dashboard-specific enrollment with last lesson
+export interface DashboardEnrollment {
+  id: string
+  enrolled_at: string
+  progress_percentage: number
+  completed_at: string | null
+  lastLessonId: string | null
+  courses: {
+    id: string
+    title: string
+    slug: string
+    description: string | null
+    thumbnail_url: string | null
+    level: CourseLevel
+  } | null
+}
+
+// Recommended course (simplified Course type)
+export type RecommendedCourse = Pick<
+  Course,
+  'id' | 'title' | 'slug' | 'description' | 'thumbnail_url' | 'level'
+>
 
 // =====================================================
 // LESSON PROGRESS QUERIES

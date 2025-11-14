@@ -62,13 +62,6 @@ export const ClientHeader = ({ initialUser }: ClientHeaderProps) => {
             <li>
               <Link href="/shop">Shop</Link>
             </li>
-            <li className="flex items-center gap-1">
-              <Link href="/resources">Resources</Link>
-              <ChevronDown size={20} />
-            </li>
-            <li>
-              <Link href="/community">Community</Link>
-            </li>
           </ul>
         </div>
         <div className="hidden md:flex items-center gap-4">

@@ -10,12 +10,16 @@ type CourseHeroProps = {
   course: Course;
   lessonCount: number;
   totalDurationSeconds: number;
+  exerciseCount: number;
+  totalXp: number;
 };
 
 export const CourseHero = ({
   course,
   lessonCount,
   totalDurationSeconds,
+  exerciseCount,
+  totalXp,
 }: CourseHeroProps) => {
   const totalDurationMinutes = Math.floor(totalDurationSeconds / 60);
   return (
@@ -77,7 +81,7 @@ export const CourseHero = ({
                 <div className="flex items-center gap-3">
                   <DumbbellIcon width={24} height={24} fill="#10B981" />
                   <span className="text-base">
-                    <strong className="font-bold">10</strong> exercises
+                    <strong className="font-bold">{exerciseCount}</strong> exercises
                   </span>
                 </div>
                 <div className="flex items-center gap-3">
@@ -89,7 +93,7 @@ export const CourseHero = ({
                 <div className="flex items-center gap-3">
                   <BoltIcon width={24} height={24} fill="#F59E0B" />
                   <span className="text-base">
-                    Total <strong className="font-bold">150</strong> XP
+                    Total <strong className="font-bold">{totalXp}</strong> XP
                   </span>
                 </div>
               </div>

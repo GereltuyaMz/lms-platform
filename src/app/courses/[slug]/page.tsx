@@ -56,6 +56,8 @@ const CourseDetailPage = async ({ params }: PageProps) => {
   const courseStats = stats?.[0] || {
     lesson_count: 0,
     total_duration_seconds: 0,
+    exercise_count: 0,
+    total_xp: 0,
   };
 
   // Group lessons by section
@@ -81,6 +83,8 @@ const CourseDetailPage = async ({ params }: PageProps) => {
         course={course}
         lessonCount={courseStats.lesson_count}
         totalDurationSeconds={courseStats.total_duration_seconds}
+        exerciseCount={courseStats.exercise_count}
+        totalXp={courseStats.total_xp}
       />
 
       {/* Main Content */}

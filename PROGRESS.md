@@ -1,6 +1,6 @@
 # 📊 LMS Platform - Development Progress
 
-**Last Updated:** November 12, 2025
+**Last Updated:** November 14, 2025
 
 ---
 
@@ -9,6 +9,7 @@
 ### Database & Backend
 - Complete schema: `user_profiles`, `courses`, `lessons`, `enrollments`, `lesson_progress`, quiz tables
 - RPC functions: `calculate_course_stats()`, `update_enrollment_progress()`, quiz validation
+- **Updated calculate_course_stats()** returns exercise_count and total_xp
 - Database view `courses_with_stats` for optimized queries (eliminates N+1)
 - Seed data: 17 courses + 7 quizzes with realistic content
 - Storage bucket setup for course videos
@@ -56,12 +57,18 @@
 - Shared `CourseBreadcrumb` component (DRY principle)
 - Proper TypeScript types (no `any` types)
 - Lesson page reduced from 292 to 161 lines (45% reduction)
+- **Centralized lesson config** in `/src/lib/lesson-config.tsx` with LESSON_XP constants
+- **MyCoursesTab refactored** from 284 lines to 3 focused components (51 + 165 + 65 lines)
+- **Type consolidation** - DashboardEnrollment and RecommendedCourse in `/src/types/database/queries.ts`
+- **Component composition** - CourseCard handles both enrolled and recommended courses
 
 ### Authentication
 - Sign up/Sign in pages with UI complete
 - Google OAuth integration
 - Middleware for session management
 - Auto user profile creation on enrollment
+- **Auth callback fix** - new users redirect to /onboarding
+- **Email confirmation flow** with proper error handling
 
 ### Enrollment System
 - **Enrollment server actions** (create, check, list enrollments)
@@ -74,11 +81,30 @@
 - Profile header with avatar, XP, streak, and league stats
 - **My Courses tab** showing enrolled courses with real progress
 - **Continue Learning button** takes you to last accessed lesson
+- **Course recommendations** - personalized based on learning goals or popular courses
+- **Empty state** shows recommended courses when no enrollments
+- **Profile completion banner** redirects to profile tab
 - Achievements tab with locked/unlocked badges
-- Profile edit form (UI only, not yet functional)
+- Profile edit form fully functional with backend save
 - Shop tab placeholder
-- Empty states for no data
 - Mobile responsive layout
+
+### Onboarding System
+- **Multi-step wizard** with 4 steps and progress bar
+- **Step 1:** Welcome greeting with user's name
+- **Step 2:** Goal selection (Professional growth, Excel in school, Lifelong learning, Explore new subjects)
+- **Step 3:** Subject selection (Math, Science, Chemistry)
+- **Step 4:** Success screen with profile creation
+- **Skip functionality** on all steps except final step
+- **Awards 25 XP** on onboarding completion
+- **Saves selections** to learning_goals array in user profile
+
+### Course Stats & XP Display
+- **Dynamic exercise count** from database (counts quiz/assignment lessons)
+- **Dynamic total XP** calculation includes video, quiz, text, and milestone bonuses
+- **CourseHero displays** real exercise count and total XP per course
+- **CourseContent shows** accurate XP per lesson type (video with duration bonus, quiz "Up to 200 XP", assignment "150 XP", text "30 XP")
+- **Centralized lesson config** with LESSON_XP constants and calculateXP functions
 
 ---
 
@@ -115,6 +141,11 @@
 29. **Onboarding page** guides new users through profile setup
 30. **Dashboard banner** prompts users with incomplete profiles
 31. **Profile edit form** fully functional with backend save
+32. **Multi-step onboarding wizard** with progress bar and user name greeting
+33. **Course recommendations** personalized by learning goals or popular courses
+34. **Dynamic course stats** - exercise count and total XP from database
+35. **Accurate lesson XP display** in course content (varies by type and duration)
+36. **Auth callback** redirects new users to onboarding automatically
 
 ---
 
@@ -198,7 +229,12 @@
 - ✅ Database migration for profile completion tracking
 - ✅ RPC function to check profile completion (avatar, DOB, learning goals)
 - ✅ RPC function to award 150 XP for profile completion
-- ✅ Onboarding page with form validation
+- ✅ Multi-step onboarding wizard (4 steps with progress bar)
+- ✅ Step 1: Welcome with user's name from database
+- ✅ Step 2 & 3: Goal and subject selection
+- ✅ Step 4: Success screen with profile creation
+- ✅ Skip functionality for all steps except final
+- ✅ Awards 25 XP for onboarding completion
 - ✅ Dashboard banner for incomplete profiles
 - ✅ Profile tab connected to backend with save functionality
 - ✅ Toast notification for 150 XP profile completion bonus
@@ -212,6 +248,21 @@
 - ✅ Update user_profiles table (full_name, date_of_birth, learning_goals)
 - ✅ Real-time profile updates with revalidation
 - ⏳ Avatar upload to Storage (preview only, not persisted)
+
+---
+
+### Phase 7: Course Recommendations & Component Refactoring ✅ COMPLETED
+- ✅ Course recommendations based on learning goals
+- ✅ Fallback to popular courses if no learning goals set
+- ✅ Empty state shows personalized or popular recommendations
+- ✅ Dynamic course stats (exercise count, total XP) in CourseHero
+- ✅ Accurate lesson XP display by type in CourseContent
+- ✅ Centralized lesson config in `/src/lib/lesson-config.tsx`
+- ✅ MyCoursesTab refactored from 284 lines to 3 components
+- ✅ Created CourseCard (165 lines) for both enrolled and recommended courses
+- ✅ Created EmptyCoursesState (65 lines) for no enrollments
+- ✅ Type consolidation (DashboardEnrollment, RecommendedCourse)
+- ✅ TypeScript all errors resolved
 
 ---
 
@@ -293,9 +344,11 @@
 - **Authentication:** ✅ Integrated with all progress tracking
 - **Dashboard:** ✅ Real data from database with live XP
 - **XP System:** ✅ Complete (Video, Quiz, Milestones, Streaks, Profile)
-- **Onboarding:** ✅ Profile completion flow implemented
+- **Onboarding:** ✅ Multi-step wizard with goal/subject selection
+- **Course Recommendations:** ✅ Personalized based on learning goals
+- **Component Architecture:** ✅ Well-structured, follows DRY and KISS principles
 - **Deployment:** ✅ Ready for production
 
 ---
 
-**Next Immediate Step:** Phase 6 - Connect Sidebar Progress OR implement avatar upload to Supabase Storage
+**Next Immediate Step:** Phase 6 - Connect Sidebar Progress (real lesson completion data, course XP earned) OR implement avatar upload to Supabase Storage

@@ -39,18 +39,12 @@ export const signUpAction = async (formData: FormData) => {
   }
 
   if (signUpData.user) {
-    const { error: profileError } = await supabase
-      .from("user_profiles")
-      .insert({
-        id: signUpData.user.id,
-        email: email,
-        full_name: name,
-        role: "student",
-      });
-
-    if (profileError) {
-      // Profile creation failed
-    }
+    await supabase.from("user_profiles").insert({
+      id: signUpData.user.id,
+      email: email,
+      full_name: name,
+      role: "student",
+    });
   }
 
   if (signUpData.user && !signUpData.session) {

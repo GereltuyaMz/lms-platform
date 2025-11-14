@@ -9,13 +9,21 @@ import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { signInSchema, type SignInFormData } from "@/lib/validations";
 import { signInWithGoogleAction, signInAction } from "@/app/(auth)/actions";
-import { useState, useTransition } from "react";
-import { useRouter } from "next/navigation";
+import { useState, useTransition, useEffect } from "react";
+import { useRouter, useSearchParams } from "next/navigation";
 
 export default function SignInPage() {
   const [isPending, startTransition] = useTransition();
   const [serverError, setServerError] = useState<string>("");
   const router = useRouter();
+  const searchParams = useSearchParams();
+
+  useEffect(() => {
+    const error = searchParams.get("error");
+    if (error === "auth_failed") {
+      setServerError("Email confirmation failed or expired. Please try signing up again or contact support.");
+    }
+  }, [searchParams]);
 
   const {
     register,

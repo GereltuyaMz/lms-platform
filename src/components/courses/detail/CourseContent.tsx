@@ -2,24 +2,10 @@
 
 import { useState } from "react";
 import { ChevronDown, Zap } from "lucide-react";
-import { PlayIcon, NotebookIcon, DumbbellIcon, EyeIcon } from "@/icons";
+import { EyeIcon } from "@/icons";
 import { formatDuration, formatTime, cn } from "@/lib/utils";
+import { getLessonIcon, getLessonXP } from "@/lib/lesson-config";
 import type { Lesson } from "@/types/database";
-
-const getLessonIcon = (lessonType: string) => {
-  switch (lessonType) {
-    case "video":
-      return <PlayIcon width={20} height={20} fill="#3B82F6" />;
-    case "text":
-      return <NotebookIcon className="h-4 w-4 text-gray-600" />;
-    case "quiz":
-      return <DumbbellIcon width={20} height={20} fill="#10B981" />;
-    case "assignment":
-      return <DumbbellIcon width={20} height={20} fill="#10B981" />;
-    default:
-      return <PlayIcon width={20} height={20} fill="#3B82F6" />;
-  }
-};
 
 type CourseContentProps = {
   lessonsBySection: Record<string, Lesson[]>;
@@ -101,13 +87,12 @@ export const CourseContent = ({ lessonsBySection }: CourseContentProps) => {
                             </a>
                           </span>
                         )}
-                        {lesson.lesson_type === "quiz" ||
-                        lesson.lesson_type === "assignment" ? (
+                        {getLessonXP(lesson) && (
                           <div className="flex items-center gap-1 text-yellow-600 text-xs">
                             <Zap className="h-5 w-5" />
-                            <span>50 XP</span>
+                            <span>{getLessonXP(lesson)}</span>
                           </div>
-                        ) : null}
+                        )}
                         <span className="text-md text-muted-foreground min-w-[50px] text-right">
                           {lesson.duration_seconds
                             ? formatTime(lesson.duration_seconds)

@@ -11,11 +11,16 @@ export async function GET(request: Request) {
     const supabase = await createClient();
     const { data, error } = await supabase.auth.exchangeCodeForSession(code);
 
-    if (!error && data.user) {
+    if (error) {
+      console.error("Auth callback error:", error);
+      return NextResponse.redirect(`${origin}/signin?error=auth_failed`);
+    }
+
+    if (data.user) {
       // Check if user profile exists, create if not
       const { data: existingProfile } = await supabase
         .from("user_profiles")
-        .select("id")
+        .select("id, has_completed_onboarding")
         .eq("id", data.user.id)
         .single();
 
@@ -32,6 +37,25 @@ export async function GET(request: Request) {
           full_name: fullName,
           role: "student",
         });
+
+        // New user, redirect to onboarding
+        revalidatePath("/", "layout");
+        const forwardedHost = request.headers.get("x-forwarded-host");
+        const isLocalEnv = process.env.NODE_ENV === "development";
+
+        if (isLocalEnv) {
+          return NextResponse.redirect(`${origin}/onboarding`);
+        } else if (forwardedHost) {
+          return NextResponse.redirect(`https://${forwardedHost}/onboarding`);
+        } else {
+          return NextResponse.redirect(`${origin}/onboarding`);
+        }
+      }
+
+      // Existing user - check if onboarding is complete
+      let redirectPath = next;
+      if (!existingProfile.has_completed_onboarding) {
+        redirectPath = "/onboarding";
       }
 
       // Revalidate layout to update Header component
@@ -41,11 +65,11 @@ export async function GET(request: Request) {
       const isLocalEnv = process.env.NODE_ENV === "development";
 
       if (isLocalEnv) {
-        return NextResponse.redirect(`${origin}${next}`);
+        return NextResponse.redirect(`${origin}${redirectPath}`);
       } else if (forwardedHost) {
-        return NextResponse.redirect(`https://${forwardedHost}${next}`);
+        return NextResponse.redirect(`https://${forwardedHost}${redirectPath}`);
       } else {
-        return NextResponse.redirect(`${origin}${next}`);
+        return NextResponse.redirect(`${origin}${redirectPath}`);
       }
     }
   }

@@ -40,7 +40,7 @@ export const ProfileCompletionBanner = ({
           <div className="flex flex-wrap gap-3">
             <Button
               size="sm"
-              onClick={() => router.push("/onboarding")}
+              onClick={() => router.push("/dashboard?tab=profile")}
               className="cursor-pointer"
             >
               Complete Now
@@ -48,7 +48,7 @@ export const ProfileCompletionBanner = ({
             <Button
               size="sm"
               variant="ghost"
-              onClick={() => router.push("/dashboard?tab=profile")}
+              onClick={() => router.push("/dashboard")}
               className="cursor-pointer"
             >
               Maybe Later

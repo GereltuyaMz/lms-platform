@@ -15,8 +15,10 @@ import {
   getUserStats,
   checkProfileCompletion,
   getUserProfile,
+  getRecommendedCourses,
 } from "@/lib/actions";
 import { mockAchievements } from "@/lib/mock-data";
+import type { CourseLevel } from "@/types/database/enums";
 
 export default async function DashboardPage() {
   const supabase = await createClient();
@@ -60,7 +62,7 @@ export default async function DashboardPage() {
       slug: string;
       description: string | null;
       thumbnail_url: string | null;
-      level: string;
+      level: CourseLevel;
     } | null;
   }>;
 
@@ -88,6 +90,10 @@ export default async function DashboardPage() {
     redirect("/signin");
   }
 
+  // Fetch recommended courses for users with no enrollments
+  const recommendedCoursesResult =
+    userEnrollments.length === 0 ? await getRecommendedCourses() : null;
+
   const isProfileComplete = profileCompletionResult.isComplete || false;
 
   return (
@@ -96,13 +102,19 @@ export default async function DashboardPage() {
       <ProfileHeader userStats={userStats} />
 
       {/* Profile Completion Banner */}
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
+      <div className="container mx-auto px-4 pt-8 max-w-[1400px]">
         <ProfileCompletionBanner isProfileComplete={isProfileComplete} />
       </div>
 
       {/* Dashboard Tabs */}
       <DashboardTabs
-        coursesContent={<MyCoursesTab enrollments={userEnrollments} />}
+        coursesContent={
+          <MyCoursesTab
+            enrollments={userEnrollments}
+            recommendedCourses={recommendedCoursesResult?.courses || []}
+            isPersonalized={recommendedCoursesResult?.isPersonalized || false}
+          />
+        }
         achievementsContent={
           <AchievementsTab achievements={mockAchievements} />
         }
