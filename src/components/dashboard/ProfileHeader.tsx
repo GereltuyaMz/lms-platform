@@ -2,6 +2,7 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Card, CardContent } from "@/components/ui/card";
 import { getInitials } from "@/lib/utils";
 import type { UserStats } from "@/lib/actions";
+import { XPGuideModal } from "./XPGuideModal";
 
 type ProfileHeaderProps = {
   userStats: UserStats;
@@ -69,7 +70,10 @@ export const ProfileHeader = ({ userStats }: ProfileHeaderProps) => {
                   <span className="text-2xl">⚡</span>
                 </div>
                 <div className="flex-1 min-w-0">
-                  <p className="text-3xl font-bold">{xp}</p>
+                  <div className="flex items-center gap-2">
+                    <p className="text-3xl font-bold">{xp}</p>
+                    <XPGuideModal />
+                  </div>
                   <p className="text-sm text-muted-foreground">Total XP</p>
                 </div>
               </div>

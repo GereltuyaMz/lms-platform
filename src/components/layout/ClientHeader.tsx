@@ -60,6 +60,9 @@ export const ClientHeader = ({ initialUser }: ClientHeaderProps) => {
               <Link href="/courses">Courses</Link>
             </li>
             <li>
+              <Link href="/guide">Guide</Link>
+            </li>
+            <li>
               <Link href="/shop">Shop</Link>
             </li>
           </ul>

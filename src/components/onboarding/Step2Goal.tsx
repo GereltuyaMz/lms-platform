@@ -48,7 +48,7 @@ export const Step2Goal = ({ onSelectGoal, onSkip }: Step2GoalProps) => {
         {/* Speech bubble */}
         <div className="bg-teal-50 border-2 border-teal-500 rounded-2xl px-6 py-3 shadow-md relative mt-8">
           <p className="text-base font-medium text-teal-900">
-            What's your top goal?
+            What&apos;s your top goal?
           </p>
         </div>
       </div>

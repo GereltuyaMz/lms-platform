@@ -84,7 +84,7 @@
 - **Course recommendations** - personalized based on learning goals or popular courses
 - **Empty state** shows recommended courses when no enrollments
 - **Profile completion banner** redirects to profile tab
-- Achievements tab with locked/unlocked badges
+- **Achievements tab** with locked/unlocked badges (UI only, uses mock data)
 - Profile edit form fully functional with backend save
 - Shop tab placeholder
 - Mobile responsive layout
@@ -274,6 +274,20 @@
 
 ---
 
+### Phase 8: Badge/Achievement System (Not Started)
+- Create `badges` and `user_badges` database tables
+- Seed badges table with definitions from BADGE-SYSTEM.md
+- Implement badge awarding logic (server actions)
+- Create badge checking functions (unlock conditions)
+- Replace mock data with real database queries
+- Integrate automatic badge unlocking with user actions
+- Connect badge unlocking with XP bonus awards
+- Implement all 40+ badges from specification
+
+**Note:** Currently only UI exists with mock data. Backend needs full implementation.
+
+---
+
 ## 📊 Database Structure
 
 ### Core Tables
@@ -297,9 +311,9 @@
 - `xp_transactions` - XP award history with auto-update trigger
 - User profile columns: `total_xp`, `current_streak`, `longest_streak`, `last_activity_date`
 
-### Future Tables
-- `badges` - Achievement definitions
-- `user_badges` - User achievements
+### Future Tables (Need Implementation)
+- `badges` - Achievement definitions (not created yet)
+- `user_badges` - User badge unlocks and progress (not created yet)
 
 ---
 
@@ -309,7 +323,8 @@
 2. Assignment pages are placeholders
 3. Text lessons need better styling
 4. User data in dashboard still uses mock avatarUrl (should load from profile)
-5. When user log in or sign up the header layout swtill won't change to user avatar immediately, still need manual refresh the page to show
+5. **Badge/Achievement system uses mock data only** - No database tables or backend logic implemented
+6. Avatar upload shows preview only - Not persisted to Supabase Storage
 
 ---
 
@@ -346,9 +361,14 @@
 - **XP System:** ✅ Complete (Video, Quiz, Milestones, Streaks, Profile)
 - **Onboarding:** ✅ Multi-step wizard with goal/subject selection
 - **Course Recommendations:** ✅ Personalized based on learning goals
+- **Badge System:** ⚠️ UI only with mock data - backend not implemented
 - **Component Architecture:** ✅ Well-structured, follows DRY and KISS principles
-- **Deployment:** ✅ Ready for production
+- **Deployment:** ✅ Ready for production (with mock badges)
 
 ---
 
-**Next Immediate Step:** Phase 6 - Connect Sidebar Progress (real lesson completion data, course XP earned) OR implement avatar upload to Supabase Storage
+**Next Immediate Steps:**
+1. Phase 6 - Connect Sidebar Progress (real lesson completion data, course XP earned)
+2. Phase 8 - Implement Badge/Achievement system backend
+3. Fix video resume seekTo bug
+4. Implement avatar upload to Supabase Storage

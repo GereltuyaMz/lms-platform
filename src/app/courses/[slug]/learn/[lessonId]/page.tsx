@@ -96,7 +96,7 @@ export default async function LessonPage({ params }: PageProps) {
     completedLessonIds
   );
   const totalLessons = courseStats?.[0]?.lesson_count || allLessons.length;
-  const progress = calculateCourseProgress(totalLessons, completedCount);
+  const progress = await calculateCourseProgress(totalLessons, completedCount, course.id);
   const { previousLessonUrl, nextLessonUrl } = getNavigationUrls(
     allLessons,
     lessonId,

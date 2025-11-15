@@ -2,6 +2,7 @@ import type { Lesson } from "@/types/database/tables";
 import type { QuizData } from "@/types/quiz";
 import { formatTime } from "./utils";
 import type { SupabaseClient } from "@supabase/supabase-js";
+import { getCourseXPEarned } from "./actions/xp-actions";
 
 // Transform lessons for sidebar display
 export const transformLessonsForSidebar = (
@@ -43,18 +44,22 @@ export const transformLessonsForSidebar = (
 };
 
 // Calculate progress for a course
-export const calculateCourseProgress = (
+export const calculateCourseProgress = async (
   totalLessons: number,
-  completedLessons: number = 0
+  completedLessons: number = 0,
+  courseId: string
 ) => {
   const progressPercentage =
     totalLessons > 0 ? Math.round((completedLessons / totalLessons) * 100) : 0;
+
+  // Get total XP earned for this course
+  const totalXp = await getCourseXPEarned(courseId);
 
   return {
     completed: completedLessons,
     total: totalLessons,
     percentage: progressPercentage,
-    totalXp: 0, // Static for now, will be calculated from xp_transactions
+    totalXp,
   };
 };
 

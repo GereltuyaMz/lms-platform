@@ -9,10 +9,10 @@ import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { signInSchema, type SignInFormData } from "@/lib/validations";
 import { signInWithGoogleAction, signInAction } from "@/app/(auth)/actions";
-import { useState, useTransition, useEffect } from "react";
+import { useState, useTransition, useEffect, Suspense } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 
-export default function SignInPage() {
+const SignInForm = () => {
   const [isPending, startTransition] = useTransition();
   const [serverError, setServerError] = useState<string>("");
   const router = useRouter();
@@ -138,5 +138,13 @@ export default function SignInPage() {
         </div>
       </div>
     </div>
+  );
+};
+
+export default function SignInPage() {
+  return (
+    <Suspense fallback={<div className="min-h-screen flex items-center justify-center">Loading...</div>}>
+      <SignInForm />
+    </Suspense>
   );
 }

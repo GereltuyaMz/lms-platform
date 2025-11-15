@@ -211,6 +211,32 @@ export async function getXPTransactions(
 }
 
 /**
+ * Get total XP earned for a specific course
+ */
+export async function getCourseXPEarned(
+  courseId: string
+): Promise<number> {
+  try {
+    const { user, supabase, error: authError } = await getAuthenticatedUser();
+
+    if (authError || !user) return 0;
+
+    const { data } = await supabase
+      .from("xp_transactions")
+      .select("amount")
+      .eq("user_id", user.id)
+      .in("source_type", ["lesson_complete", "quiz_complete", "milestone", "achievement"])
+      .contains("metadata", { course_id: courseId });
+
+    if (!data) return 0;
+
+    return data.reduce((sum, transaction) => sum + transaction.amount, 0);
+  } catch (error) {
+    return 0;
+  }
+}
+
+/**
  * Award XP for course progress milestones
  * Checks progress percentage and awards XP for 25%, 50%, 75%, 100% completion
  */

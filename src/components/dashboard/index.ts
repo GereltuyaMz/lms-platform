@@ -5,3 +5,4 @@ export * from "./AchievementsTab";
 export * from "./ProfileTab";
 export * from "./ShopTab";
 export * from "./ProfileCompletionBanner";
+export * from "./XPGuideModal";
