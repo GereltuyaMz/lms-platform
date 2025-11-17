@@ -163,7 +163,7 @@ export async function saveQuizAttempt(
       currentStreak,
     };
   } catch (error) {
-    return handleActionError(error, "saveQuizAttempt") as QuizAttemptResult;
+    return handleActionError(error) as QuizAttemptResult;
   }
 }
 
@@ -218,7 +218,7 @@ export async function getBestQuizScore(
       bestPercentage,
       attempts: attempts.length,
     };
-  } catch (error) {
+  } catch {
     return null;
   }
 }
@@ -268,7 +268,7 @@ export async function getQuizAttempts(lessonId: string, courseId: string) {
     }
 
     return { data: attempts, error: null };
-  } catch (error) {
+  } catch {
     return { data: null, error: "An unexpected error occurred" };
   }
 }

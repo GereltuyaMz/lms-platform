@@ -122,7 +122,7 @@ export async function saveVideoProgress(
       currentStreak,
     };
   } catch (error) {
-    return handleActionError(error, "saveVideoProgress") as ProgressResult;
+    return handleActionError(error) as ProgressResult;
   }
 }
 
@@ -174,7 +174,7 @@ export async function getLessonProgress(
       lastPosition: progress.last_position_seconds || 0,
       completedAt: progress.completed_at,
     };
-  } catch (error) {
+  } catch {
     return null;
   }
 }
@@ -213,7 +213,7 @@ export async function getCourseProgress(courseId: string) {
     }
 
     return { data: progressData, error: null };
-  } catch (error) {
+  } catch {
     return { data: null, error: "An unexpected error occurred" };
   }
 }

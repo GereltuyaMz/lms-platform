@@ -75,11 +75,7 @@ const CoursesPage = async ({ searchParams }: PageProps) => {
   const startIndex = (page - 1) * pageSize;
   const endIndex = startIndex + pageSize - 1;
 
-  const {
-    data: courses,
-    error: coursesError,
-    count,
-  } = await query
+  const { data: courses, count } = await query
     .order("created_at", { ascending: false })
     .range(startIndex, endIndex);
 

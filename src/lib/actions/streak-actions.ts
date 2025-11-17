@@ -117,7 +117,7 @@ export async function updateUserStreak(
       streakBonusMessage,
       isNewStreakDay,
     };
-  } catch (error) {
+  } catch {
     return {
       success: false,
       currentStreak: 0,
@@ -152,7 +152,7 @@ export async function getUserStreak(userId: string) {
       longestStreak: profile.longest_streak || 0,
       lastActivityDate: profile.last_activity_date,
     };
-  } catch (error) {
+  } catch {
     return {
       currentStreak: 0,
       longestStreak: 0,

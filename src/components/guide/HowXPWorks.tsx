@@ -1,6 +1,5 @@
 import { XPCard } from "./XPCard";
 import { Video, Trophy, Target, Flame, User } from "lucide-react";
-import { LucideIcon } from "lucide-react";
 
 const xpMethods = [
   {

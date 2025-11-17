@@ -19,7 +19,6 @@ export const LevelsAndLeagues = ({
   currentXP = 0,
   currentLevel = 1,
 }: LevelsAndLeaguesProps) => {
-  const xpForNextLevel = currentLevel * 500;
   const xpInCurrentLevel = currentXP % 500;
   const progressPercentage = (xpInCurrentLevel / 500) * 100;
 

@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import Image from "next/image";
-import { ChevronDown, Menu } from "lucide-react";
+import { Menu } from "lucide-react";
 import { Button } from "../ui/button";
 import { useState, useEffect } from "react";
 import { UserNav } from "./UserNav";

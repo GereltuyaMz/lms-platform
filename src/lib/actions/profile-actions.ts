@@ -53,10 +53,7 @@ export async function checkProfileCompletion(): Promise<ProfileCompletionResult>
       isComplete: data as boolean,
     };
   } catch (error) {
-    return handleActionError(
-      error,
-      "checkProfileCompletion"
-    ) as ProfileCompletionResult;
+    return handleActionError(error) as ProfileCompletionResult;
   }
 }
 
@@ -111,10 +108,7 @@ export async function updateUserProfile(
       xpAwarded: completionResult.xpAwarded,
     };
   } catch (error) {
-    return handleActionError(
-      error,
-      "updateUserProfile"
-    ) as ProfileCompletionResult;
+    return handleActionError(error) as ProfileCompletionResult;
   }
 }
 
@@ -162,9 +156,6 @@ export async function checkAndAwardProfileCompletionXP(): Promise<ProfileComplet
       message: result?.message || "XP not awarded",
     };
   } catch (error) {
-    return handleActionError(
-      error,
-      "checkAndAwardProfileCompletionXP"
-    ) as ProfileCompletionResult;
+    return handleActionError(error) as ProfileCompletionResult;
   }
 }

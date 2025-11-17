@@ -95,7 +95,7 @@ export async function getRecommendedCourses(): Promise<{
       courses: randomCourses || [],
       isPersonalized: false,
     };
-  } catch (error) {
+  } catch {
     return {
       success: false,
       courses: [],

@@ -195,7 +195,7 @@ export async function checkAndAwardMilestones(
     }
 
     return [];
-  } catch (error) {
+  } catch {
     return [];
   }
 }
@@ -307,7 +307,7 @@ export function revalidateUserPages(additionalPaths: string[] = []) {
 /**
  * Standardized error handler for server actions
  */
-export function handleActionError(error: unknown, context: string) {
+export function handleActionError(error: unknown) {
   return {
     success: false,
     message: "An unexpected error occurred",

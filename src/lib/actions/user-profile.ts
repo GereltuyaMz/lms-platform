@@ -58,7 +58,7 @@ export async function getUserProfile() {
     }
 
     return { data: profile as UserProfile, error: null };
-  } catch (error) {
+  } catch {
     return { data: null, error: "Failed to fetch user profile" };
   }
 }

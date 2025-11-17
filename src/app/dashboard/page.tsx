@@ -38,9 +38,9 @@ export default async function DashboardPage() {
 
   // Fetch real user stats, enrollments, profile, and profile completion from database
   const [
-    { data: userStats, error: userStatsError },
-    { data: enrollments, error: enrollmentsError },
-    { data: userProfile, error: userProfileError },
+    { data: userStats },
+    { data: enrollments },
+    { data: userProfile },
     profileCompletionResult,
   ] = await Promise.all([
     getUserStats(),
@@ -71,10 +71,7 @@ export default async function DashboardPage() {
     rawEnrollments.map(async (enrollment) => {
       if (!enrollment.courses) return { ...enrollment, lastLessonId: null };
 
-      const lastLessonId = await getLastAccessedLesson(
-        enrollment.courses.id,
-        enrollment.courses.slug
-      );
+      const lastLessonId = await getLastAccessedLesson(enrollment.courses.id);
 
       return {
         ...enrollment,

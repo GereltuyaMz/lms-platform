@@ -94,7 +94,7 @@ export async function awardVideoCompletionXP(
       xpAwarded: amount,
     };
   } catch (error) {
-    return handleActionError(error, "awardVideoCompletionXP") as XPResult;
+    return handleActionError(error) as XPResult;
   }
 }
 
@@ -161,7 +161,7 @@ export async function awardQuizCompletionXP(
       xpAwarded: amount,
     };
   } catch (error) {
-    return handleActionError(error, "awardQuizCompletionXP") as XPResult;
+    return handleActionError(error) as XPResult;
   }
 }
 
@@ -181,7 +181,7 @@ export async function getUserTotalXP(): Promise<number> {
       .single();
 
     return data?.total_xp || 0;
-  } catch (error) {
+  } catch {
     return 0;
   }
 }
@@ -205,7 +205,7 @@ export async function getXPTransactions(
       .limit(limit);
 
     return data || [];
-  } catch (error) {
+  } catch {
     return [];
   }
 }
@@ -231,7 +231,7 @@ export async function getCourseXPEarned(
     if (!data) return 0;
 
     return data.reduce((sum, transaction) => sum + transaction.amount, 0);
-  } catch (error) {
+  } catch {
     return 0;
   }
 }
@@ -346,7 +346,7 @@ export async function awardMilestoneXP(
 
     return results;
   } catch (error) {
-    const errorResult = handleActionError(error, "awardMilestoneXP");
+    const errorResult = handleActionError(error);
     return [errorResult as XPResult];
   }
 }

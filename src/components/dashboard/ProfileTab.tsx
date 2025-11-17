@@ -71,7 +71,7 @@ export const ProfileTab = ({
       } else {
         toast.error(result.message || "Failed to update profile");
       }
-    } catch (error) {
+    } catch {
       toast.error("An error occurred. Please try again.");
     } finally {
       setIsSaving(false);

@@ -80,7 +80,7 @@ export async function createEnrollment(
       enrollmentId: enrollment.id,
     };
   } catch (error) {
-    return handleActionError(error, "createEnrollment") as EnrollmentResult;
+    return handleActionError(error) as EnrollmentResult;
   }
 }
 
@@ -116,7 +116,7 @@ export async function checkEnrollment(
       enrollmentId: enrollment.id,
       progress: enrollment.progress_percentage,
     };
-  } catch (error) {
+  } catch {
     return { isEnrolled: false };
   }
 }
@@ -160,7 +160,7 @@ export async function getUserEnrollments() {
     }
 
     return { data: enrollments, error: null };
-  } catch (error) {
+  } catch {
     return { data: null, error: "An unexpected error occurred" };
   }
 }
@@ -174,7 +174,7 @@ export async function getEnrollmentDetails(enrollmentId: string) {
   try {
     const { supabase } = await getAuthenticatedUser();
 
-    const { data: enrollment, error } = await supabase
+    const { data: enrollment } = await supabase
       .from("enrollments")
       .select(
         `
@@ -197,12 +197,12 @@ export async function getEnrollmentDetails(enrollmentId: string) {
       .eq("id", enrollmentId)
       .single();
 
-    if (error) {
+    if (!enrollment) {
       return { data: null, error: "Error fetching enrollment details" };
     }
 
     return { data: enrollment, error: null };
-  } catch (error) {
+  } catch {
     return { data: null, error: "An unexpected error occurred" };
   }
 }
@@ -211,12 +211,10 @@ export async function getEnrollmentDetails(enrollmentId: string) {
  * Get the last accessed lesson for a course
  * Returns the most recently updated lesson from lesson_progress, or the first lesson if no progress
  * @param courseId - UUID of the course
- * @param courseSlug - Slug of the course
  * @returns Lesson ID or null
  */
 export async function getLastAccessedLesson(
-  courseId: string,
-  courseSlug: string
+  courseId: string
 ): Promise<string | null> {
   try {
     const { user, supabase, error: authError } = await getAuthenticatedUser();
@@ -264,7 +262,7 @@ export async function getLastAccessedLesson(
     }
 
     return lastProgress.lesson_id;
-  } catch (error) {
+  } catch {
     return null;
   }
 }

@@ -27,7 +27,6 @@ export const VideoPlayer = ({
 }: VideoPlayerProps) => {
   const {
     playerRef,
-    isReady,
     isPlaying,
     videoDuration,
     setPlayerRef,

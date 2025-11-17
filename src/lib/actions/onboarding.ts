@@ -108,7 +108,7 @@ export const skipOnboarding = async (): Promise<CompleteOnboardingResult> => {
       success: true,
       message: "Onboarding skipped",
     }
-  } catch (error) {
+  } catch {
     return {
       success: false,
       message: "An unexpected error occurred",

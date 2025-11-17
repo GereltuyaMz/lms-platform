@@ -46,7 +46,7 @@ export const EnrollButton = ({
         // Show error message
         alert(result.message);
       }
-    } catch (error) {
+    } catch {
       alert("An unexpected error occurred");
     } finally {
       setIsLoading(false);
