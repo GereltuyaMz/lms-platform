@@ -53,12 +53,7 @@ export const ClientHeader = ({ initialUser }: ClientHeaderProps) => {
         <nav className="max-w-[1600px] mx-auto flex justify-between items-center px-4 h-full">
           <div className="flex items-center gap-8">
             <Link href="/">
-              <Image
-                src="/company-logo.png"
-                alt="logo"
-                width={100}
-                height={100}
-              />
+              <Image src="/edu-logo.png" alt="logo" width={50} height={50} />
             </Link>
 
             <ul className="hidden md:flex gap-6">

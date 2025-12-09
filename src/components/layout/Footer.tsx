@@ -7,12 +7,7 @@ export const Footer = () => {
     <footer className="bg-primary text-white px-36">
       <div className="container mx-auto py-20">
         <div className="flex flex-col md:flex-row items-center justify-between gap-6">
-          <Image
-            src="/company-logo-2.png"
-            alt="logo"
-            width={100}
-            height={100}
-          />
+          <Image src="/edu-logo.png" alt="logo" width={60} height={60} />
 
           <nav className="flex flex-wrap justify-center gap-6 font-semibold">
             <Link href="/courses" className="hover:underline">
