@@ -38,7 +38,7 @@ export const CoursesClientWrapper = ({
 
     return {
       topics: topicsParam ? topicsParam.split(",") : [],
-      level: levelParam || "All",
+      level: levelParam || "Бүгд",
     };
   });
 
@@ -47,15 +47,20 @@ export const CoursesClientWrapper = ({
 
     const params = new URLSearchParams();
 
+    // Add topic filters if any
     if (newFilters.topics.length > 0) {
       params.set("topics", newFilters.topics.join(","));
     }
 
-    if (newFilters.level !== "All") {
+    // Add level filter only if it's not "Бүгд" (All)
+    if (newFilters.level && newFilters.level !== "Бүгд") {
       params.set("level", newFilters.level);
     }
 
-    params.set("page", "1");
+    // Only add page param if we have filters, otherwise clean URL
+    if (params.toString()) {
+      params.set("page", "1");
+    }
 
     const queryString = params.toString();
     const newUrl = queryString ? `/courses?${queryString}` : "/courses";
@@ -86,7 +91,7 @@ export const CoursesClientWrapper = ({
         ref={coursesHeadingRef}
         className="mt-8 mb-8 text-4xl font-bold scroll-mt-24"
       >
-        All courses
+        Бүх сургалтууд
       </h1>
 
       <div className="flex gap-8">

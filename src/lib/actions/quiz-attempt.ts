@@ -142,11 +142,16 @@ export async function saveQuizAttempt(
       const { updateUserStreak } = await import("./streak-actions");
       const streakResult = await updateUserStreak(user.id);
 
-      if (streakResult.success) {
+      // Only show streak notification if it's a new streak day
+      if (streakResult.success && streakResult.isNewStreakDay) {
         currentStreak = streakResult.currentStreak;
         streakBonusAwarded = streakResult.streakBonusAwarded;
         streakBonusMessage = streakResult.streakBonusMessage;
       }
+
+      // Check for badge awards on quiz completion
+      const { checkAndAwardBadges } = await import("./badges");
+      await checkAndAwardBadges("quiz");
     }
 
     // Revalidate relevant pages

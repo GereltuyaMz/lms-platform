@@ -1,9 +1,5 @@
 import { useState, useEffect, useRef } from "react";
-import {
-  saveVideoProgress,
-  getLessonProgress,
-  awardVideoCompletionXP,
-} from "@/lib/actions";
+import { saveVideoProgress, getLessonProgress } from "@/lib/actions";
 import { toast } from "sonner";
 
 type UseVideoProgressProps = {
@@ -42,11 +38,13 @@ export const useVideoProgress = ({
 
   // Save progress to database
   const saveProgress = async (position: number, completed: boolean) => {
+    // Pass videoDuration on completion for XP calculation
     const result = await saveVideoProgress(
       lessonId,
       courseId,
       position,
-      completed
+      completed,
+      completed && !xpAwarded.current ? videoDuration : undefined
     );
 
     if (result.success) {
@@ -55,21 +53,12 @@ export const useVideoProgress = ({
       if (completed) {
         setIsCompleted(true);
 
-        // Award XP on first completion
-        if (!xpAwarded.current && videoDuration > 0) {
+        // Show video completion XP (awarded in single server call)
+        if (result.videoXpAwarded && !xpAwarded.current) {
           xpAwarded.current = true;
-
-          const xpResult = await awardVideoCompletionXP(
-            lessonId,
-            courseId,
-            videoDuration
-          );
-
-          if (xpResult.success && xpResult.xpAwarded) {
-            toast.success(`🎉 +${xpResult.xpAwarded} XP`, {
-              description: "Lesson completed!",
-            });
-          }
+          toast.success(`🎉 +${result.videoXpAwarded} XP`, {
+            description: "Хичээлээ амжилттай дуусгалаа!",
+          });
         }
 
         // Show milestone XP notifications
@@ -98,8 +87,8 @@ export const useVideoProgress = ({
           result.currentStreak > 0 &&
           !result.streakBonusAwarded
         ) {
-          toast.success(`🔥 ${result.currentStreak} day streak!`, {
-            description: "Keep it up!",
+          toast.success(`🔥 ${result.currentStreak} өдөр стрик!`, {
+            description: "Ингээд үргэлжлээрэй!",
             duration: 3000,
           });
         }

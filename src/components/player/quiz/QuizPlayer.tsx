@@ -47,10 +47,10 @@ export const QuizPlayer = ({
       <div className="bg-white rounded-lg border overflow-hidden mb-6">
         <div className="p-8 text-center">
           <p className="text-lg text-muted-foreground mb-4">
-            No quiz questions available
+            Асуулт байхгүй байна
           </p>
           <p className="text-sm text-muted-foreground">
-            Quiz questions have not been created for this lesson yet.
+            Энэ хичээлийн асуултууд хараахан үүсээгүй байна.
           </p>
         </div>
       </div>
@@ -90,7 +90,7 @@ export const QuizPlayer = ({
     const pointsEarned = quizData.questions.reduce((total, question, index) => {
       const userAnswer = userAnswers[index];
       const isCorrect = userAnswer === question.correctAnswer;
-      return total + (isCorrect ? (question.points || 10) : 0);
+      return total + (isCorrect ? question.points || 10 : 0);
     }, 0);
 
     // Prepare answers array (empty for now - quiz structure doesn't have option IDs yet)
@@ -122,7 +122,9 @@ export const QuizPlayer = ({
 
       if (xpResult.success && xpResult.xpAwarded) {
         toast.success(`🎉 +${xpResult.xpAwarded} XP`, {
-          description: `Quiz completed with ${Math.round(scorePercentage)}%!`,
+          description: `Та тестээ ${Math.round(
+            scorePercentage
+          )}% үнэлгээтэй давлаа!`,
         });
       }
 
@@ -152,8 +154,8 @@ export const QuizPlayer = ({
         result.currentStreak > 0 &&
         !result.streakBonusAwarded
       ) {
-        toast.success(`🔥 ${result.currentStreak} day streak!`, {
-          description: "Keep it up!",
+        toast.success(`🔥 ${result.currentStreak} өдөр стрик!`, {
+          description: "Ингээд үргэлжлээрэй!",
           duration: 3000,
         });
       }
@@ -189,7 +191,7 @@ export const QuizPlayer = ({
           <div className="mb-6">
             <h2 className="text-2xl font-bold mb-2">{title}</h2>
             <p className="text-muted-foreground">
-              Test your knowledge with this practice quiz
+              Энэ тестээр мэдлэгээ шалгаарай
             </p>
           </div>
 
@@ -215,18 +217,18 @@ export const QuizPlayer = ({
               onClick={handlePrevious}
               disabled={currentQuestion === 0}
             >
-              Previous
+              Өмнөх
             </Button>
 
             {!showExplanation ? (
               <Button onClick={handleSubmit} disabled={selectedAnswer === null}>
-                Submit Answer
+                Хариу илгээх
               </Button>
             ) : (
               <Button onClick={handleNext}>
                 {currentQuestion < quizData.questions.length - 1
-                  ? "Next Question"
-                  : "See Results"}
+                  ? "Дараагийн асуулт"
+                  : "Үр дүнг харах"}
               </Button>
             )}
           </div>

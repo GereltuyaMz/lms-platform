@@ -28,13 +28,12 @@ export const ProfileCompletionBanner = ({
 
         <div className="flex-1">
           <h3 className="font-semibold text-lg mb-1 flex items-center gap-2">
-            Complete Your Profile
+            Профайлаа бөглөнө үү
             <Sparkles className="h-4 w-4 text-yellow-500" />
           </h3>
           <p className="text-muted-foreground text-sm mb-4">
-            Add your avatar, date of birth, and learning goals to unlock{" "}
-            <span className="font-bold text-primary">150 XP</span> and get
-            personalized recommendations!
+            Профайл зураг, төрсөн огноо, суралцах зорилгоо нэмж{" "}
+            <span className="font-bold text-primary">150 XP</span> олж авна уу!
           </p>
 
           <div className="flex flex-wrap gap-3">
@@ -43,7 +42,7 @@ export const ProfileCompletionBanner = ({
               onClick={() => router.push("/dashboard?tab=profile")}
               className="cursor-pointer"
             >
-              Complete Now
+              Одоо бөглөх
             </Button>
             <Button
               size="sm"
@@ -51,7 +50,7 @@ export const ProfileCompletionBanner = ({
               onClick={() => router.push("/dashboard")}
               className="cursor-pointer"
             >
-              Maybe Later
+              Дараа бөглөнө
             </Button>
           </div>
         </div>

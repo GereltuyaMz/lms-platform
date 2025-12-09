@@ -17,20 +17,24 @@ export const NavigationButtons = ({
     <div className="flex items-center justify-between gap-4">
       {/* Previous Button */}
       {previousLessonUrl ? (
-        <Button variant="outline" asChild className="flex items-center gap-2">
+        <Button
+          variant="outline"
+          asChild
+          className="flex items-center gap-2 hover:text-white"
+        >
           <Link href={previousLessonUrl}>
-            <ChevronLeft className="w-4 h-4" />
-            Previous Lesson
+            <ChevronLeft className="w-4 h-4 " />
+            Өмнөх хичээл
           </Link>
         </Button>
       ) : (
         <Button
           variant="outline"
           disabled
-          className="flex items-center gap-2"
+          className="flex items-center gap-2 hover:text-white"
         >
           <ChevronLeft className="w-4 h-4" />
-          Previous Lesson
+          Өмнөх хичээл
         </Button>
       )}
 
@@ -38,13 +42,13 @@ export const NavigationButtons = ({
       {nextLessonUrl ? (
         <Button asChild className="flex items-center gap-2">
           <Link href={nextLessonUrl}>
-            Next Lesson
+            Дараагийн хичээл
             <ChevronRight className="w-4 h-4" />
           </Link>
         </Button>
       ) : (
         <Button disabled className="flex items-center gap-2">
-          Next Lesson
+          Дараагийн хичээл
           <ChevronRight className="w-4 h-4" />
         </Button>
       )}

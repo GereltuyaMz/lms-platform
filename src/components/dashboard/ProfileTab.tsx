@@ -40,7 +40,7 @@ export const ProfileTab = ({
       // For now, create a local preview URL
       const previewUrl = URL.createObjectURL(file);
       setAvatarUrl(previewUrl);
-      toast.info("Avatar upload to storage not yet implemented");
+      toast.info("Зураг байршуулах функц хараахан бэлэн болоогүй байна");
     }
   };
 
@@ -62,17 +62,17 @@ export const ProfileTab = ({
 
         if (xpResult.success && xpResult.xpAwarded) {
           toast.success(`🎉 +${xpResult.xpAwarded} XP`, {
-            description: "Profile completed!",
+            description: "Профайл бөглөгдсөн!",
             duration: 5000,
           });
         } else {
-          toast.success("Profile updated successfully!");
+          toast.success("Профайл амжилттай шинэчлэгдлээ!");
         }
       } else {
-        toast.error(result.message || "Failed to update profile");
+        toast.error(result.message || "Профайл шинэчлэхэд алдаа гарлаа");
       }
     } catch {
-      toast.error("An error occurred. Please try again.");
+      toast.error("Алдаа гарлаа. Дахин оролдоно уу.");
     } finally {
       setIsSaving(false);
     }
@@ -80,13 +80,13 @@ export const ProfileTab = ({
 
   return (
     <div>
-      <h2 className="text-2xl md:text-3xl font-bold mb-6">Profile Settings</h2>
+      <h2 className="text-2xl md:text-3xl font-bold mb-6">Профайлын тохиргоо</h2>
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
         {/* Avatar Section */}
         <Card className="lg:col-span-1">
           <CardHeader>
-            <CardTitle>Profile Picture</CardTitle>
+            <CardTitle>Профайл зураг</CardTitle>
           </CardHeader>
           <CardContent className="flex flex-col items-center gap-4">
             <Avatar className="w-32 h-32 bg-emerald-500">
@@ -104,7 +104,7 @@ export const ProfileTab = ({
               className="cursor-pointer w-full inline-flex items-center justify-center gap-2 px-4 py-2 border border-input rounded-md hover:bg-accent hover:text-accent-foreground transition-colors"
             >
               <Upload className="w-4 h-4" />
-              Upload Photo
+              Зураг байршуулах
             </Label>
             <Input
               id="avatar-upload"
@@ -114,7 +114,7 @@ export const ProfileTab = ({
               onChange={handleAvatarChange}
             />
             <p className="text-xs text-muted-foreground text-center">
-              JPG, PNG or GIF. Max size 2MB.
+              JPG, PNG эсвэл GIF. Хамгийн ихдээ 2MB.
             </p>
           </CardContent>
         </Card>
@@ -122,24 +122,24 @@ export const ProfileTab = ({
         {/* Profile Form */}
         <Card className="lg:col-span-2">
           <CardHeader>
-            <CardTitle>Personal Information</CardTitle>
+            <CardTitle>Хувийн мэдээлэл</CardTitle>
           </CardHeader>
           <CardContent>
             <form onSubmit={handleSubmit} className="space-y-6">
               {/* Username */}
               <div className="space-y-2">
-                <Label htmlFor="username">Username</Label>
+                <Label htmlFor="username">Хэрэглэгчийн нэр</Label>
                 <Input
                   id="username"
                   value={username}
                   onChange={(e) => setUsername(e.target.value)}
-                  placeholder="Enter your username"
+                  placeholder="Хэрэглэгчийн нэрээ оруулна уу"
                 />
               </div>
 
               {/* Email (read-only) */}
               <div className="space-y-2">
-                <Label htmlFor="email">Email</Label>
+                <Label htmlFor="email">Имэйл</Label>
                 <Input
                   id="email"
                   type="email"
@@ -148,13 +148,13 @@ export const ProfileTab = ({
                   className="bg-gray-50"
                 />
                 <p className="text-xs text-muted-foreground">
-                  Email cannot be changed
+                  Имэйл хаягийг өөрчлөх боломжгүй
                 </p>
               </div>
 
               {/* Date of Birth */}
               <div className="space-y-2">
-                <Label htmlFor="dateOfBirth">Date of Birth</Label>
+                <Label htmlFor="dateOfBirth">Төрсөн огноо</Label>
                 <Input
                   id="dateOfBirth"
                   type="date"
@@ -166,16 +166,16 @@ export const ProfileTab = ({
 
               {/* Learning Goals */}
               <div className="space-y-2">
-                <Label htmlFor="learningGoals">Learning Goals</Label>
+                <Label htmlFor="learningGoals">Суралцах зорилго</Label>
                 <Textarea
                   id="learningGoals"
                   value={learningGoals}
                   onChange={(e) => setLearningGoals(e.target.value)}
-                  placeholder="Describe your learning objectives..."
+                  placeholder="Суралцах зорилгоо бичнэ үү..."
                   rows={4}
                 />
                 <p className="text-xs text-muted-foreground">
-                  {learningGoals.length} / 500 characters
+                  {learningGoals.length} / 500 тэмдэгт
                 </p>
               </div>
 
@@ -185,10 +185,10 @@ export const ProfileTab = ({
                   {isSaving ? (
                     <>
                       <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                      Saving...
+                      Хадгалж байна...
                     </>
                   ) : (
-                    "Save Changes"
+                    "Өөрчлөлт хадгалах"
                   )}
                 </Button>
                 <Button
@@ -202,7 +202,7 @@ export const ProfileTab = ({
                   }}
                   className="cursor-pointer"
                 >
-                  Cancel
+                  Цуцлах
                 </Button>
               </div>
             </form>
@@ -213,25 +213,25 @@ export const ProfileTab = ({
       {/* Account Stats */}
       <Card className="mt-6">
         <CardHeader>
-          <CardTitle>Account Statistics</CardTitle>
+          <CardTitle>Хэрэглэгчийн статистик</CardTitle>
         </CardHeader>
         <CardContent>
           <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
             <div className="text-center p-4 bg-gray-50 rounded-lg">
               <p className="text-2xl font-bold">0</p>
-              <p className="text-sm text-muted-foreground">Courses Enrolled</p>
+              <p className="text-sm text-muted-foreground">Элссэн хичээл</p>
             </div>
             <div className="text-center p-4 bg-gray-50 rounded-lg">
               <p className="text-2xl font-bold">0</p>
-              <p className="text-sm text-muted-foreground">Courses Completed</p>
+              <p className="text-sm text-muted-foreground">Дууссан хичээл</p>
             </div>
             <div className="text-center p-4 bg-gray-50 rounded-lg">
-              <p className="text-2xl font-bold">0h</p>
-              <p className="text-sm text-muted-foreground">Learning Time</p>
+              <p className="text-2xl font-bold">0ц</p>
+              <p className="text-sm text-muted-foreground">Суралцсан цаг</p>
             </div>
             <div className="text-center p-4 bg-gray-50 rounded-lg">
               <p className="text-2xl font-bold">0</p>
-              <p className="text-sm text-muted-foreground">Certificates</p>
+              <p className="text-sm text-muted-foreground">Сертификат</p>
             </div>
           </div>
         </CardContent>

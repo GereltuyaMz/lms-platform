@@ -4,13 +4,13 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import Link from "next/link";
-import Image from "next/image";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { signUpSchema, type SignUpFormData } from "@/lib/validations";
 import { signUpAction, signInWithGoogleAction } from "@/app/(auth)/actions";
 import { useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
+import { GoogleIcon } from "@/icons";
 
 export default function SignUpPage() {
   const [isPending, startTransition] = useTransition();
@@ -65,7 +65,7 @@ export default function SignUpPage() {
     <div className="min-h-screen flex items-center justify-center bg-white">
       <div className="w-full max-w-lg space-y-8 flex flex-col items-center justify-center">
         <h1 className="text-h1 font-bold text-foreground text-center">
-          Create your profile
+          Профайл үүсгэх
         </h1>
 
         <form onSubmit={handleSubmit(onSubmit)} className="space-y-6 w-10/12">
@@ -83,12 +83,12 @@ export default function SignUpPage() {
 
           <div className="space-y-2">
             <Label htmlFor="name" className="sr-only">
-              Name
+              Нэр
             </Label>
             <Input
               id="name"
               type="text"
-              placeholder="Name"
+              placeholder="Нэр"
               className="h-14 rounded-lg border-gray-300"
               {...register("name")}
             />
@@ -99,12 +99,12 @@ export default function SignUpPage() {
 
           <div className="space-y-2">
             <Label htmlFor="email" className="sr-only">
-              Email
+              Имэйл
             </Label>
             <Input
               id="email"
               type="email"
-              placeholder="Email"
+              placeholder="Имэйл"
               className="h-14 rounded-lg border-gray-300"
               {...register("email")}
             />
@@ -115,12 +115,12 @@ export default function SignUpPage() {
 
           <div className="space-y-2">
             <Label htmlFor="password" className="sr-only">
-              Password
+              Нууц үг
             </Label>
             <Input
               id="password"
               type="password"
-              placeholder="Password"
+              placeholder="Нууц үг"
               className="h-14 rounded-lg border-gray-300"
               {...register("password")}
             />
@@ -135,7 +135,7 @@ export default function SignUpPage() {
             className="w-full h-12 rounded-3xl bg-primary hover:bg-primary/90 text-white font-medium disabled:opacity-50 cursor-pointer"
           >
             <p className="text-medium">
-              {isPending ? "Creating..." : "Create account"}
+              {isPending ? "Үүсгэж байна..." : "Бүртгүүлэх"}
             </p>
           </Button>
         </form>
@@ -147,17 +147,17 @@ export default function SignUpPage() {
           onClick={handleGoogleSignIn}
           className="w-10/12 h-12 rounded-lg border-gray-300 hover:bg-gray-50 disabled:opacity-50 cursor-pointer"
         >
-          <Image src="/assets/google.svg" alt="Google" width={32} height={32} />
+          <GoogleIcon fill="#10b981" width={32} height={32} />
         </Button>
 
         <div className="text-center">
           <p className="text-small text-muted-foreground">
-            Already have an account?
+            Бүртгэлтэй юу?{" "}
             <Link
               href="/signin"
               className="text-primary underline hover:no-underline font-medium"
             >
-              Log In
+              Нэвтрэх
             </Link>
           </p>
         </div>

@@ -33,77 +33,107 @@ export const ClientHeader = ({ initialUser }: ClientHeaderProps) => {
     return () => window.removeEventListener("scroll", handleScroll);
   }, []);
 
+  // Keep heights in sync with Tailwind sizes:
+  // not-scrolled => h-24 (6rem) ; scrolled => h-16 (4rem)
+  // spacer below header uses same values so page content is pushed below header.
+  const headerHeightClass = isScrolled ? "h-16" : "h-24";
+  const headerPaddingClass = isScrolled ? "py-0" : "py-0"; // padding moved into height control
+
   return (
-    <header
-      className={`py-6 px-2 transition-all duration-500 ease-in-out ${
-        isScrolled
-          ? "fixed top-0 left-0 right-0 z-50 bg-white/95 backdrop-blur-sm w-full"
-          : "relative max-w-[1600px] mx-auto"
-      }`}
-    >
-      <nav
-        className={`flex justify-between items-center ${
-          isScrolled ? "max-w-[1600px] mx-auto" : ""
-        }`}
+    <>
+      <header
+        className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 ease-in-out ${headerHeightClass} ${headerPaddingClass}
+          ${
+            isScrolled
+              ? "bg-white/95 backdrop-blur-sm shadow-sm"
+              : "bg-transparent"
+          }
+        `}
       >
-        <div className="flex items-center gap-8">
-          <Link href="/">
-            <Image
-              src="/company-logo.png"
-              alt="logo"
-              width={100}
-              height={100}
-            />
-          </Link>
-          <ul className="hidden md:flex gap-6">
-            <li>
-              <Link href="/courses">Courses</Link>
-            </li>
-            <li>
-              <Link href="/guide">Guide</Link>
-            </li>
-            <li>
-              <Link href="/shop">Shop</Link>
-            </li>
-          </ul>
-        </div>
-        <div className="hidden md:flex items-center gap-4">
-          {initialUser ? (
-            <UserNav user={initialUser} />
-          ) : (
-            <>
-              <Link href="/signin">
-                <Button
-                  variant="outline"
-                  size="lg"
-                  className="rounded-3xl font-bold cursor-pointer"
+        <nav className="max-w-[1600px] mx-auto flex justify-between items-center px-4 h-full">
+          <div className="flex items-center gap-8">
+            <Link href="/">
+              <Image
+                src="/company-logo.png"
+                alt="logo"
+                width={100}
+                height={100}
+              />
+            </Link>
+
+            <ul className="hidden md:flex gap-6">
+              <li>
+                <Link
+                  href="/courses"
+                  className="transition-colors duration-200 hover:text-primary"
                 >
-                  Sign In
-                </Button>
-              </Link>
-              <div
-                className={`transition-all duration-300 ease-in-out ${
-                  isScrolled
-                    ? "opacity-100 transform"
-                    : "opacity-0 transform pointer-events-none"
-                }`}
-              >
-                <Link href="/signup">
+                  Сургалтууд
+                </Link>
+              </li>
+              <li>
+                <Link
+                  href="/guide"
+                  className="transition-colors duration-200 hover:text-primary"
+                >
+                  Заавар
+                </Link>
+              </li>
+              <li>
+                <Link
+                  href="/shop"
+                  className="transition-colors duration-200 hover:text-primary"
+                >
+                  Дэлгүүр
+                </Link>
+              </li>
+            </ul>
+          </div>
+
+          <div className="hidden md:flex items-center gap-4">
+            {initialUser ? (
+              <UserNav user={initialUser} />
+            ) : (
+              <>
+                <Link href="/signin">
                   <Button
+                    variant="outline"
                     size="lg"
-                    className="rounded-3xl font-bold bg-primary hover:bg-primary/90 cursor-pointer"
+                    className="rounded-3xl font-bold cursor-pointer hover:text-white"
                   >
-                    Get Started
+                    Нэвтрэх
                   </Button>
                 </Link>
-              </div>
-            </>
-          )}
-        </div>
-        <Button variant="outline" size="icon" className="md:hidden">
-          <Menu />
-        </Button>
-      </nav>
-    </header>
+
+                <div
+                  className={`transition-all duration-300 ease-in-out ${
+                    isScrolled ? "opacity-100" : "opacity-0 pointer-events-none"
+                  }`}
+                >
+                  <Link href="/signup">
+                    <Button
+                      size="lg"
+                      className="rounded-3xl font-bold bg-primary hover:bg-primary/90 cursor-pointer uppercase"
+                    >
+                      Эхлэх
+                    </Button>
+                  </Link>
+                </div>
+              </>
+            )}
+          </div>
+
+          <Button variant="outline" size="icon" className="md:hidden">
+            <Menu />
+          </Button>
+        </nav>
+      </header>
+
+      {/* Spacer to prevent content from being hidden under fixed header.
+          Matches header heights used above (h-24 when not scrolled, h-16 when scrolled). */}
+      <div
+        aria-hidden
+        className={`transition-all duration-300 ease-in-out ${headerHeightClass}`}
+      />
+    </>
   );
 };

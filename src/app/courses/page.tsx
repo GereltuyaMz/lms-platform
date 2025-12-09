@@ -1,6 +1,7 @@
 import Image from "next/image";
 import { createClient } from "@/lib/supabase/server";
 import { CoursesClientWrapper } from "@/components/courses";
+import { parseCourseLevelToDb } from "@/lib/utils/formatters";
 
 // Revalidate page every 5 minutes (300 seconds) to cache course data
 export const revalidate = 300;
@@ -23,26 +24,9 @@ const CoursesPage = async ({ searchParams }: PageProps) => {
     .select("*")
     .order("name");
 
-  // Build query for courses with filters using the optimized view
-  let query = supabase
-    .from("courses_with_stats")
-    .select(
-      `
-      *,
-      course_categories (
-        category_id,
-        categories (
-          id,
-          name,
-          slug
-        )
-      )
-    `,
-      { count: "exact" }
-    )
-    .eq("is_published", true);
+  // First, get filtered course IDs if category filter is applied
+  let filteredCourseIds: string[] | null = null;
 
-  // Apply category filter if provided
   if (topicsParam) {
     const topics = topicsParam.split(",");
     const categoryIds = categories
@@ -56,19 +40,54 @@ const CoursesPage = async ({ searchParams }: PageProps) => {
         .select("course_id")
         .in("category_id", categoryIds);
 
-      const courseIds = courseCategoryData?.map((cc) => cc.course_id) || [];
-
-      if (courseIds.length > 0) {
-        query = query.in("id", courseIds);
-      } else {
-        // No courses match the filter, return empty result
-        query = query.eq("id", "00000000-0000-0000-0000-000000000000");
-      }
+      filteredCourseIds = courseCategoryData?.map((cc) => cc.course_id) || [];
+    } else {
+      filteredCourseIds = []; // No matching categories
     }
   }
 
-  if (levelParam && levelParam !== "All") {
-    query = query.eq("level", levelParam);
+  // Build query for courses with filters using the optimized view
+  let query = supabase
+    .from("courses_with_stats")
+    .select(
+      `
+      *,
+      course_categories (
+        category_id,
+        categories (
+          id,
+          name,
+          slug
+        )
+      ),
+      teacher:teachers!instructor_id (
+        id,
+        full_name,
+        full_name_mn,
+        avatar_url
+      )
+    `,
+      { count: "exact" }
+    )
+    .eq("is_published", true);
+
+  // Apply category filter by course IDs
+  if (filteredCourseIds !== null) {
+    if (filteredCourseIds.length > 0) {
+      query = query.in("id", filteredCourseIds);
+    } else {
+      // No courses match the filter, return empty result
+      query = query.eq("id", "00000000-0000-0000-0000-000000000000");
+    }
+  }
+
+  // Convert Mongolian level to English database value
+  // Only filter by level if levelParam exists and is not "Бүгд" (All)
+  if (levelParam && levelParam.trim() !== "" && levelParam !== "Бүгд") {
+    const dbLevel = parseCourseLevelToDb(levelParam);
+    if (dbLevel) {
+      query = query.eq("level", dbLevel);
+    }
   }
 
   // Apply pagination
@@ -97,7 +116,9 @@ const CoursesPage = async ({ searchParams }: PageProps) => {
               />
             </div>
             <div>
-              <h1 className="text-h1 mb-6">Explore your potential</h1>
+              <h1 className="text-h1 mb-6">
+                Боломжоо бүрэн <span className="text-primary">нээе</span>
+              </h1>
             </div>
           </div>
         </div>

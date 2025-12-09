@@ -16,16 +16,13 @@ export const Footer = () => {
 
           <nav className="flex flex-wrap justify-center gap-6 font-semibold">
             <Link href="/courses" className="hover:underline">
-              Courses
+              Сургалтууд
+            </Link>
+            <Link href="/guide" className="hover:underline">
+              Заавар
             </Link>
             <Link href="/shop" className="hover:underline">
-              Shop
-            </Link>
-            <Link href="/resources" className="hover:underline">
-              Resources
-            </Link>
-            <Link href="/community" className="hover:underline">
-              Community
+              Дэлгүүр
             </Link>
           </nav>
 
@@ -52,14 +49,14 @@ export const Footer = () => {
         </div>
       </div>
 
-      <Separator />
+      <Separator className="bg-gray-300" />
       <div className="container mx-auto px-4 pt-10 pb-20">
         <div className="flex flex-col md:flex-row items-center justify-between gap-4">
           <div className="text-small">
-            © 2024 Learning Platform. All rights reserved.
+            © 2025 Expont Mind Solution ХХК. Бүх эрх хуулиар хамгаалагдсан.
           </div>
 
-          <div className="flex flex-wrap justify-center gap-6">
+          {/* <div className="flex flex-wrap justify-center gap-6">
             <Link
               href="/privacy"
               className="text-small underline hover:no-underline"
@@ -78,7 +75,7 @@ export const Footer = () => {
             >
               Cookies settings
             </Link>
-          </div>
+          </div> */}
         </div>
       </div>
     </footer>

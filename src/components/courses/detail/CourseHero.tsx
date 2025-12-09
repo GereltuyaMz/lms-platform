@@ -4,6 +4,7 @@ import { Badge } from "@/components/ui/badge";
 import { VideoIcon, DumbbellIcon, BoardIcon, BoltIcon } from "@/icons";
 import { getLevelColor } from "@/lib/course-utils";
 import { formatDuration } from "@/lib/utils";
+import { formatCourseLevel } from "@/lib/utils/formatters";
 import type { Course } from "@/types/database";
 
 type CourseHeroProps = {
@@ -58,7 +59,7 @@ export const CourseHero = ({
                 variant="secondary"
                 className={`text-sm ${getLevelColor(course.level)} mb-2`}
               >
-                {course.level}
+                {formatCourseLevel(course.level)}
               </Badge>
               <h1 className="text-h3 md:text-4xl font-bold mb-4">
                 {course.title}
@@ -75,25 +76,25 @@ export const CourseHero = ({
                     <strong className="font-bold">
                       {formatDuration(totalDurationMinutes)}
                     </strong>
-                    {" "}video
+                    {" "}видео
                   </span>
                 </div>
                 <div className="flex items-center gap-3">
                   <DumbbellIcon width={24} height={24} fill="#10B981" />
                   <span className="text-base">
-                    <strong className="font-bold">{exerciseCount}</strong> exercises
+                    <strong className="font-bold">{exerciseCount}</strong> дасгал
                   </span>
                 </div>
                 <div className="flex items-center gap-3">
                   <BoardIcon width={24} height={24} fill="#8B5CF6" />
                   <span className="text-base">
-                    <strong className="font-bold">{lessonCount}</strong> lessons
+                    <strong className="font-bold">{lessonCount}</strong> хичээл
                   </span>
                 </div>
                 <div className="flex items-center gap-3">
                   <BoltIcon width={24} height={24} fill="#F59E0B" />
                   <span className="text-base">
-                    Total <strong className="font-bold">{totalXp}</strong> XP
+                    Нийт <strong className="font-bold">{totalXp}</strong> XP
                   </span>
                 </div>
               </div>

@@ -4,33 +4,35 @@ import Link from "next/link";
 
 export const Hero = () => {
   return (
-    <section className="flex-col items-center justify-center mx-auto max-w-[1600px]">
-      {/* <div
-        className="bg-cover bg-center bg-no-repeat h-[700px]"
-        style={{
-          backgroundImage: "url('/assets/background.png')",
-        }}
-      /> */}
-      <Image src="/assets/background.png" alt="bg" width={1400} height={600} />
+    <section className="flex flex-col items-center justify-center min-h-screen mx-auto max-w-[1600px]">
+      <Image src="/assets/background.png" alt="bg" width={1200} height={600} />
 
-      {/* Content */}
-      <div className="container mx-auto px-4 text-center ">
+      <div className="container mx-auto px-4 text-center">
         <h1 className="text-h1 mb-4 max-w-4xl mx-auto">
-          Where learning feels like fun.
+          Таашаалтайгаар суралцах орчин.
         </h1>
 
-        <p className="text-medium mb-8 max-w-2xl mx-auto ">
-          Learn anywhere, anytime with bite-sized lessons that make studying
-          fun.
+        <p className="text-medium mb-8 max-w-2xl mx-auto font-semibold">
+          Хэзээ ч, хаана ч, ойлгомжтой хичээлүүдээр өөрийгөө хөгжүүлээрэй.
         </p>
-        <Link href="/signup">
-          <Button
-            className="font-semibold rounded-3xl bg-primary cursor-pointer"
-            size="lg"
-          >
-            Get Started
-          </Button>
-        </Link>
+
+        <div className="relative inline-block">
+          {/* Glow Aura */}
+          <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
+            <div className="w-[180px] h-[180px] bg-primary/40 rounded-full blur-3xl opacity-70 animate-pulse-slow"></div>
+          </div>
+
+          {/* The Button */}
+          <Link href="/signup">
+            <Button
+              className="relative font-bold rounded-3xl bg-primary cursor-pointer text-white text-2xl py-6 px-10
+      transition-transform duration-300 hover:-translate-y-1 hover:scale-105 uppercase z-10"
+              size="lg"
+            >
+              Эхлэх
+            </Button>
+          </Link>
+        </div>
       </div>
     </section>
   );

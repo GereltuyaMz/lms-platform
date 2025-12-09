@@ -46,18 +46,15 @@ export const QuizQuestion = ({
                     ? index === correctAnswer
                       ? "border-green-500 bg-green-50"
                       : index === selectedAnswer
-                        ? "border-red-500 bg-red-50"
-                        : "border-gray-200"
+                      ? "border-red-500 bg-red-50"
+                      : "border-gray-200"
                     : selectedAnswer === index
-                      ? "border-blue-500 bg-blue-50"
-                      : "border-gray-200 hover:border-gray-300"
+                    ? "border-blue-500 bg-blue-50"
+                    : "border-gray-200 hover:border-gray-300"
                 }
               `}
             >
-              <RadioGroupItem
-                value={index.toString()}
-                id={`option-${index}`}
-              />
+              <RadioGroupItem value={index.toString()} id={`option-${index}`} />
               <Label
                 htmlFor={`option-${index}`}
                 className="flex-1 cursor-pointer"
@@ -94,12 +91,16 @@ export const QuizQuestion = ({
             )}
             <div>
               <p
-                className={`font-semibold mb-1 ${isCorrect ? "text-green-900" : "text-red-900"}`}
+                className={`font-semibold mb-1 ${
+                  isCorrect ? "text-green-900" : "text-red-900"
+                }`}
               >
-                {isCorrect ? "Correct!" : "Incorrect"}
+                {isCorrect ? "Зөв байна!" : "Буруу байна"}
               </p>
               <p
-                className={`text-sm ${isCorrect ? "text-green-700" : "text-red-700"}`}
+                className={`text-sm ${
+                  isCorrect ? "text-green-700" : "text-red-700"
+                }`}
               >
                 {explanation}
               </p>

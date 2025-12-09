@@ -30,6 +30,16 @@ const CourseDetailPage = async ({ params }: PageProps) => {
           name,
           slug
         )
+      ),
+      teacher:instructor_id (
+        id,
+        full_name,
+        full_name_mn,
+        bio_mn,
+        avatar_url,
+        specialization,
+        credentials_mn,
+        years_experience
       )
     `
     )
@@ -93,7 +103,7 @@ const CourseDetailPage = async ({ params }: PageProps) => {
           {/* Left Content - Course Content & Instructor */}
           <div className="lg:col-span-2 space-y-20">
             <CourseContent lessonsBySection={lessonsBySection} />
-            <Instructor />
+            <Instructor teacher={course.teacher} />
           </div>
 
           {/* Right Sidebar - Pricing & Actions */}

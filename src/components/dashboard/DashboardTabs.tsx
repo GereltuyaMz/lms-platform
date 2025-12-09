@@ -23,22 +23,22 @@ type DashboardTabsProps = {
 const tabs: Tab[] = [
   {
     id: "courses",
-    label: "Courses",
+    label: "Миний хичээлүүд",
     icon: <BoardIcon width={24} height={24} />,
   },
   {
     id: "achievements",
-    label: "Achievements",
+    label: "Амжилтууд",
     icon: <Trophy className="w-6 h-6" />,
   },
   {
     id: "profile",
-    label: "Profile",
+    label: "Профайл",
     icon: <User className="w-6 h-6" />,
   },
   {
     id: "shop",
-    label: "Shop",
+    label: "Дэлгүүр",
     icon: <ShoppingBag className="w-6 h-6" />,
   },
 ];

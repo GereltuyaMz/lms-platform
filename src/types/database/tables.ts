@@ -145,3 +145,79 @@ export interface QuizAnswer {
   points_earned: number
   answered_at: string
 }
+
+// =====================================================
+// BADGES
+// =====================================================
+
+export interface Badge {
+  id: string
+  name: string
+  name_mn: string
+  description_mn: string
+  category: string
+  rarity: 'bronze' | 'silver' | 'gold' | 'platinum'
+  xp_bonus: number
+  icon: string
+  requirement_type: string
+  requirement_value: number
+  created_at: string
+}
+
+// =====================================================
+// USER_BADGES
+// =====================================================
+
+export interface UserBadge {
+  id: string
+  user_id: string
+  badge_id: string
+  progress_current: number
+  progress_target: number
+  unlocked_at: string | null
+  created_at: string
+}
+
+// =====================================================
+// TEACHERS
+// =====================================================
+
+export interface Teacher {
+  id: string
+  full_name: string
+  full_name_mn: string
+  bio_mn: string | null
+  avatar_url: string | null
+  specialization: string[] | null
+  credentials_mn: string | null
+  years_experience: number | null
+  is_active: boolean
+  created_at: string
+}
+
+// =====================================================
+// COURSE_PURCHASES
+// =====================================================
+
+export interface CoursePurchase {
+  id: string
+  user_id: string
+  course_id: string
+  amount_paid: number
+  payment_method: 'qpay' | 'social_pay' | 'card'
+  status: 'pending' | 'completed' | 'failed' | 'refunded'
+  transaction_id: string | null
+  purchased_at: string
+  created_at: string
+}
+
+// =====================================================
+// SHOPPING_CART
+// =====================================================
+
+export interface ShoppingCart {
+  id: string
+  user_id: string
+  course_id: string
+  added_at: string
+}

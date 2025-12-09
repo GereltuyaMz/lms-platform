@@ -53,20 +53,22 @@ export const LessonSidebar = ({
           <div className="space-y-3">
             <div>
               <div className="flex justify-between text-xs text-muted-foreground mb-2">
-                <span>Progress</span>
+                <span>Явц</span>
                 <span>
-                  {progress.completed} of {progress.total} lessons
+                  {progress.completed} -c {progress.total} сургалт
                 </span>
               </div>
               <Progress value={progress.percentage} className="h-2" />
             </div>
             <div className="flex items-center justify-between pt-2 border-t">
-              {/* <div className="flex items-center gap-1.5">
-                <span className="text-lg">🔥</span>
-                <span className="text-sm font-semibold">{progress.streak} day streak</span>
-              </div> */}
               <div className="flex items-center gap-1.5">
-                <span className="text-lg">⭐</span>
+                <span className="text-lg">🔥</span>
+                <span className="text-sm font-semibold">
+                  {progress.streak} өдөр стрик
+                </span>
+              </div>
+              <div className="flex items-center gap-1.5">
+                <span className="text-lg">⚡</span>
                 <span className="text-sm font-semibold">
                   {progress.totalXp} XP
                 </span>
@@ -109,7 +111,9 @@ export const LessonSidebar = ({
                                 {item.title}
                               </p>
                               <div className="flex items-center gap-2 text-xs text-muted-foreground">
-                                <span>{item.type === "video" ? "📹" : "📝"}</span>
+                                <span>
+                                  {item.type === "video" ? "📹" : "📝"}
+                                </span>
                                 <span>{item.duration}</span>
                               </div>
                             </div>

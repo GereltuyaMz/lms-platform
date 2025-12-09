@@ -8,3 +8,4 @@ export { BoardIcon } from "./Lesson";
 export { NotebookIcon } from "./Note";
 export { FacebookIcon } from "./Facebook";
 export { InstagramIcon } from "./Instagram";
+export { GoogleIcon } from "./Google";

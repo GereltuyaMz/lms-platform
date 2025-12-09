@@ -17,10 +17,10 @@ export const EmptyCoursesState = ({
     return (
       <div className="text-center py-12">
         <p className="text-muted-foreground mb-4">
-          You haven&apos;t enrolled in any courses yet
+          Та одоогоор ямар ч хичээлд элсээгүй байна
         </p>
         <Link href="/courses">
-          <Button className="cursor-pointer">Browse Courses</Button>
+          <Button className="cursor-pointer">Хичээл үзэх</Button>
         </Link>
       </div>
     )
@@ -33,20 +33,20 @@ export const EmptyCoursesState = ({
           <>
             <Sparkles className="h-6 w-6 text-primary" />
             <h2 className="text-2xl md:text-3xl font-bold">
-              Recommended For You
+              Танд зориулсан
             </h2>
           </>
         ) : (
           <>
             <Star className="h-6 w-6 text-yellow-500" />
-            <h2 className="text-2xl md:text-3xl font-bold">Popular Courses</h2>
+            <h2 className="text-2xl md:text-3xl font-bold">Алдартай хичээлүүд</h2>
           </>
         )}
       </div>
 
       {isPersonalized && (
         <p className="text-muted-foreground mb-6">
-          Based on your learning goals, we think you&apos;ll love these courses
+          Таны суралцах зорилгод тулгуурлан, эдгээр хичээлүүд танд тохирно гэж бодож байна
         </p>
       )}
 
@@ -59,7 +59,7 @@ export const EmptyCoursesState = ({
       <div className="text-center mt-8">
         <Link href="/courses">
           <Button variant="outline" size="lg" className="cursor-pointer">
-            Browse All Courses
+            Бүх хичээл үзэх
           </Button>
         </Link>
       </div>

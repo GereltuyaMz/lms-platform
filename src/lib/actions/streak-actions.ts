@@ -89,8 +89,12 @@ export async function updateUserStreak(
       }
     }
 
-    // Update user profile
-    const today = new Date().toISOString().split("T")[0];
+    // Update user profile with today's date in local timezone
+    const now = new Date();
+    const year = now.getFullYear();
+    const month = String(now.getMonth() + 1).padStart(2, '0');
+    const day = String(now.getDate()).padStart(2, '0');
+    const today = `${year}-${month}-${day}`;
 
     const { error: updateError } = await supabase
       .from("user_profiles")
@@ -107,6 +111,12 @@ export async function updateUserStreak(
         currentStreak: profile.current_streak || 0,
         longestStreak: profile.longest_streak || 0,
       };
+    }
+
+    // Check for badge awards when streak is updated (especially on new streak days)
+    if (isNewStreakDay) {
+      const { checkAndAwardBadges } = await import("./badges");
+      await checkAndAwardBadges("streak");
     }
 
     return {

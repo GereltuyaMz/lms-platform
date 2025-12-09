@@ -5,6 +5,13 @@ import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import { createEnrollment } from "@/lib/actions";
 import { Loader2 } from "lucide-react";
+import {
+  Dialog,
+  DialogContent,
+  DialogTitle,
+  DialogFooter,
+} from "@/components/ui/dialog";
+import Link from "next/link";
 
 type EnrollButtonProps = {
   courseId: string;
@@ -21,6 +28,7 @@ export const EnrollButton = ({
 }: EnrollButtonProps) => {
   const [isLoading, setIsLoading] = useState(false);
   const router = useRouter();
+  const [showLoginModal, setShowLoginModal] = useState(false);
 
   const handleEnroll = async () => {
     if (isEnrolled && firstLessonId) {
@@ -44,31 +52,48 @@ export const EnrollButton = ({
         }
       } else {
         // Show error message
-        alert(result.message);
+        setShowLoginModal(true);
       }
     } catch {
-      alert("An unexpected error occurred");
+      alert("Алдаа гарлаа");
     } finally {
       setIsLoading(false);
     }
   };
 
   return (
-    <Button
-      onClick={handleEnroll}
-      className="w-full bg-primary text-white h-12 text-base font-semibold"
-      disabled={isLoading || !firstLessonId}
-    >
-      {isLoading ? (
-        <>
-          <Loader2 className="w-4 h-4 mr-2 animate-spin" />
-          Enrolling...
-        </>
-      ) : isEnrolled ? (
-        "Continue Learning"
-      ) : (
-        "Enroll Now"
-      )}
-    </Button>
+    <>
+      <Button
+        onClick={handleEnroll}
+        className="w-full bg-primary text-white h-12 text-base font-bold"
+        disabled={isLoading || !firstLessonId}
+      >
+        {isLoading ? (
+          <>
+            <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+            Бүртгэж байна...
+          </>
+        ) : isEnrolled ? (
+          "Үргэлжлүүлэх"
+        ) : (
+          "Хичээлд элсэх"
+        )}
+      </Button>
+      <Dialog open={showLoginModal} onOpenChange={setShowLoginModal}>
+        <DialogContent className="max-w-sm">
+          <DialogTitle className="text-lg font-bold">
+            Сургалтанд элсэхийн тулд нэвтрэх шаардлагатай
+          </DialogTitle>
+
+          <DialogFooter className="mt-4 flex justify-center gap-3">
+            <Link href="/signin">
+              <Button className="bg-primary text-white font-semibold rounded-lg px-4 cursor-pointer">
+                Нэвтрэх
+              </Button>
+            </Link>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+    </>
   );
 };

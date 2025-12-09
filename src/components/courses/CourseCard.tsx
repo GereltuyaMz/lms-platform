@@ -89,17 +89,17 @@ export const CourseCard = ({
               <div className="flex flex-wrap items-center gap-3">
                 <Badge
                   variant="secondary"
-                  className="gap-1 text-xs rounded-xl bg-muted text-black"
+                  className="gap-1 text-xs rounded-xl bg-muted text-black hover:text-white"
                 >
                   <StopwatchIcon width={20} height={20} fill="#10B981" />
                   {duration}
                 </Badge>
                 <Badge
                   variant="secondary"
-                  className="gap-1 text-xs rounded-xl bg-muted text-black"
+                  className="gap-1 text-xs rounded-xl bg-muted text-black hover:text-white"
                 >
                   <NotebookIcon fill="#3B82F6" width={20} height={20} />
-                  {lessons} Lessons
+                  {lessons} Хичээл
                 </Badge>
                 <Badge
                   variant="secondary"

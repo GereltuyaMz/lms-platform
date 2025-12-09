@@ -20,6 +20,7 @@ type ProgressResult = {
   streakBonusAwarded?: number;
   streakBonusMessage?: string;
   currentStreak?: number;
+  videoXpAwarded?: number;
 };
 
 type LessonProgressData = {
@@ -40,7 +41,8 @@ export async function saveVideoProgress(
   lessonId: string,
   courseId: string,
   lastPosition: number,
-  isCompleted: boolean = false
+  isCompleted: boolean = false,
+  videoDuration?: number
 ): Promise<ProgressResult> {
   try {
     const { user, error: authError } = await getAuthenticatedUser();
@@ -93,6 +95,22 @@ export async function saveVideoProgress(
       milestoneResults = await checkAndAwardMilestones(user.id, courseId);
     }
 
+    // Award video XP on completion (if videoDuration provided)
+    let videoXpAwarded: number | undefined;
+
+    if (isCompleted && videoDuration && videoDuration > 0) {
+      const { awardVideoCompletionXP } = await import("./xp-actions");
+      const xpResult = await awardVideoCompletionXP(
+        lessonId,
+        courseId,
+        videoDuration
+      );
+
+      if (xpResult.success && xpResult.xpAwarded) {
+        videoXpAwarded = xpResult.xpAwarded;
+      }
+    }
+
     // Update user streak on completion
     let streakBonusAwarded: number | undefined;
     let streakBonusMessage: string | undefined;
@@ -102,11 +120,18 @@ export async function saveVideoProgress(
       const { updateUserStreak } = await import("./streak-actions");
       const streakResult = await updateUserStreak(user.id);
 
-      if (streakResult.success) {
+      // Only show streak notification if it's a new streak day
+      if (streakResult.success && streakResult.isNewStreakDay) {
         currentStreak = streakResult.currentStreak;
         streakBonusAwarded = streakResult.streakBonusAwarded;
         streakBonusMessage = streakResult.streakBonusMessage;
       }
+    }
+
+    // Check for badge awards on completion
+    if (isCompleted) {
+      const { checkAndAwardBadges } = await import("./badges");
+      await checkAndAwardBadges("lesson");
     }
 
     // Revalidate relevant pages
@@ -120,6 +145,7 @@ export async function saveVideoProgress(
       streakBonusAwarded,
       streakBonusMessage,
       currentStreak,
+      videoXpAwarded,
     };
   } catch (error) {
     return handleActionError(error) as ProgressResult;

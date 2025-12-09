@@ -17,7 +17,7 @@ import {
   getUserProfile,
   getRecommendedCourses,
 } from "@/lib/actions";
-import { mockAchievements } from "@/lib/mock-data";
+import { getUserBadgeProgress } from "@/lib/actions/badges";
 import type { CourseLevel } from "@/types/database/enums";
 
 export default async function DashboardPage() {
@@ -36,17 +36,19 @@ export default async function DashboardPage() {
 
   const userEmail = user.email || "";
 
-  // Fetch real user stats, enrollments, profile, and profile completion from database
+  // Fetch real user stats, enrollments, profile, profile completion, and badges from database
   const [
     { data: userStats },
     { data: enrollments },
     { data: userProfile },
     profileCompletionResult,
+    badgeProgress,
   ] = await Promise.all([
     getUserStats(),
     getUserEnrollments(),
     getUserProfile(),
     checkProfileCompletion(),
+    getUserBadgeProgress(),
   ]);
 
   // Use empty array if no enrollments or error
@@ -113,7 +115,7 @@ export default async function DashboardPage() {
           />
         }
         achievementsContent={
-          <AchievementsTab achievements={mockAchievements} />
+          <AchievementsTab achievements={badgeProgress} />
         }
         profileContent={
           <ProfileTab

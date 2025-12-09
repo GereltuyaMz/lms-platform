@@ -10,12 +10,11 @@ export const CoursesList = ({ courses }: CoursesListProps) => {
     return (
       <div className="text-center py-12">
         <p className="text-muted-foreground">
-          No courses found matching your filters.
+          Таны шүүлтүүрт тохирох сургалт олдсонгүй.
         </p>
       </div>
     );
   }
-
   return (
     <div className="flex flex-col gap-6">
       {courses.map((course) => {
@@ -23,8 +22,14 @@ export const CoursesList = ({ courses }: CoursesListProps) => {
           slug: course.slug,
           title: course.title,
           description: course.description || "",
-          instructor: { name: "TBD", avatar: undefined as string | undefined },
-          duration: `${course.duration_hours || 0} hours`,
+          instructor: {
+            name:
+              course.teacher?.full_name_mn ||
+              course.teacher?.full_name ||
+              "Багш",
+            avatar: course.teacher?.avatar_url || undefined,
+          },
+          duration: `${course.duration_hours || 0} цаг`,
           lessons: course.lesson_count || 0,
           level: course.level,
           price: course.price,

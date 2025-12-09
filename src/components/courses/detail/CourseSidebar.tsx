@@ -1,6 +1,5 @@
 import Image from "next/image";
 import { Play } from "lucide-react";
-import { Button } from "@/components/ui/button";
 import { EnrollButton } from "./EnrollButton";
 
 type CourseSidebarProps = {
@@ -71,12 +70,12 @@ export const CourseSidebar = ({
               firstLessonId={firstLessonId}
               isEnrolled={isEnrolled}
             />
-            <Button
+            {/* <Button
               variant="outline"
               className="w-full h-12 text-base font-semibold"
             >
-              Preview course
-            </Button>
+              Хичээлийг урьдчилан үзэх
+            </Button> */}
           </div>
         </div>
       </div>

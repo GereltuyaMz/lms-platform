@@ -1,39 +1,40 @@
-import Link from "next/link"
-import Image from "next/image"
-import { Button } from "@/components/ui/button"
-import { Card, CardContent } from "@/components/ui/card"
-import { Progress } from "@/components/ui/progress"
-import { Clock } from "lucide-react"
-import type { CourseLevel } from "@/types/database/enums"
+import Link from "next/link";
+import Image from "next/image";
+import { Button } from "@/components/ui/button";
+import { Card, CardContent } from "@/components/ui/card";
+import { Progress } from "@/components/ui/progress";
+import { Clock } from "lucide-react";
+import { formatCourseLevel } from "@/lib/utils/formatters";
+import type { CourseLevel } from "@/types/database/enums";
 
 type CourseCardProps = {
   course: {
-    title: string
-    slug: string
-    description: string | null
-    thumbnail_url: string | null
-    level: CourseLevel
-  }
+    title: string;
+    slug: string;
+    description: string | null;
+    thumbnail_url: string | null;
+    level: CourseLevel;
+  };
   enrollment?: {
-    id: string
-    enrolled_at: string
-    progress_percentage: number
-    lastLessonId: string | null
-  }
-}
+    id: string;
+    enrolled_at: string;
+    progress_percentage: number;
+    lastLessonId: string | null;
+  };
+};
 
 export const CourseCard = ({ course, enrollment }: CourseCardProps) => {
   const formatEnrolledDate = (dateString: string) => {
-    const date = new Date(dateString)
-    const now = new Date()
-    const diffInMs = now.getTime() - date.getTime()
-    const diffInDays = Math.floor(diffInMs / (1000 * 60 * 60 * 24))
+    const date = new Date(dateString);
+    const now = new Date();
+    const diffInMs = now.getTime() - date.getTime();
+    const diffInDays = Math.floor(diffInMs / (1000 * 60 * 60 * 24));
 
-    if (diffInDays === 0) return "Enrolled today"
-    if (diffInDays === 1) return "Enrolled yesterday"
-    if (diffInDays < 7) return `Enrolled ${diffInDays} days ago`
-    return `Enrolled on ${date.toLocaleDateString()}`
-  }
+    if (diffInDays === 0) return "Өнөөдөр элссэн";
+    if (diffInDays === 1) return "Өчигдөр элссэн";
+    if (diffInDays < 7) return `${diffInDays} өдрийн өмнө элссэн`;
+    return `${date.toLocaleDateString("mn-MN")} элссэн`;
+  };
 
   return (
     <Card className="overflow-hidden hover:shadow-lg transition-shadow">
@@ -80,8 +81,8 @@ export const CourseCard = ({ course, enrollment }: CourseCardProps) => {
           {/* Level Badge for non-enrolled courses */}
           {!enrollment && (
             <div className="absolute top-3 right-3">
-              <span className="inline-block bg-white/90 backdrop-blur-sm px-3 py-1 rounded-full text-xs font-semibold text-gray-700 capitalize">
-                {course.level}
+              <span className="inline-block bg-white/90 backdrop-blur-sm px-3 py-1 rounded-full text-xs font-semibold text-gray-700">
+                {formatCourseLevel(course.level)}
               </span>
             </div>
           )}
@@ -96,7 +97,7 @@ export const CourseCard = ({ course, enrollment }: CourseCardProps) => {
             <>
               <div className="mb-4">
                 <div className="flex justify-between text-sm mb-2">
-                  <span className="text-muted-foreground">Progress</span>
+                  <span className="text-muted-foreground">Явц</span>
                   <span className="font-semibold">
                     {enrollment.progress_percentage}%
                   </span>
@@ -130,7 +131,7 @@ export const CourseCard = ({ course, enrollment }: CourseCardProps) => {
             }
           >
             <Button
-              className="w-full cursor-pointer"
+              className="w-full cursor-pointer hover:text-white"
               variant={
                 enrollment && enrollment.progress_percentage > 0
                   ? "default"
@@ -139,13 +140,13 @@ export const CourseCard = ({ course, enrollment }: CourseCardProps) => {
             >
               {enrollment
                 ? enrollment.progress_percentage > 0
-                  ? "Continue course"
-                  : "Start course"
-                : "View Course"}
+                  ? "Үргэлжлүүлэх"
+                  : "Эхлүүлэх"
+                : "Хичээл үзэх"}
             </Button>
           </Link>
         </div>
       </CardContent>
     </Card>
-  )
-}
+  );
+};

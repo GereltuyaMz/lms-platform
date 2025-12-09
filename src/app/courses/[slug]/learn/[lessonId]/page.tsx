@@ -1,7 +1,6 @@
 import {
   LessonRenderer,
   LessonSidebar,
-  LessonContent,
   NavigationButtons,
   LessonPageClient,
 } from "@/components/player";
@@ -84,9 +83,7 @@ export default async function LessonPage({ params }: PageProps) {
   // Fetch lesson progress for this course
   const { data: progressData } = await getCourseProgress(course.id);
   const completedLessonIds =
-    progressData
-      ?.filter((p) => p.is_completed)
-      .map((p) => p.lesson_id) || [];
+    progressData?.filter((p) => p.is_completed).map((p) => p.lesson_id) || [];
   const completedCount = completedLessonIds.length;
 
   // Transform data using utility functions
@@ -96,7 +93,11 @@ export default async function LessonPage({ params }: PageProps) {
     completedLessonIds
   );
   const totalLessons = courseStats?.[0]?.lesson_count || allLessons.length;
-  const progress = await calculateCourseProgress(totalLessons, completedCount, course.id);
+  const progress = await calculateCourseProgress(
+    totalLessons,
+    completedCount,
+    course.id
+  );
   const { previousLessonUrl, nextLessonUrl } = getNavigationUrls(
     allLessons,
     lessonId,
@@ -135,10 +136,7 @@ export default async function LessonPage({ params }: PageProps) {
 
             {/* Lesson Info */}
             <div className="bg-white rounded-lg border p-6 mb-6">
-              <h1 className="text-2xl font-bold mb-2">{currentLesson.title}</h1>
-              <div className="flex items-center gap-4 text-sm text-muted-foreground mb-4">
-                <span className="text-amber-600 font-semibold">+50 XP</span>
-              </div>
+              <h1 className="text-2xl font-bold mb-5">{currentLesson.title}</h1>
 
               {/* Navigation Buttons */}
               <NavigationButtons
@@ -148,13 +146,13 @@ export default async function LessonPage({ params }: PageProps) {
             </div>
 
             {/* Lesson Content Tabs */}
-            <LessonContent
+            {/* <LessonContent
               overview={currentLesson.description || ""}
               resources={[
                 { name: "Lesson Notes.pdf", size: "2.3 MB", url: "#" },
                 { name: "Practice Worksheet.pdf", size: "1.8 MB", url: "#" },
               ]}
-            />
+            /> */}
           </main>
         </div>
       </div>

@@ -8,202 +8,184 @@ export const Feature = () => {
     <section className="py-16 md:py-24 px-4">
       <div className="max-w-[1400px] mx-auto">
         <h1 className="text-h2 text-center mb-12 md:mb-16">
-          Explore Our Course Collection
+          ЭЕШ-д зориулсан манай цогц хөтөлбөрүүд
         </h1>
 
-        {/* Bento Grid Layout */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 md:gap-6">
-          {/* Large Featured Math Card - Takes 2 columns, 1 row on desktop */}
-          <div className="md:col-span-2 bg-gradient-to-br from-blue-50 via-indigo-50 to-purple-50 rounded-2xl p-6 md:p-8 shadow-lg hover:shadow-xl transition-all duration-300 hover:-translate-y-1 border border-blue-100">
-            <div className="flex items-start justify-between mb-4">
-              <span className="inline-flex items-center gap-2 bg-blue-600 text-white px-3 py-1 rounded-full text-xs font-semibold">
-                🏆 FEATURED
-              </span>
-            </div>
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+          {/* =============================== */}
+          {/* FEATURED MAIN EESH COURSE CARD */}
+          {/* =============================== */}
+          <div className="lg:col-span-2 bg-gradient-to-br from-blue-50 via-indigo-50 to-purple-50 rounded-2xl p-8 shadow-lg hover:shadow-xl transition-all duration-300 hover:-translate-y-1 border border-blue-100">
+            <span className="inline-flex items-center gap-2 bg-blue-600 text-white px-3 py-1 rounded-full text-xs font-semibold mb-4">
+              Онцлох курс
+            </span>
 
             <div className="grid md:grid-cols-2 gap-6 items-center">
               <div>
                 <h3 className="text-h3 font-bold mb-3 text-gray-900">
-                  Master Mathematics
+                  ЭЕШ Математикийн Бүрэн Хөтөлбөр
                 </h3>
-                <p className="text-medium text-gray-600 mb-6">
-                  Build problem-solving skills from algebra to calculus with
-                  interactive lessons and real-world applications.
+
+                <p className="text-medium text-gray-700 mb-6 leading-relaxed">
+                  ЭЕШ-ын математикийн гол сэдвүүдийг нэг дор цогцоор нь
+                  багтаасан хөтөлбөр. Шат дараалсан тайлбар, ойлгомжтой жишээ,
+                  практик дасгалуудын тусламжтайгаар алгебр, геометр, тооны
+                  онол, статистикийн үндсийг баттай эзэмшинэ.
                 </p>
 
                 <div className="grid grid-cols-2 gap-3 mb-6">
-                  <div className="flex items-center gap-2">
-                    <div className="w-8 h-8 rounded-full bg-blue-100 flex items-center justify-center">
-                      <span className="text-sm">📚</span>
-                    </div>
-                    <span className="text-small text-gray-700">50 Lessons</span>
-                  </div>
-                  <div className="flex items-center gap-2">
-                    <div className="w-8 h-8 rounded-full bg-blue-100 flex items-center justify-center">
-                      <span className="text-sm">👥</span>
-                    </div>
-                    <span className="text-small text-gray-700">10K+ Students</span>
-                  </div>
-                  <div className="flex items-center gap-2">
-                    <div className="w-8 h-8 rounded-full bg-blue-100 flex items-center justify-center">
-                      <span className="text-sm">✓</span>
-                    </div>
-                    <span className="text-small text-gray-700">
-                      Interactive Quizzes
-                    </span>
-                  </div>
-                  <div className="flex items-center gap-2">
-                    <div className="w-8 h-8 rounded-full bg-blue-100 flex items-center justify-center">
-                      <span className="text-sm">⭐</span>
-                    </div>
-                    <span className="text-small text-gray-700">Beginner Friendly</span>
-                  </div>
+                  <FeaturePoint icon="📚" text="100+ хичээл" />
+                  <FeaturePoint icon="🧭" text="10 үндсэн курс" />
+                  <FeaturePoint icon="✏️" text="Практик дасгал" />
+                  <FeaturePoint icon="🎯" text="ЭЕШ стандарт" />
                 </div>
 
                 <Link href="/courses">
                   <Button className="w-full md:w-auto bg-blue-600 hover:bg-blue-700 text-white rounded-xl px-6 cursor-pointer">
-                    Start Learning Math
+                    Хөтөлбөрийг үзэх
                     <ArrowRight className="ml-2 h-4 w-4" />
                   </Button>
                 </Link>
               </div>
 
-              <div>
-                <Image
-                  src="/assets/math.png"
-                  alt="Math courses illustration"
-                  width={350}
-                  height={280}
-                  className="rounded-lg w-full h-auto"
-                />
-              </div>
+              <Image
+                src="/assets/math.png"
+                alt="Math courses illustration"
+                width={380}
+                height={300}
+                className="rounded-lg w-full h-auto"
+              />
             </div>
           </div>
 
-          {/* Quick Stats Card */}
-          <div className="md:col-span-2 bg-gradient-to-br from-orange-50 to-amber-50 rounded-2xl p-8 shadow-md hover:shadow-lg transition-all duration-300 hover:-translate-y-1 border border-orange-100">
-            <h4 className="text-h5 font-bold mb-6 text-gray-900">
-              Platform Overview
-            </h4>
-            <div className="grid grid-cols-2 gap-8">
-              <div className="text-center">
-                <p className="text-h2 font-bold text-orange-600 mb-2">500+</p>
-                <p className="text-medium text-gray-600">Interactive Lessons</p>
-                <p className="text-small text-gray-500 mt-1">Across all subjects</p>
-              </div>
-              <div className="text-center">
-                <p className="text-h2 font-bold text-orange-600 mb-2">12</p>
-                <p className="text-medium text-gray-600">Course Categories</p>
-                <p className="text-small text-gray-500 mt-1">And growing</p>
-              </div>
-            </div>
-          </div>
-
-          {/* Key Topics Card */}
+          {/* =============================== */}
+          {/* REFINED CATEGORY CARD */}
+          {/* =============================== */}
           <div className="bg-gradient-to-br from-purple-50 to-pink-50 rounded-2xl p-8 shadow-md hover:shadow-lg transition-all duration-300 hover:-translate-y-1 border border-purple-100 flex flex-col">
             <h4 className="text-h5 font-bold mb-6 text-gray-900">
-              Math Topics
+              Хичээлийн бүлгүүд
             </h4>
-            <div className="space-y-4 flex-1">
-              <div className="flex items-center gap-3">
-                <div className="w-3 h-3 rounded-full bg-purple-600"></div>
-                <span className="text-medium text-gray-700">Algebra</span>
-              </div>
-              <div className="flex items-center gap-3">
-                <div className="w-3 h-3 rounded-full bg-purple-600"></div>
-                <span className="text-medium text-gray-700">Geometry</span>
-              </div>
-              <div className="flex items-center gap-3">
-                <div className="w-3 h-3 rounded-full bg-purple-600"></div>
-                <span className="text-medium text-gray-700">Calculus</span>
-              </div>
-              <div className="flex items-center gap-3">
-                <div className="w-3 h-3 rounded-full bg-purple-600"></div>
-                <span className="text-medium text-gray-700">Statistics</span>
-              </div>
-              <div className="flex items-center gap-3 text-gray-500">
-                <div className="w-3 h-3 rounded-full bg-purple-300"></div>
-                <span className="text-medium">+ Many more</span>
-              </div>
+
+            <div className="space-y-6 flex-1">
+              <CategoryGroup
+                title="📘 Математик"
+                items={[
+                  "Алгебр",
+                  "Геометр",
+                  "Тооны онол",
+                  "Тохиромж ба статистик",
+                ]}
+              />
+
+              <CategoryGroup
+                title="🔬 Байгалийн ухаан"
+                items={["Физик", "Хими"]}
+              />
+
+              <CategoryGroup
+                title="🌐 Хэл & бичих"
+                items={["Англи хэл", "Эссэ бичих"]}
+              />
             </div>
+
             <Link href="/courses" className="mt-6">
               <Button
                 variant="outline"
                 className="w-full rounded-lg border-purple-600 text-purple-600 hover:bg-purple-50 cursor-pointer"
               >
-                View All Topics
+                Бүх хөтөлбөрийг үзэх
                 <ArrowRight className="ml-2 h-4 w-4" />
               </Button>
             </Link>
           </div>
+        </div>
 
-          {/* Achievements Card - Spans 2 columns */}
-          <div className="md:col-span-2 bg-gradient-to-br from-yellow-50 via-orange-50 to-amber-50 rounded-2xl p-8 shadow-md hover:shadow-lg transition-all duration-300 hover:-translate-y-1 border border-yellow-100">
-            <div className="flex items-center gap-3 mb-6">
-              <div className="w-16 h-16 rounded-xl bg-yellow-500 flex items-center justify-center">
-                <Award className="h-8 w-8 text-white" />
-              </div>
-              <div>
-                <h4 className="text-h4 font-bold text-gray-900">
-                  Earn XP & Unlock Rewards
-                </h4>
-                <p className="text-small text-gray-600">
-                  Your learning journey, gamified
-                </p>
-              </div>
+        {/* =============================== */}
+        {/* XP / GAMIFICATION */}
+        {/* =============================== */}
+        <div className="mt-6 bg-gradient-to-br from-yellow-50 via-orange-50 to-amber-50 rounded-2xl p-10 shadow-md hover:shadow-lg transition-all duration-300 hover:-translate-y-1 border border-yellow-100">
+          <div className="flex items-center gap-3 mb-8">
+            <div className="w-16 h-16 rounded-xl bg-yellow-500 flex items-center justify-center">
+              <Award className="h-8 w-8 text-white" />
             </div>
-
-            <div className="grid md:grid-cols-3 gap-6 mb-6">
-              <div className="flex flex-col items-center text-center">
-                <div className="w-12 h-12 rounded-full bg-blue-100 flex items-center justify-center mb-3">
-                  <span className="text-2xl">📚</span>
-                </div>
-                <h5 className="text-h6 font-semibold text-gray-900 mb-1">
-                  Collect XP Points
-                </h5>
-                <p className="text-small text-gray-600">
-                  Earn points by completing lessons and quizzes
-                </p>
-              </div>
-
-              <div className="flex flex-col items-center text-center">
-                <div className="w-12 h-12 rounded-full bg-purple-100 flex items-center justify-center mb-3">
-                  <span className="text-2xl">🏆</span>
-                </div>
-                <h5 className="text-h6 font-semibold text-gray-900 mb-1">
-                  Unlock Badges
-                </h5>
-                <p className="text-small text-gray-600">
-                  Achieve milestones and earn exclusive badges
-                </p>
-              </div>
-
-              <div className="flex flex-col items-center text-center">
-                <div className="w-12 h-12 rounded-full bg-green-100 flex items-center justify-center mb-3">
-                  <span className="text-2xl">🛍️</span>
-                </div>
-                <h5 className="text-h6 font-semibold text-gray-900 mb-1">
-                  Shop with Points
-                </h5>
-                <p className="text-small text-gray-600">
-                  Redeem XP for premium content and rewards
-                </p>
-              </div>
-            </div>
-
-            <div className="flex items-center justify-center gap-3 p-4 bg-white/50 rounded-xl">
-              <span className="text-3xl">⭐</span>
-              <span className="text-3xl">🎯</span>
-              <span className="text-3xl">💎</span>
-              <span className="text-3xl">🔥</span>
-              <span className="text-medium text-gray-600 font-semibold">
-                + Many more achievements
-              </span>
+            <div>
+              <h4 className="text-h4 font-bold text-gray-900">
+                Амжилтаа түвшин ахиулж удирдаарай
+              </h4>
+              <p className="text-small text-gray-600">
+                Суралцах тусам түвшин ахиж, онцгой урамшууллуудыг нээх
+                боломжтой.
+              </p>
             </div>
           </div>
 
+          <div className="grid md:grid-cols-3 gap-8">
+            <RewardCard
+              icon="📚"
+              title="XP оноо авах"
+              desc="Хичээл ба тест бүрээс оноо цуглуулна."
+            />
+            <RewardCard
+              icon="🏅"
+              title="Тэмдэг нээх"
+              desc="Амжилтаараа шинэ badge цуглуулна."
+            />
+            <RewardCard
+              icon="🎁"
+              title="Урамшуулал авах"
+              desc="Оноогоороо тусгай контент нээх боломжтой."
+            />
+          </div>
         </div>
       </div>
     </section>
   );
 };
+
+/* Helper Components */
+
+const FeaturePoint = ({ icon, text }: { icon: string; text: string }) => (
+  <div className="flex items-center gap-2">
+    <div className="w-8 h-8 rounded-full bg-blue-100 flex items-center justify-center">
+      <span className="text-sm">{icon}</span>
+    </div>
+    <span className="text-small text-gray-700">{text}</span>
+  </div>
+);
+
+const CategoryGroup = ({
+  title,
+  items,
+}: {
+  title: string;
+  items: string[];
+}) => (
+  <div>
+    <h5 className="text-medium font-semibold mb-2 text-gray-800">{title}</h5>
+    <ul className="space-y-1 pl-1">
+      {items.map((item, index) => (
+        <li key={index} className="text-gray-700 text-small flex gap-2">
+          • <span>{item}</span>
+        </li>
+      ))}
+    </ul>
+  </div>
+);
+
+const RewardCard = ({
+  icon,
+  title,
+  desc,
+}: {
+  icon: string;
+  title: string;
+  desc: string;
+}) => (
+  <div className="flex flex-col items-center text-center">
+    <div className="w-14 h-14 rounded-full bg-white shadow flex items-center justify-center mb-4">
+      <span className="text-3xl">{icon}</span>
+    </div>
+    <h5 className="text-h6 font-semibold text-gray-900 mb-1">{title}</h5>
+    <p className="text-small text-gray-600">{desc}</p>
+  </div>
+);

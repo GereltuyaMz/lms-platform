@@ -11,6 +11,7 @@ import { signInSchema, type SignInFormData } from "@/lib/validations";
 import { signInWithGoogleAction, signInAction } from "@/app/(auth)/actions";
 import { useState, useTransition, useEffect, Suspense } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
+import { GoogleIcon } from "@/icons";
 
 const SignInForm = () => {
   const [isPending, startTransition] = useTransition();
@@ -21,7 +22,9 @@ const SignInForm = () => {
   useEffect(() => {
     const error = searchParams.get("error");
     if (error === "auth_failed") {
-      setServerError("Email confirmation failed or expired. Please try signing up again or contact support.");
+      setServerError(
+        "Имэйл баталгаажуулалт амжилтгүй эсвэл хугацаа дууссан. Дахин бүртгүүлэх эсвэл тусламж авна уу."
+      );
     }
   }, [searchParams]);
 
@@ -63,7 +66,9 @@ const SignInForm = () => {
     <div className="min-h-screen flex items-center justify-center bg-white">
       <div className="w-full max-w-lg space-y-8 flex flex-col items-center justify-center">
         <Image src="/assets/log-in.png" alt="login" width={206} height={142} />
-        <h1 className="text-h1 font-bold text-foreground text-center">Login</h1>
+        <h1 className="text-h1 font-bold text-foreground text-center">
+          Нэвтрэх
+        </h1>
 
         <form onSubmit={handleSubmit(onSubmit)} className="space-y-6 w-10/12">
           {serverError && (
@@ -74,12 +79,12 @@ const SignInForm = () => {
 
           <div className="space-y-2">
             <Label htmlFor="email" className="sr-only">
-              Email
+              Имэйл
             </Label>
             <Input
               id="email"
               type="email"
-              placeholder="Email"
+              placeholder="Имэйл"
               className="h-14 rounded-lg border-gray-300"
               {...register("email")}
             />
@@ -90,12 +95,12 @@ const SignInForm = () => {
 
           <div className="space-y-2">
             <Label htmlFor="password" className="sr-only">
-              Password
+              Нууц үг
             </Label>
             <Input
               id="password"
               type="password"
-              placeholder="Password"
+              placeholder="Нууц үг"
               className="h-14 rounded-lg border-gray-300"
               {...register("password")}
             />
@@ -110,7 +115,7 @@ const SignInForm = () => {
             className="w-full h-12 rounded-3xl bg-primary hover:bg-primary/90 text-white font-medium disabled:opacity-50 cursor-pointer"
           >
             <p className="text-medium">
-              {isPending ? "Signing in..." : "Sign in"}
+              {isPending ? "Нэвтэрч байна..." : "Нэвтрэх"}
             </p>
           </Button>
         </form>
@@ -122,17 +127,17 @@ const SignInForm = () => {
           onClick={handleGoogleSignIn}
           className="w-10/12 h-12 rounded-lg border-gray-300 hover:bg-gray-50 disabled:opacity-50 cursor-pointer"
         >
-          <Image src="/assets/google.svg" alt="Google" width={32} height={32} />
+          <GoogleIcon fill="#10b981" width={32} height={32} />
         </Button>
 
         <div className="text-center">
           <p className="text-small text-muted-foreground">
-            New User?
+            Шинэ хэрэглэгч үү?{" "}
             <Link
               href="/signup"
               className="text-primary underline hover:no-underline font-medium"
             >
-              Sign Up
+              Бүртгүүлэх
             </Link>
           </p>
         </div>
@@ -143,7 +148,13 @@ const SignInForm = () => {
 
 export default function SignInPage() {
   return (
-    <Suspense fallback={<div className="min-h-screen flex items-center justify-center">Loading...</div>}>
+    <Suspense
+      fallback={
+        <div className="min-h-screen flex items-center justify-center">
+          Уншиж байна...
+        </div>
+      }
+    >
       <SignInForm />
     </Suspense>
   );

@@ -15,9 +15,9 @@ export const QuizProgress = ({
     <div className="space-y-2 mb-6">
       <div className="flex justify-between text-sm text-muted-foreground">
         <span>
-          Question {currentQuestion + 1} of {totalQuestions}
+          Асуулт {currentQuestion + 1} / {totalQuestions}
         </span>
-        <span>{Math.round(progress)}% Complete</span>
+        <span>{Math.round(progress)}% дууссан</span>
       </div>
       <Progress value={progress} />
     </div>

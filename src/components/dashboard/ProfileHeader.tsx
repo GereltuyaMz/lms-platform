@@ -20,11 +20,20 @@ export const ProfileHeader = ({ userStats }: ProfileHeaderProps) => {
     Diamond: "💠",
   };
 
+  // League name mapping to Mongolian
+  const leagueNames: Record<typeof league, string> = {
+    Bronze: "Хүрэл",
+    Silver: "Мөнгө",
+    Gold: "Алт",
+    Platinum: "Платин",
+    Diamond: "Алмаз",
+  };
+
   return (
     <div className="bg-gradient-to-r from-gray-50 to-white border-b pb-6">
       <div className="container mx-auto px-4 py-8 max-w-[1400px]">
         {/* User Info Section */}
-        <div className="flex flex-col md:flex-row items-center md:items-start gap-6 mb-8">
+        <div className="flex flex-col md:flex-row items-center md:items-center gap-6 mb-8">
           {/* Avatar */}
           <div className="flex-shrink-0">
             <Avatar className="w-24 h-24 md:w-28 md:h-28 bg-emerald-500">
@@ -41,7 +50,9 @@ export const ProfileHeader = ({ userStats }: ProfileHeaderProps) => {
           {/* Username */}
           <div className="flex-1 text-center md:text-left">
             <h1 className="text-3xl md:text-4xl font-bold mb-2">{username}</h1>
-            <p className="text-muted-foreground">Keep learning, keep growing!</p>
+            <p className="text-muted-foreground">
+              Үргэлжлүүлэн суралцаж, өсөж хөгжиё!
+            </p>
           </div>
         </div>
 
@@ -56,7 +67,7 @@ export const ProfileHeader = ({ userStats }: ProfileHeaderProps) => {
                 </div>
                 <div className="flex-1 min-w-0">
                   <p className="text-3xl font-bold">{streak}</p>
-                  <p className="text-sm text-muted-foreground">Day streak</p>
+                  <p className="text-sm text-muted-foreground">Өдрийн cтрик</p>
                 </div>
               </div>
             </CardContent>
@@ -74,7 +85,7 @@ export const ProfileHeader = ({ userStats }: ProfileHeaderProps) => {
                     <p className="text-3xl font-bold">{xp}</p>
                     <XPGuideModal />
                   </div>
-                  <p className="text-sm text-muted-foreground">Total XP</p>
+                  <p className="text-sm text-muted-foreground">Нийт XP</p>
                 </div>
               </div>
             </CardContent>
@@ -88,8 +99,8 @@ export const ProfileHeader = ({ userStats }: ProfileHeaderProps) => {
                   <span className="text-2xl">{leagueIcons[league]}</span>
                 </div>
                 <div className="flex-1 min-w-0">
-                  <p className="text-3xl font-bold">{league}</p>
-                  <p className="text-sm text-muted-foreground">Current league</p>
+                  <p className="text-3xl font-bold">{leagueNames[league]}</p>
+                  <p className="text-sm text-muted-foreground">Одоогийн лиг</p>
                 </div>
               </div>
             </CardContent>

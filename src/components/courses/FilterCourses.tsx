@@ -20,7 +20,7 @@ export type FilterState = {
   level: string;
 };
 
-const levels = ["All", "Beginner", "Intermediate", "Advanced"];
+const levels = ["Бүгд", "Анхан шат", "Дунд шат", "Ахисан шат"];
 
 export const FilterCourses = ({
   categories,
@@ -33,7 +33,7 @@ export const FilterCourses = ({
     initialFilters?.topics || []
   );
   const [selectedLevel, setSelectedLevel] = useState<string>(
-    initialFilters?.level || "All"
+    initialFilters?.level || "Бүгд"
   );
 
   // Sync with parent filters when they change (e.g., from URL)
@@ -64,42 +64,25 @@ export const FilterCourses = ({
   };
 
   const handleClearLevel = () => {
-    setSelectedLevel("All");
-    onFilterChange?.({ topics: selectedTopics, level: "All" });
-  };
-
-  const handleClearAll = () => {
-    setSelectedTopics([]);
-    setSelectedLevel("All");
-    onFilterChange?.({ topics: [], level: "All" });
+    setSelectedLevel("Бүгд");
+    onFilterChange?.({ topics: selectedTopics, level: "Бүгд" });
   };
 
   return (
     <div className="w-full space-y-4 md:space-y-6">
-      <div className="flex items-center justify-between">
-        <h2 className="text-xl font-bold md:text-2xl">Filters</h2>
-        <Button
-          variant="ghost"
-          onClick={handleClearAll}
-          className="cursor-pointer text-sm  hover:bg-transparent hover:underline"
-        >
-          Clear all
-        </Button>
-      </div>
-
       <div className="text-sm text-muted-foreground">
-        Showing {filteredCount} of {totalCourses}
+        Нийт {filteredCount}-с {totalCourses} сургалт харагдаж байна
       </div>
 
       <div className="space-y-3 border-t pt-4 md:space-y-4">
         <div className="flex items-center justify-between">
-          <h3 className="text-sm font-semibold md:text-base">Topic</h3>
+          <h3 className="text-sm font-semibold md:text-base">Сэдэв</h3>
           <Button
             variant="ghost"
             onClick={handleClearTopic}
             className="cursor-pointer text-sm hover:bg-transparent hover:underline"
           >
-            Clear
+            Цэвэрлэx
           </Button>
         </div>
 
@@ -127,13 +110,13 @@ export const FilterCourses = ({
 
       <div className="space-y-3 border-t pt-4 md:space-y-4">
         <div className="flex items-center justify-between">
-          <h3 className="text-sm font-semibold md:text-base">Level</h3>
+          <h3 className="text-sm font-semibold md:text-base">Түвшин</h3>
           <Button
             variant="ghost"
             onClick={handleClearLevel}
             className="cursor-pointer text-sm hover:bg-transparent hover:underline"
           >
-            Clear
+            Цэвэрлэx
           </Button>
         </div>
 
@@ -141,7 +124,11 @@ export const FilterCourses = ({
           <div className="space-y-2.5 md:space-y-3">
             {levels.map((level) => (
               <div key={level} className="flex items-center space-x-2">
-                <RadioGroupItem value={level} id={level} className="cursor-pointer" />
+                <RadioGroupItem
+                  value={level}
+                  id={level}
+                  className="cursor-pointer"
+                />
                 <Label
                   htmlFor={level}
                   className="cursor-pointer text-regular peer-disabled:cursor-not-allowed peer-disabled:opacity-70"

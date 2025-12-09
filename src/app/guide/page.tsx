@@ -39,35 +39,31 @@ export default async function GuidePage() {
       {/* Main Content */}
       <div className="container mx-auto px-4 py-8 md:py-12 max-w-[1200px]">
         {/* Hero Section */}
-        <XPGuideHero
+        {/* <XPGuideHero
           userXP={userXP}
           userLevel={userLevel}
           userStreak={userStreak}
-        />
+        /> */}
 
         {/* Divider */}
-        <div className="my-16" />
 
         {/* How XP Works */}
         <HowXPWorks />
 
         {/* Divider */}
-        <div className="my-16" />
+        {/* <div className="my-16" /> */}
 
         {/* Levels & Leagues */}
         <LevelsAndLeagues currentXP={userXP} currentLevel={userLevel} />
 
-        {/* Divider */}
-        <div className="my-16" />
-
         {/* Streak System */}
-        <StreakSystem currentStreak={userStreak} />
+        {/* <StreakSystem currentStreak={userStreak} /> */}
 
         {/* Divider */}
-        <div className="my-16" />
+        {/* <div className="my-16" /> */}
 
         {/* Coming Soon Section */}
-        <ComingSoonSection />
+        {/* <ComingSoonSection /> */}
       </div>
     </div>
   );

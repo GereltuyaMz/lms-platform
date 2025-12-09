@@ -53,13 +53,12 @@ export const XPGuideHero = ({
 
         {/* Title */}
         <h1 className="text-4xl md:text-5xl font-bold text-white mb-4">
-          Level Up Your Learning Journey 🚀
+          Суралцах аяллаа дараагийн түвшинд гаргаарай 🚀
         </h1>
 
         {/* Subtitle */}
         <p className="text-lg md:text-xl text-white/90 mb-8 max-w-2xl mx-auto">
-          Earn XP, unlock badges, and redeem exclusive rewards as you master new
-          skills
+          XP олж, тэмдэг нээж, шинэ ур чадвар эзэмшихдээ онцгой шагналыг авна уу
         </p>
 
         {/* Stats */}
@@ -69,19 +68,19 @@ export const XPGuideHero = ({
               <p className="text-3xl md:text-4xl font-bold text-white mb-1">
                 {animatedXP.toLocaleString()}
               </p>
-              <p className="text-sm text-white/80">Total XP</p>
+              <p className="text-sm text-white/80">Нийт XP</p>
             </div>
             <div className="bg-white/20 backdrop-blur-sm rounded-2xl p-4">
               <p className="text-3xl md:text-4xl font-bold text-white mb-1">
                 {userLevel}
               </p>
-              <p className="text-sm text-white/80">Level</p>
+              <p className="text-sm text-white/80">Түвшин</p>
             </div>
             <div className="bg-white/20 backdrop-blur-sm rounded-2xl p-4">
               <p className="text-3xl md:text-4xl font-bold text-white mb-1">
                 {userStreak} 🔥
               </p>
-              <p className="text-sm text-white/80">Day Streak</p>
+              <p className="text-sm text-white/80">Өдрийн cтрик</p>
             </div>
           </div>
         )}

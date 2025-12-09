@@ -1,5 +1,88 @@
 @import "tailwindcss";
 
+@keyframes float {
+  0% { transform: translateY(0px); }
+  50% { transform: translateY(-12px); }
+  100% { transform: translateY(0px); }
+}
+
+@keyframes float-slow {
+  0% { transform: translateY(0px) translateX(0px); }
+  50% { transform: translateY(-10px) translateX(4px); }
+  100% { transform: translateY(0px) translateX(0px); }
+}
+
+@keyframes float-slower {
+  0% { transform: translateY(0px) translateX(0px); }
+  50% { transform: translateY(8px) translateX(-6px); }
+  100% { transform: translateY(0px) translateX(0px); }
+}
+
+.animate-float {
+  animation: float 3s ease-in-out infinite;
+}
+
+.animate-float-slow {
+  animation: float-slow 5s ease-in-out infinite;
+}
+
+.animate-float-slower {
+  animation: float-slower 5s ease-in-out infinite;
+}
+
+/* Subtle pulsing aura */
+@keyframes pulse-slow {
+  0% { opacity: 0.55; transform: scale(1); }
+  50% { opacity: 0.85; transform: scale(1.15); }
+  100% { opacity: 0.55; transform: scale(1); }
+}
+
+.animate-pulse-slow {
+  animation: pulse-slow 4s ease-in-out infinite;
+}
+
+.math-symbol {
+  position: absolute;
+  font-size: 32px;
+  font-weight: bold;
+  color: rgba(255, 215, 0, 0.9); /* gold */
+  animation: float-math 6s ease-in-out infinite;
+  pointer-events: none;
+}
+
+@keyframes float-math {
+  0%   { transform: translateY(0px) rotate(0deg); }
+  50%  { transform: translateY(-12px) rotate(6deg); }
+  100% { transform: translateY(0px) rotate(0deg); }
+}
+
+@keyframes float {
+  0%   { transform: translateY(0px); }
+  50%  { transform: translateY(-15px); }
+  100% { transform: translateY(0px); }
+}
+
+@keyframes float-fast {
+  0%   { transform: translateY(0px) translateX(0px); }
+  50%  { transform: translateY(-10px) translateX(6px); }
+  100% { transform: translateY(0px) translateX(0px); }
+}
+
+@keyframes float-medium {
+  0%   { transform: translateY(0px) translateX(0px); }
+  50%  { transform: translateY(12px) translateX(-8px); }
+  100% { transform: translateY(0px) translateX(0px); }
+}
+
+.animate-float-fast {
+  animation: float-fast 3.5s ease-in-out infinite;
+}
+
+.animate-float-medium {
+  animation: float-medium 5s ease-in-out infinite;
+}
+
+
 @custom-variant dark (&:is(.dark *));
 
 @layer base {

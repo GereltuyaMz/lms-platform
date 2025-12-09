@@ -6,6 +6,13 @@ import { EyeIcon } from "@/icons";
 import { formatDuration, formatTime, cn } from "@/lib/utils";
 import { getLessonIcon, getLessonXP } from "@/lib/lesson-config";
 import type { Lesson } from "@/types/database";
+import ReactPlayer from "react-player";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
 
 type CourseContentProps = {
   lessonsBySection: Record<string, Lesson[]>;
@@ -15,6 +22,8 @@ export const CourseContent = ({ lessonsBySection }: CourseContentProps) => {
   const [openSections, setOpenSections] = useState<string[]>([
     Object.keys(lessonsBySection)[0],
   ]);
+
+  const [previewLesson, setPreviewLesson] = useState<Lesson | null>(null);
 
   const toggleSection = (sectionTitle: string) => {
     setOpenSections((prev) =>
@@ -29,13 +38,12 @@ export const CourseContent = ({ lessonsBySection }: CourseContentProps) => {
       (sum, lesson) => sum + (lesson.duration_seconds || 0),
       0
     );
-    const totalMinutes = Math.floor(totalSeconds / 60);
-    return formatDuration(totalMinutes);
+    return formatDuration(Math.floor(totalSeconds / 60));
   };
 
   return (
-    <div>
-      <h2 className="text-2xl font-bold mb-6">Course content</h2>
+    <>
+      <h2 className="text-2xl font-bold mb-6">Хичээлийн агуулга</h2>
 
       <div className="space-y-2">
         {Object.entries(lessonsBySection).map(([sectionTitle, lessons]) => {
@@ -61,7 +69,7 @@ export const CourseContent = ({ lessonsBySection }: CourseContentProps) => {
                   <span className="font-semibold">{sectionTitle}</span>
                 </div>
                 <div className="text-sm text-muted-foreground">
-                  {lessons.length} lesson {calculateSectionDuration(lessons)}
+                  {lessons.length} хичээл • {calculateSectionDuration(lessons)}
                 </div>
               </button>
 
@@ -79,20 +87,26 @@ export const CourseContent = ({ lessonsBySection }: CourseContentProps) => {
                       </div>
 
                       <div className="flex items-center gap-3">
-                        {lesson.is_preview && (
-                          <span className="text-xs text-blue-600 font-medium flex items-center gap-1">
+                        {/* Preview Button */}
+                        {lesson.is_preview && lesson.video_url && (
+                          <button
+                            onClick={() => setPreviewLesson(lesson)}
+                            className="text-xs text-blue-600 font-medium flex items-center gap-1 underline cursor-pointer"
+                          >
                             <EyeIcon width={20} height={20} fill="#3B82F6" />
-                            <a href="#" className="underline">
-                              Preview
-                            </a>
-                          </span>
+                            Урьдчилан үзэх
+                          </button>
                         )}
+
+                        {/* XP */}
                         {getLessonXP(lesson) && (
                           <div className="flex items-center gap-1 text-yellow-600 text-xs">
                             <Zap className="h-5 w-5" />
                             <span>{getLessonXP(lesson)}</span>
                           </div>
                         )}
+
+                        {/* Duration */}
                         <span className="text-md text-muted-foreground min-w-[50px] text-right">
                           {lesson.duration_seconds
                             ? formatTime(lesson.duration_seconds)
@@ -107,6 +121,38 @@ export const CourseContent = ({ lessonsBySection }: CourseContentProps) => {
           );
         })}
       </div>
-    </div>
+
+      {/* ================================
+          VIDEO PREVIEW MODAL (ReactPlayer)
+      ================================= */}
+      <Dialog
+        open={!!previewLesson}
+        onOpenChange={() => setPreviewLesson(null)}
+      >
+        <DialogContent className="max-w-4xl p-0 overflow-hidden">
+          <DialogHeader className="p-4">
+            <DialogTitle className="text-lg font-semibold">
+              {previewLesson?.title}
+            </DialogTitle>
+          </DialogHeader>
+
+          {previewLesson?.video_url ? (
+            <div className="relative w-full h-[500px] bg-black">
+              <ReactPlayer
+                src={previewLesson.video_url}
+                playing
+                controls
+                width="100%"
+                height="100%"
+              />
+            </div>
+          ) : (
+            <div className="p-6 text-center text-sm text-muted-foreground">
+              Энэ хичээлд видео байхгүй.
+            </div>
+          )}
+        </DialogContent>
+      </Dialog>
+    </>
   );
 };

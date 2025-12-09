@@ -24,7 +24,7 @@ export const CourseBreadcrumb = ({
       <BreadcrumbList>
         <BreadcrumbItem>
           <BreadcrumbLink asChild>
-            <Link href="/courses">Courses</Link>
+            <Link href="/courses">Хичээлүүд</Link>
           </BreadcrumbLink>
         </BreadcrumbItem>
         <BreadcrumbSeparator />

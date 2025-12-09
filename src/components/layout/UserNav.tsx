@@ -36,7 +36,7 @@ export const UserNav = ({ user }: UserNavProps) => {
     startTransition(async () => {
       const result = await signOutAction();
       if (result?.success) {
-        router.refresh(); // Force Next.js to update server-side auth state
+        router.refresh();
         router.push("/");
       }
     });
@@ -79,20 +79,22 @@ export const UserNav = ({ user }: UserNavProps) => {
           </div>
         </DropdownMenuLabel>
         <DropdownMenuSeparator />
-        <DropdownMenuItem asChild>
-          <Link href="/dashboard" className="cursor-pointer">
+        <DropdownMenuItem
+          asChild
+          className="cursor-pointer data-[highlighted]:bg-secondary data-[highlighted]:text-white"
+        >
+          <Link href="/dashboard" className="flex items-center">
             <UserIcon className="mr-2 h-4 w-4" />
-            <span>Dashboard</span>
+            <span>Профайл</span>
           </Link>
         </DropdownMenuItem>
-        <DropdownMenuSeparator />
         <DropdownMenuItem
           onClick={handleSignOut}
           disabled={isPending}
           className="cursor-pointer text-red-600 focus:text-red-600"
         >
           <LogOut className="mr-2 h-4 w-4" />
-          <span>{isPending ? "Signing out..." : "Sign Out"}</span>
+          <span>{isPending ? "Гарч байна…" : "Гарах"}</span>
         </DropdownMenuItem>
       </DropdownMenuContent>
     </DropdownMenu>

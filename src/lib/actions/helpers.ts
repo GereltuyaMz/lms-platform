@@ -223,23 +223,33 @@ export function calculateStreak(
   currentStreak: number,
   lastActivityDate: string | null
 ): { newStreak: number; isNewStreakDay: boolean } {
-  const today = new Date();
-  today.setHours(0, 0, 0, 0);
+  // Get today's date in YYYY-MM-DD format (local timezone)
+  const now = new Date();
+  const year = now.getFullYear();
+  const month = String(now.getMonth() + 1).padStart(2, '0');
+  const day = String(now.getDate()).padStart(2, '0');
+  const todayStr = `${year}-${month}-${day}`;
 
   if (!lastActivityDate) {
     // First activity ever
     return { newStreak: 1, isNewStreakDay: true };
   }
 
-  const lastActivity = new Date(lastActivityDate);
-  lastActivity.setHours(0, 0, 0, 0);
-
-  const daysSince = calculateDaysBetween(lastActivity, today);
-
-  if (daysSince === 0) {
-    // Same day - no change
+  // Compare dates as strings to avoid timezone issues
+  if (todayStr === lastActivityDate) {
+    // Same day - no change to streak
     return { newStreak: currentStreak || 1, isNewStreakDay: false };
-  } else if (daysSince === 1) {
+  }
+
+  // Calculate day difference using Date objects in local timezone
+  const [lastYear, lastMonth, lastDay] = lastActivityDate.split('-').map(Number);
+  const lastActivityDate_obj = new Date(lastYear, lastMonth - 1, lastDay);
+  const todayDate_obj = new Date(year, Number(month) - 1, Number(day));
+
+  const timeDiff = todayDate_obj.getTime() - lastActivityDate_obj.getTime();
+  const daysDiff = Math.floor(timeDiff / (1000 * 60 * 60 * 24));
+
+  if (daysDiff === 1) {
     // Next day - continue streak
     return { newStreak: (currentStreak || 0) + 1, isNewStreakDay: true };
   } else {

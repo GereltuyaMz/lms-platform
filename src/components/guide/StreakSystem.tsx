@@ -15,18 +15,18 @@ const streakMilestones = [
 const streakTips = [
   {
     emoji: "📅",
-    title: "Learn Every Day",
-    description: "Complete at least one activity daily to maintain your streak",
+    title: "Өдөр бүр суралц",
+    description: "Цувааг хадгалахын тулд өдөр бүр дор хаяж нэг үйл ажиллагаа хий",
   },
   {
     emoji: "⏰",
-    title: "Set a Reminder",
-    description: "Pick a consistent time each day for your learning session",
+    title: "Сануулга тавь",
+    description: "Өдөр бүр тогтмол цагт суралцах цагаа сонго",
   },
   {
     emoji: "🎯",
-    title: "Start Small",
-    description: "Even 10 minutes counts! Short sessions are better than skipping",
+    title: "Жижгээр эхэл",
+    description: "10 минут ч гэсэн хангалттай! Богино хичээл алгасахаас дээр",
   },
 ];
 
@@ -35,10 +35,10 @@ export const StreakSystem = ({ currentStreak = 0 }: StreakSystemProps) => {
     <section className="py-12 md:py-16">
       <div className="text-center mb-12">
         <h2 className="text-3xl md:text-4xl font-bold text-gray-900 mb-4">
-          Daily Streak System 🔥
+          Өдрийн цувааны систем 🔥
         </h2>
         <p className="text-lg text-gray-600 max-w-2xl mx-auto">
-          Learn consistently and earn bonus XP for maintaining your daily streak
+          Тогтмол суралцаж өдрийн цувааг хадгалснаар урамшууллын XP авна уу
         </p>
       </div>
 
@@ -47,12 +47,12 @@ export const StreakSystem = ({ currentStreak = 0 }: StreakSystemProps) => {
         <div className="mb-12 bg-gradient-to-br from-orange-50 to-red-50 rounded-2xl p-8 border border-orange-200">
           <div className="flex flex-col items-center">
             <Flame className="h-16 w-16 text-orange-500 mb-4" />
-            <p className="text-sm text-gray-600 mb-2">Your Current Streak</p>
+            <p className="text-sm text-gray-600 mb-2">Таны одоогийн цуваа</p>
             <p className="text-5xl font-bold text-orange-600 mb-2">
               {currentStreak}
             </p>
             <p className="text-lg text-gray-700">
-              {currentStreak === 1 ? "Day" : "Days"}
+              {currentStreak === 1 ? "Өдөр" : "Өдөр"}
             </p>
           </div>
         </div>
@@ -61,7 +61,7 @@ export const StreakSystem = ({ currentStreak = 0 }: StreakSystemProps) => {
       {/* Streak Milestones */}
       <div className="mb-12">
         <h3 className="text-2xl font-bold text-gray-900 mb-6 text-center">
-          Streak Milestones 🎯
+          Цувааны түвшин 🎯
         </h3>
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
           {streakMilestones.map((milestone) => (
@@ -76,7 +76,7 @@ export const StreakSystem = ({ currentStreak = 0 }: StreakSystemProps) => {
               <div className="text-center">
                 <span className="text-5xl mb-4 block">{milestone.emoji}</span>
                 <h4 className="text-2xl font-bold text-gray-900 mb-2">
-                  {milestone.days} Days
+                  {milestone.days} өдөр
                 </h4>
                 <div className="inline-flex items-center gap-2 bg-white/80 backdrop-blur-sm px-4 py-2 rounded-full">
                   <span className="text-xl font-bold text-primary">
@@ -86,7 +86,7 @@ export const StreakSystem = ({ currentStreak = 0 }: StreakSystemProps) => {
                 </div>
                 {currentStreak >= milestone.days && (
                   <p className="mt-3 text-sm font-semibold text-green-600">
-                    ✓ Achieved!
+                    ✓ Амжилттай!
                   </p>
                 )}
               </div>
@@ -98,7 +98,7 @@ export const StreakSystem = ({ currentStreak = 0 }: StreakSystemProps) => {
       {/* How Streaks Work */}
       <div className="mb-12 bg-white rounded-2xl p-8 shadow-md border border-gray-200">
         <h3 className="text-2xl font-bold text-gray-900 mb-6 text-center">
-          How Streaks Work 📚
+          Цуваа хэрхэн ажилладаг вэ 📚
         </h3>
         <div className="space-y-4 max-w-2xl mx-auto">
           <div className="flex items-start gap-4">
@@ -106,9 +106,9 @@ export const StreakSystem = ({ currentStreak = 0 }: StreakSystemProps) => {
               <span className="text-sm font-bold text-blue-600">1</span>
             </div>
             <div>
-              <p className="font-semibold text-gray-900">Complete Any Activity</p>
+              <p className="font-semibold text-gray-900">Ямар ч үйл ажиллагаа хий</p>
               <p className="text-sm text-gray-600">
-                Watch a video, complete a quiz, or finish any lesson
+                Видео үзэх, тест бөглөх эсвэл хичээл дуусгах
               </p>
             </div>
           </div>
@@ -117,9 +117,9 @@ export const StreakSystem = ({ currentStreak = 0 }: StreakSystemProps) => {
               <span className="text-sm font-bold text-purple-600">2</span>
             </div>
             <div>
-              <p className="font-semibold text-gray-900">Do It Every Day</p>
+              <p className="font-semibold text-gray-900">Өдөр бүр хий</p>
               <p className="text-sm text-gray-600">
-                Your streak increases by 1 for each consecutive day
+                Дараалсан өдөр бүр цуваа 1-ээр нэмэгдэнэ
               </p>
             </div>
           </div>
@@ -128,9 +128,9 @@ export const StreakSystem = ({ currentStreak = 0 }: StreakSystemProps) => {
               <span className="text-sm font-bold text-orange-600">3</span>
             </div>
             <div>
-              <p className="font-semibold text-gray-900">Earn Bonus XP</p>
+              <p className="font-semibold text-gray-900">Урамшууллын XP авах</p>
               <p className="text-sm text-gray-600">
-                Hit milestones at 3, 7, and 30 days for automatic bonuses
+                3, 7, 30 өдөрт хүрэхэд автомат урамшуулал авна
               </p>
             </div>
           </div>
@@ -139,9 +139,9 @@ export const StreakSystem = ({ currentStreak = 0 }: StreakSystemProps) => {
               <span className="text-sm font-bold text-red-600">⚠️</span>
             </div>
             <div>
-              <p className="font-semibold text-gray-900">Don&apos;t Break It!</p>
+              <p className="font-semibold text-gray-900">Тасалж болохгүй!</p>
               <p className="text-sm text-gray-600">
-                Missing a day resets your streak to 0. Stay consistent!
+                Нэг өдөр алгасвал цуваа 0 болно. Тогтвортой бай!
               </p>
             </div>
           </div>
@@ -151,7 +151,7 @@ export const StreakSystem = ({ currentStreak = 0 }: StreakSystemProps) => {
       {/* Tips for Maintaining Streaks */}
       <div>
         <h3 className="text-2xl font-bold text-gray-900 mb-6 text-center">
-          Tips for Maintaining Streaks 💡
+          Цувааг хадгалах зөвлөмж 💡
         </h3>
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
           {streakTips.map((tip, index) => (
