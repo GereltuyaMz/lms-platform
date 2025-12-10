@@ -138,7 +138,7 @@ export const LessonSidebar = ({
                         <div className="flex items-start gap-3">
                           <div className="flex-shrink-0 mt-0.5">
                             {item.completed ? (
-                              <CheckCircle2 className="w-4 h-4 text-green-500" />
+                              <CheckCircle2 className="w-5 h-5 text-green-600 fill-green-100" />
                             ) : item.current ? (
                               <PlayCircle className="w-4 h-4 text-blue-500" />
                             ) : (

@@ -154,8 +154,22 @@ export async function saveQuizAttempt(
       await checkAndAwardBadges("quiz");
     }
 
+    // Get course slug for proper revalidation
+    const { data: course } = await supabase
+      .from("courses")
+      .select("slug")
+      .eq("id", courseId)
+      .single();
+
     // Revalidate relevant pages
+    const { revalidatePath } = await import("next/cache");
     revalidateUserPages();
+
+    // Revalidate the specific course lesson pages
+    if (course?.slug) {
+      revalidatePath(`/courses/${course.slug}/learn/${lessonId}`, "page");
+      revalidatePath(`/courses/${course.slug}`, "page");
+    }
 
     return {
       success: true,

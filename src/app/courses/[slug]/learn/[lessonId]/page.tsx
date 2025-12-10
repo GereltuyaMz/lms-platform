@@ -15,8 +15,8 @@ import {
 } from "@/lib/lesson-utils";
 import { checkEnrollment, getCourseProgress } from "@/lib/actions";
 
-// Revalidate page every 5 minutes (300 seconds) to cache lesson data
-export const revalidate = 300;
+// Revalidate on-demand when progress is saved for better real-time updates
+export const revalidate = 0;
 
 type PageProps = {
   params: Promise<{
@@ -120,6 +120,7 @@ export default async function LessonPage({ params }: PageProps) {
         <div className="flex max-w-[1600px] mx-auto">
           {/* Sidebar */}
           <LessonSidebar
+            key={`sidebar-${completedCount}-${lessonId}`}
             courseTitle={course.title}
             courseSlug={course.slug}
             lessons={sidebarLessons}

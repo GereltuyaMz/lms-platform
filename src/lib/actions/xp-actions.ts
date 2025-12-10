@@ -104,7 +104,8 @@ export async function awardVideoCompletionXP(
 export async function awardQuizCompletionXP(
   quizAttemptId: string,
   lessonId: string,
-  scorePercentage: number
+  scoreCorrect: number,
+  totalQuestions: number
 ): Promise<XPResult> {
   try {
     const { user, error: authError } = await getAuthenticatedUser();
@@ -126,18 +127,19 @@ export async function awardQuizCompletionXP(
     const isRetry = await isQuizRetry(user.id, lessonId, quizAttemptId);
 
     // Calculate XP
-    const { amount, metadata } = await calculateQuizXP(scorePercentage, isRetry);
+    const { amount, metadata } = await calculateQuizXP(scoreCorrect, totalQuestions, isRetry);
 
     if (amount === 0) {
       return {
         success: false,
-        message: "Score too low to earn XP (need 80%+)",
+        message: "No XP for retry attempts",
         xpAwarded: 0,
       };
     }
 
     // Get lesson title
     const lessonTitle = await getLessonTitle(lessonId);
+    const scorePercentage = totalQuestions > 0 ? (scoreCorrect / totalQuestions) * 100 : 0;
 
     // Insert transaction
     const success = await insertXPTransaction(
@@ -145,7 +147,7 @@ export async function awardQuizCompletionXP(
       amount,
       "quiz_complete",
       quizAttemptId,
-      `Completed quiz "${lessonTitle}" with ${scorePercentage}%`,
+      `Completed quiz "${lessonTitle}" with ${Math.round(scorePercentage)}%`,
       { ...metadata, lesson_id: lessonId }
     );
 

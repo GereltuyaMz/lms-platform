@@ -65,8 +65,8 @@ BEGIN
   -- Check if XP already awarded
   SELECT EXISTS(
     SELECT 1 FROM xp_transactions
-    WHERE user_id = award_profile_completion_xp.user_id
-    AND xp_type = 'profile_completion'
+    WHERE xp_transactions.user_id = award_profile_completion_xp.user_id
+    AND source_type = 'profile_completion'
   ) INTO already_awarded;
 
   IF already_awarded THEN
@@ -77,8 +77,8 @@ BEGIN
   -- Award 150 XP for profile completion
   INSERT INTO xp_transactions (
     user_id,
-    xp_amount,
-    xp_type,
+    amount,
+    source_type,
     description
   ) VALUES (
     award_profile_completion_xp.user_id,

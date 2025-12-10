@@ -14,11 +14,14 @@
 - **First video in a course**: +25 XP bonus (75 XP total)
 - **Lesson duration bonus**: +5 XP per 5 minutes (e.g., 20min video = 50 + 20 = 70 XP)
 
-#### Quiz Lessons (First Attempt Only)
-- **Pass quiz (80-89%)**: 100 XP
-- **Good score (90-94%)**: 125 XP
-- **Excellent score (95-99%)**: 150 XP
-- **Perfect score (100%)**: 200 XP
+#### Quiz Lessons (Hybrid System - First Attempt Only)
+- **Base reward**: 10 XP per correct answer
+- **Mastery bonuses** (added to base):
+  - **Pass (80-89%)**: +25 XP bonus
+  - **Good (90-94%)**: +50 XP bonus
+  - **Excellent (95-99%)**: +75 XP bonus
+  - **Perfect (100%)**: +100 XP bonus
+- **Example**: 8/10 correct (80%) = 80 XP base + 25 bonus = **105 XP total**
 - **Retry attempts**: 0 XP (no points awarded for retries)
 
 #### Text/Reading Lessons
@@ -78,10 +81,10 @@
 
 **Course: "React Fundamentals" (12 lessons)**
 - 8 video lessons × 70 XP avg = 560 XP
-- 3 quizzes × 125 XP avg = 375 XP
+- 3 quizzes × 105 XP avg (assuming 80% pass) = 315 XP
 - 1 text lesson × 30 XP = 30 XP
 - Milestone bonuses (25%, 50%, 75%, 100%) = 1,400 XP
-- **Total per course**: ~2,365 XP
+- **Total per course**: ~2,305 XP
 
 **To earn 10,000 XP (1 hoodie):**
 - Complete ~4-5 courses
@@ -115,7 +118,7 @@
 ### **Phase 4A: Core XP Awards** ✅ Priority
 1. Create `xp_transactions` table
 2. Award XP on video completion (50 XP base + duration bonus)
-3. Award XP on quiz completion (score-based: 100-200 XP)
+3. Award XP on quiz completion (hybrid: 10 XP/correct + mastery bonus)
 4. Update `total_xp` in user_profiles via trigger
 5. Display real XP in dashboard
 
@@ -212,7 +215,7 @@ Track these KPIs:
 
 ### ✅ Completed (Phase 4A-4D)
 - **Video Completion XP** - Awards base XP + duration bonus + first lesson bonus
-- **Quiz Completion XP** - Score-based awards (100-200 XP, first attempt only)
+- **Quiz Completion XP** - Hybrid system: 10 XP per correct answer + mastery bonus (25-100 XP), first attempt only
 - **Milestone XP** - 25%, 50%, 75%, 100% course completion bonuses
 - **First Course Bonus** - 1,000 XP for completing first course ever
 - **Streak System** - Daily activity tracking with 3/7/30-day bonuses

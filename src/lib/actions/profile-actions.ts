@@ -129,7 +129,6 @@ export async function updateUserProfile(
       xpAwarded: completionResult.xpAwarded,
     };
   } catch (error) {
-    console.log("error", error);
     return handleActionError(error) as ProfileCompletionResult;
   }
 }
@@ -176,6 +175,7 @@ export async function checkAndAwardProfileCompletionXP(): Promise<ProfileComplet
     return {
       success: false,
       message: result?.message || "XP not awarded",
+      xpAwarded: result?.xp_awarded || 0,
     };
   } catch (error) {
     return handleActionError(error) as ProfileCompletionResult;

@@ -37,7 +37,7 @@ export const ClientHeader = ({ initialUser }: ClientHeaderProps) => {
   // Keep heights in sync with Tailwind sizes:
   // not-scrolled => h-24 (6rem) ; scrolled => h-16 (4rem)
   // spacer below header uses same values so page content is pushed below header.
-  const headerHeightClass = isScrolled ? "h-16" : "h-24";
+  const headerHeightClass = isScrolled ? "h-20" : "h-24";
   const headerPaddingClass = isScrolled ? "py-0" : "py-0"; // padding moved into height control
 
   return (

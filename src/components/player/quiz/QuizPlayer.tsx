@@ -1,6 +1,8 @@
 "use client";
 
 import { useState } from "react";
+import { useRouter } from "next/navigation";
+import { Loader2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { QuizProgress } from "./QuizProgress";
 import { QuizQuestion } from "./QuizQuestion";
@@ -35,11 +37,14 @@ export const QuizPlayer = ({
   lessonId,
   courseId,
 }: QuizPlayerProps) => {
+  const router = useRouter();
   const [currentQuestion, setCurrentQuestion] = useState(0);
   const [selectedAnswer, setSelectedAnswer] = useState<number | null>(null);
   const [showExplanation, setShowExplanation] = useState(false);
   const [score, setScore] = useState(0);
   const [userAnswers, setUserAnswers] = useState<Record<number, number>>({});
+  const [xpAwarded, setXpAwarded] = useState(0);
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
   // If no quiz data, show error message
   if (!quizData || quizData.questions.length === 0) {
@@ -78,8 +83,13 @@ export const QuizPlayer = ({
       setShowExplanation(false);
     } else {
       // Quiz finished - save attempt to database
-      await saveQuizAttemptToDatabase();
-      setCurrentQuestion(-1);
+      setIsSubmitting(true);
+      try {
+        await saveQuizAttemptToDatabase();
+        setCurrentQuestion(-1);
+      } finally {
+        setIsSubmitting(false);
+      }
     }
   };
 
@@ -117,8 +127,12 @@ export const QuizPlayer = ({
       const xpResult = await awardQuizCompletionXP(
         result.attemptId,
         lessonId,
-        scorePercentage
+        score,
+        quizData.questions.length
       );
+
+      // Always update XP state (even if 0 for retries)
+      setXpAwarded(xpResult.xpAwarded || 0);
 
       if (xpResult.success && xpResult.xpAwarded) {
         toast.success(`🎉 +${xpResult.xpAwarded} XP`, {
@@ -159,6 +173,9 @@ export const QuizPlayer = ({
           duration: 3000,
         });
       }
+
+      // Refresh router to update sidebar checkmark
+      router.refresh();
     }
   };
 
@@ -176,6 +193,8 @@ export const QuizPlayer = ({
     setSelectedAnswer(null);
     setShowExplanation(false);
     setUserAnswers({});
+    setXpAwarded(0);
+    setIsSubmitting(false);
   };
 
   return (
@@ -184,6 +203,7 @@ export const QuizPlayer = ({
         <QuizResults
           score={score}
           totalQuestions={quizData.questions.length}
+          xpAwarded={xpAwarded}
           onRetry={handleRetry}
         />
       ) : (
@@ -225,10 +245,17 @@ export const QuizPlayer = ({
                 Хариу илгээх
               </Button>
             ) : (
-              <Button onClick={handleNext}>
-                {currentQuestion < quizData.questions.length - 1
-                  ? "Дараагийн асуулт"
-                  : "Үр дүнг харах"}
+              <Button onClick={handleNext} disabled={isSubmitting}>
+                {isSubmitting ? (
+                  <>
+                    <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                    Хадгалж байна...
+                  </>
+                ) : currentQuestion < quizData.questions.length - 1 ? (
+                  "Дараагийн асуулт"
+                ) : (
+                  "Үр дүнг харах"
+                )}
               </Button>
             )}
           </div>

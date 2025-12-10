@@ -124,7 +124,11 @@ export default async function DashboardPage() {
             avatarUrl={userStats.avatarUrl}
             dateOfBirth={userProfile?.date_of_birth || ""}
             phoneNumber={userProfile?.phone_number || ""}
-            learningGoals={userProfile?.learning_goals || ""}
+            learningGoals={
+              Array.isArray(userProfile?.learning_goals)
+                ? userProfile.learning_goals.join(", ")
+                : userProfile?.learning_goals || ""
+            }
           />
         }
         shopContent={<ShopTab />}

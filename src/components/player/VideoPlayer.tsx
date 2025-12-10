@@ -1,7 +1,6 @@
 "use client";
 
 import dynamic from "next/dynamic";
-import { CheckCircle2 } from "lucide-react";
 import { useVideoPlayer } from "@/hooks/useVideoPlayer";
 import { useVideoProgress } from "@/hooks/useVideoProgress";
 
@@ -103,15 +102,6 @@ export const VideoPlayer = ({
           onEnded={handleEnded}
         />
       </div>
-
-      {isCompleted && (
-        <div className="p-4 border-t bg-emerald-50">
-          <div className="flex items-center justify-center text-emerald-700">
-            <CheckCircle2 className="w-5 h-5 mr-2" />
-            <span className="font-semibold">Lesson completed!</span>
-          </div>
-        </div>
-      )}
     </div>
   );
 };

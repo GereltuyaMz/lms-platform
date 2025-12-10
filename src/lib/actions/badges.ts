@@ -97,7 +97,22 @@ export async function getUserBadgeProgress(): Promise<BadgeWithProgress[]> {
       })
     );
 
-    return badgesWithProgress;
+    // Sort badges: unlocked first (by unlock date desc), then locked (by progress desc)
+    return badgesWithProgress.sort((a, b) => {
+      // Unlocked badges come first
+      if (a.is_unlocked && !b.is_unlocked) return -1;
+      if (!a.is_unlocked && b.is_unlocked) return 1;
+
+      // Both unlocked: sort by unlock date (most recent first)
+      if (a.is_unlocked && b.is_unlocked) {
+        const dateA = a.unlocked_at ? new Date(a.unlocked_at).getTime() : 0;
+        const dateB = b.unlocked_at ? new Date(b.unlocked_at).getTime() : 0;
+        return dateB - dateA;
+      }
+
+      // Both locked: sort by progress percentage (highest first)
+      return b.progress_percentage - a.progress_percentage;
+    });
   } catch (error) {
     console.error("Error fetching user badge progress:", error);
     return [];

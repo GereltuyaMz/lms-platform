@@ -111,9 +111,7 @@ export const ProfileTab = ({
 
   return (
     <div>
-      <h2 className="text-2xl md:text-3xl font-bold mb-6">
-        Профайлын тохиргоо
-      </h2>
+      <h2 className="text-2xl md:text-3xl font-bold mb-6">Профайл тохиргоо</h2>
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
         {/* Avatar Section */}
@@ -137,7 +135,7 @@ export const ProfileTab = ({
               className={`w-full inline-flex items-center justify-center gap-2 px-4 py-2 border border-input rounded-md transition-colors ${
                 isUploading
                   ? "opacity-50 cursor-not-allowed"
-                  : "cursor-pointer hover:bg-accent hover:text-accent-foreground"
+                  : "cursor-pointer hover:bg-accent hover:text-white"
               }`}
             >
               {isUploading ? (

@@ -78,8 +78,8 @@ export async function isQuizRetry(
 
   const { data } = await supabase
     .from("quiz_attempts")
-    .select("id")
-    .eq("user_id", userId)
+    .select("id, enrollment_id!inner(user_id)")
+    .eq("enrollment_id.user_id", userId)
     .eq("lesson_id", lessonId)
     .neq("id", currentAttemptId);
 
@@ -128,20 +128,26 @@ export async function calculateVideoXP(
  * Calculate quiz completion XP
  */
 export async function calculateQuizXP(
-  scorePercentage: number,
+  scoreCorrect: number,
+  totalQuestions: number,
   isRetry: boolean
 ): Promise<XPCalculation> {
   const supabase = await createClient();
 
   const { data: xpAmount } = await supabase.rpc("calculate_quiz_xp", {
-    score_percentage: scorePercentage,
+    score_correct: scoreCorrect,
+    total_questions: totalQuestions,
     is_retry: isRetry,
   });
+
+  const scorePercentage = totalQuestions > 0 ? (scoreCorrect / totalQuestions) * 100 : 0;
 
   return {
     amount: (xpAmount as number) || 0,
     metadata: {
       score_percentage: scorePercentage,
+      score_correct: scoreCorrect,
+      total_questions: totalQuestions,
       is_retry: isRetry,
     },
   };

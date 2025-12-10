@@ -141,7 +141,6 @@ export const AchievementsTab = ({ achievements }: AchievementsTabProps) => {
       {/* Locked Achievements */}
       {lockedAchievements.length > 0 && (
         <div>
-          <h3 className="text-lg font-semibold mb-4">Түгжээтэй</h3>
           <div className="grid grid-cols-1 gap-4">
             {lockedAchievements.map((achievement) => {
               const color = rarityColorMap[achievement.rarity];

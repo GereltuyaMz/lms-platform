@@ -4,12 +4,14 @@ import { Button } from "@/components/ui/button";
 type QuizResultsProps = {
   score: number;
   totalQuestions: number;
+  xpAwarded: number;
   onRetry: () => void;
 };
 
 export const QuizResults = ({
   score,
   totalQuestions,
+  xpAwarded,
   onRetry,
 }: QuizResultsProps) => {
   return (
@@ -22,14 +24,20 @@ export const QuizResults = ({
         Та {totalQuestions}-аас {score} оноо авлаа
       </p>
 
-      <div className="bg-gradient-to-r from-amber-50 to-yellow-50 border border-amber-200 rounded-lg p-6 mb-6 max-w-md mx-auto">
-        <p className="text-amber-900 font-semibold text-lg">
-          🎉 +{score * 20} XP
-        </p>
-      </div>
+      {xpAwarded > 0 && (
+        <div className="bg-gradient-to-r from-amber-50 to-yellow-50 border border-amber-200 rounded-lg p-6 mb-6 max-w-md mx-auto">
+          <p className="text-amber-900 font-semibold text-lg">
+            🎉 +{xpAwarded} XP
+          </p>
+        </div>
+      )}
 
       <div className="flex gap-3 justify-center">
-        <Button variant="outline" onClick={onRetry}>
+        <Button
+          variant="outline"
+          onClick={onRetry}
+          className="hover:text-white cursor-pointer"
+        >
           Дахин турших
         </Button>
       </div>
