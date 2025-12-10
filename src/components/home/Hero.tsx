@@ -9,7 +9,7 @@ export const Hero = () => {
 
       <div className="container mx-auto px-4 text-center">
         <h1 className="text-h1 mb-4 max-w-4xl mx-auto">
-          Таашаалтайгаар суралцах орчин.
+          Хүссэнээ суралц. Ирээдүйгээ бүтээ.
         </h1>
 
         <p className="text-medium mb-8 max-w-2xl mx-auto font-semibold">

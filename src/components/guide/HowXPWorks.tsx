@@ -125,8 +125,8 @@ export const HowXPWorks = () => {
 
               <div className="space-y-2">
                 {section.items.map((item, idx) => (
-                  <div key={idx} className="flex items-start gap-2">
-                    <span className="text-gray-400 mt-1">•</span>
+                  <div key={idx} className="flex items-center gap-2">
+                    <span className="text-gray-400">•</span>
                     <span className="text-sm text-gray-700">{item}</span>
                   </div>
                 ))}
