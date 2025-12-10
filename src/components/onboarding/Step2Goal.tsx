@@ -11,22 +11,22 @@ type Step2GoalProps = {
 const goals = [
   {
     value: "Professional growth",
-    label: "Professional growth",
+    label: "Мэргэжлийн өсөлт",
     icon: "🌳",
   },
   {
     value: "Excel in school",
-    label: "Excel in school",
+    label: "Сургуульд тэргүүлэх",
     icon: "➕",
   },
   {
     value: "Lifelong learning",
-    label: "Lifelong learning",
+    label: "Насан туршийн суралцах",
     icon: "🕐",
   },
   {
     value: "Explore new subjects",
-    label: "Explore new subjects",
+    label: "Шинэ сэдвүүд судлах",
     icon: "🔔",
   },
 ]
@@ -48,7 +48,7 @@ export const Step2Goal = ({ onSelectGoal, onSkip }: Step2GoalProps) => {
         {/* Speech bubble */}
         <div className="bg-teal-50 border-2 border-teal-500 rounded-2xl px-6 py-3 shadow-md relative mt-8">
           <p className="text-base font-medium text-teal-900">
-            What&apos;s your top goal?
+            Таны гол зорилго юу вэ?
           </p>
         </div>
       </div>
@@ -73,10 +73,10 @@ export const Step2Goal = ({ onSelectGoal, onSkip }: Step2GoalProps) => {
       <div className="flex justify-center">
         <Button
           variant="ghost"
-          className="text-gray-500 hover:text-gray-700"
+          className="text-gray-500 hover:text-gray-700 cursor-pointer"
           onClick={onSkip}
         >
-          Skip for now
+          Алгасах
         </Button>
       </div>
     </div>

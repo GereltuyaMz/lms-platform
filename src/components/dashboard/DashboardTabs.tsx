@@ -1,6 +1,7 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
+import { useSearchParams, useRouter } from "next/navigation";
 import { BoardIcon } from "@/icons";
 import { Trophy, User, ShoppingBag } from "lucide-react";
 import { cn } from "@/lib/utils";
@@ -49,7 +50,30 @@ export const DashboardTabs = ({
   profileContent,
   shopContent,
 }: DashboardTabsProps) => {
-  const [activeTab, setActiveTab] = useState<TabId>("courses");
+  const router = useRouter();
+  const searchParams = useSearchParams();
+
+  // Read tab from URL or default to "courses"
+  const tabFromUrl = searchParams.get("tab") as TabId | null;
+  const initialTab = tabFromUrl && ["courses", "achievements", "profile", "shop"].includes(tabFromUrl)
+    ? tabFromUrl
+    : "courses";
+
+  const [activeTab, setActiveTab] = useState<TabId>(initialTab);
+
+  // Sync with URL changes
+  useEffect(() => {
+    const urlTab = searchParams.get("tab") as TabId | null;
+    if (urlTab && ["courses", "achievements", "profile", "shop"].includes(urlTab)) {
+      setActiveTab(urlTab);
+    }
+  }, [searchParams]);
+
+  const handleTabChange = (tabId: TabId) => {
+    setActiveTab(tabId);
+    // Update URL without page reload
+    router.push(`/dashboard?tab=${tabId}`, { scroll: false });
+  };
 
   const contentMap: Record<TabId, React.ReactNode> = {
     courses: coursesContent,
@@ -67,7 +91,7 @@ export const DashboardTabs = ({
             {tabs.map((tab) => (
               <button
                 key={tab.id}
-                onClick={() => setActiveTab(tab.id)}
+                onClick={() => handleTabChange(tab.id)}
                 className={cn(
                   "w-full flex items-center gap-3 px-4 py-3 rounded-lg text-left transition-colors",
                   activeTab === tab.id

@@ -15,7 +15,7 @@ export const Step1Welcome = ({ userName, onContinue, onSkip }: Step1WelcomeProps
       {/* Welcome Message */}
       <div>
         <h1 className="text-2xl md:text-3xl lg:text-4xl font-bold text-gray-900">
-          Hi, {userName}! Welcome
+          Сайн байна уу, {userName}! Тавтай морил
         </h1>
       </div>
 
@@ -33,9 +33,9 @@ export const Step1Welcome = ({ userName, onContinue, onSkip }: Step1WelcomeProps
           {/* Speech bubble */}
           <div className="absolute -top-4 -right-48 bg-teal-50 border-2 border-teal-500 rounded-2xl px-6 py-3 shadow-md">
             <p className="text-sm md:text-base font-medium text-teal-900 whitespace-nowrap">
-              Let&apos;s build a learning
+              Таны хувийн суралцах
               <br />
-              path just for you
+              замыг хамтдаа зохиоцгооё
             </p>
           </div>
         </div>
@@ -46,16 +46,16 @@ export const Step1Welcome = ({ userName, onContinue, onSkip }: Step1WelcomeProps
         <Button
           onClick={onContinue}
           size="lg"
-          className="bg-teal-500 hover:bg-teal-600 text-white px-12 py-6 text-lg rounded-full"
+          className="bg-teal-500 hover:bg-teal-600 text-white px-12 py-6 text-lg rounded-full cursor-pointer"
         >
-          Continue
+          Үргэлжлүүлэх
         </Button>
         <Button
           variant="ghost"
           onClick={onSkip}
-          className="text-gray-500 hover:text-gray-700"
+          className="text-gray-500 hover:text-gray-700 cursor-pointer"
         >
-          Skip for now
+          Алгасах
         </Button>
       </div>
     </div>

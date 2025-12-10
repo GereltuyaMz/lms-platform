@@ -6,6 +6,7 @@ import {
   revalidateUserPages,
   handleActionError,
 } from "./helpers";
+import { createEnrollment } from "./enrollment";
 import type { CoursePurchase, Course } from "@/types/database/tables";
 
 type PurchaseResult = {
@@ -29,7 +30,7 @@ export type PurchaseWithCourse = CoursePurchase & {
  */
 export async function processPurchase(
   courseIds: string[],
-  paymentMethod: "qpay" | "social_pay" | "card"
+  paymentMethod: "qpay" | "bank" | "card"
 ): Promise<PurchaseResult> {
   try {
     const { user, supabase, error: authError } = await getAuthenticatedUser();
@@ -43,7 +44,7 @@ export async function processPurchase(
     }
 
     // Validate payment method
-    if (!["qpay", "social_pay", "card"].includes(paymentMethod)) {
+    if (!["qpay", "bank", "card"].includes(paymentMethod)) {
       return { success: false, message: "Буруу төлбөрийн арга" };
     }
 
@@ -75,6 +76,112 @@ export async function processPurchase(
     };
   } catch (error) {
     return handleActionError(error) as PurchaseResult;
+  }
+}
+
+/**
+ * Simulate single course purchase and auto-enroll user
+ * Used in the direct enrollment flow (no cart)
+ */
+export async function simulatePurchase(
+  courseId: string,
+  paymentMethod: "card" | "bank" | "qpay" = "card"
+): Promise<PurchaseResult> {
+  try {
+    const { user, supabase, error: authError } = await getAuthenticatedUser();
+
+    if (authError || !user) {
+      return { success: false, message: "Нэвтрэх шаардлагатай" };
+    }
+
+    // 1. Get course details
+    const { data: course } = await supabase
+      .from("courses")
+      .select("id, title, price")
+      .eq("id", courseId)
+      .single();
+
+    if (!course) {
+      return { success: false, message: "Сургалт олдсонгүй" };
+    }
+
+    // 2. Check if already purchased
+    const alreadyPurchased = await hasCourseAccess(courseId);
+    if (alreadyPurchased) {
+      return {
+        success: false,
+        message: "Та энэ сургалтыг аль хэдийн худалдаж авсан байна",
+      };
+    }
+
+    // 3. Simulate payment processing (2 second delay)
+    await new Promise((resolve) => setTimeout(resolve, 2000));
+
+    // 4. Create purchase record
+    const { error: purchaseError } = await supabase
+      .from("course_purchases")
+      .insert({
+        user_id: user.id,
+        course_id: courseId,
+        amount_paid: course.price,
+        payment_method: paymentMethod,
+        status: "completed",
+        purchased_at: new Date().toISOString(),
+      });
+
+    if (purchaseError) {
+      console.error("Purchase creation error:", purchaseError);
+      return { success: false, message: "Төлбөр боловсруулахад алдаа гарлаа" };
+    }
+
+    // 5. Auto-enroll user
+    const enrollmentResult = await createEnrollment(courseId);
+
+    if (!enrollmentResult.success) {
+      return {
+        success: false,
+        message: "Элсэлт үүсгэхэд алдаа гарлаа",
+      };
+    }
+
+    // 6. Revalidate pages
+    revalidateUserPages();
+
+    return {
+      success: true,
+      message: `Амжилттай! Та одоо ${course.title} сургалтад элссэн байна 🎉`,
+    };
+  } catch (error) {
+    return handleActionError(error) as PurchaseResult;
+  }
+}
+
+/**
+ * Check if user can access course (free OR purchased)
+ */
+export async function canAccessCourse(courseId: string): Promise<boolean> {
+  try {
+    const supabase = await createClient();
+
+    // Check if course is free
+    const { data: course } = await supabase
+      .from("courses")
+      .select("price")
+      .eq("id", courseId)
+      .single();
+
+    if (!course) return false;
+
+    // Free courses are always accessible
+    if (course.price === 0) {
+      return true;
+    }
+
+    // Paid courses require purchase
+    return await hasCourseAccess(courseId);
+  } catch (error) {
+    console.error("Error checking course access:", error);
+    return false;
   }
 }
 

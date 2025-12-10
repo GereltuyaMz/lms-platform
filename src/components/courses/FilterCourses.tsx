@@ -71,7 +71,7 @@ export const FilterCourses = ({
   return (
     <div className="w-full space-y-4 md:space-y-6">
       <div className="text-sm text-muted-foreground">
-        Нийт {filteredCount}-с {totalCourses} сургалт харагдаж байна
+        Нийт {filteredCount}-с {totalCourses} хичээл харагдаж байна
       </div>
 
       <div className="space-y-3 border-t pt-4 md:space-y-4">

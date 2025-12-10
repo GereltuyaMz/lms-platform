@@ -8,7 +8,9 @@ import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { getInitials } from "@/lib/utils";
-import { updateUserProfile, checkAndAwardProfileCompletionXP } from "@/lib/actions";
+import { updateUserProfile } from "@/lib/actions";
+import { uploadAvatar } from "@/lib/storage/avatar-upload";
+import { createClient } from "@/lib/supabase/client";
 import { toast } from "sonner";
 import { Upload, Loader2 } from "lucide-react";
 
@@ -17,6 +19,7 @@ type ProfileTabProps = {
   email: string;
   avatarUrl: string;
   dateOfBirth?: string;
+  phoneNumber?: string;
   learningGoals?: string;
 };
 
@@ -25,22 +28,51 @@ export const ProfileTab = ({
   email,
   avatarUrl: initialAvatarUrl,
   dateOfBirth: initialDateOfBirth = "",
+  phoneNumber: initialPhoneNumber = "",
   learningGoals: initialLearningGoals = "",
 }: ProfileTabProps) => {
   const [username, setUsername] = useState(initialUsername);
   const [avatarUrl, setAvatarUrl] = useState(initialAvatarUrl);
   const [dateOfBirth, setDateOfBirth] = useState(initialDateOfBirth);
+  const [phoneNumber, setPhoneNumber] = useState(initialPhoneNumber);
   const [learningGoals, setLearningGoals] = useState(initialLearningGoals);
   const [isSaving, setIsSaving] = useState(false);
+  const [isUploading, setIsUploading] = useState(false);
 
-  const handleAvatarChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleAvatarChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
-    if (file) {
-      // TODO: Upload to Supabase Storage
-      // For now, create a local preview URL
-      const previewUrl = URL.createObjectURL(file);
-      setAvatarUrl(previewUrl);
-      toast.info("Зураг байршуулах функц хараахан бэлэн болоогүй байна");
+    if (!file) return;
+
+    setIsUploading(true);
+    const loadingToast = toast.loading("Зураг байршуулж байна...");
+
+    try {
+      // Get user ID from Supabase client
+      const supabase = createClient();
+      const {
+        data: { user },
+      } = await supabase.auth.getUser();
+
+      if (!user) {
+        toast.error("Нэвтрэх шаардлагатай", { id: loadingToast });
+        return;
+      }
+
+      // Upload to Supabase Storage
+      const result = await uploadAvatar(file, user.id);
+
+      if (result.success && result.avatarUrl) {
+        setAvatarUrl(result.avatarUrl);
+        toast.success("Зураг амжилттай байршлаа!", { id: loadingToast });
+      } else {
+        toast.error(result.error || "Зураг байршуулахад алдаа гарлаа", {
+          id: loadingToast,
+        });
+      }
+    } catch (error) {
+      toast.error("Алдаа гарлаа. Дахин оролдоно уу.", { id: loadingToast });
+    } finally {
+      setIsUploading(false);
     }
   };
 
@@ -53,15 +85,14 @@ export const ProfileTab = ({
         fullName: username,
         avatarUrl,
         dateOfBirth,
+        phoneNumber,
         learningGoals,
       });
 
       if (result.success) {
-        // Check and award profile completion XP
-        const xpResult = await checkAndAwardProfileCompletionXP();
-
-        if (xpResult.success && xpResult.xpAwarded) {
-          toast.success(`🎉 +${xpResult.xpAwarded} XP`, {
+        // Check if XP was awarded (updateUserProfile already calls checkAndAwardProfileCompletionXP)
+        if (result.xpAwarded && result.xpAwarded > 0) {
+          toast.success(`🎉 +${result.xpAwarded} XP`, {
             description: "Профайл бөглөгдсөн!",
             duration: 5000,
           });
@@ -80,7 +111,9 @@ export const ProfileTab = ({
 
   return (
     <div>
-      <h2 className="text-2xl md:text-3xl font-bold mb-6">Профайлын тохиргоо</h2>
+      <h2 className="text-2xl md:text-3xl font-bold mb-6">
+        Профайлын тохиргоо
+      </h2>
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
         {/* Avatar Section */}
@@ -101,10 +134,23 @@ export const ProfileTab = ({
 
             <Label
               htmlFor="avatar-upload"
-              className="cursor-pointer w-full inline-flex items-center justify-center gap-2 px-4 py-2 border border-input rounded-md hover:bg-accent hover:text-accent-foreground transition-colors"
+              className={`w-full inline-flex items-center justify-center gap-2 px-4 py-2 border border-input rounded-md transition-colors ${
+                isUploading
+                  ? "opacity-50 cursor-not-allowed"
+                  : "cursor-pointer hover:bg-accent hover:text-accent-foreground"
+              }`}
             >
-              <Upload className="w-4 h-4" />
-              Зураг байршуулах
+              {isUploading ? (
+                <>
+                  <Loader2 className="w-4 h-4 animate-spin" />
+                  Байршуулж байна...
+                </>
+              ) : (
+                <>
+                  <Upload className="w-4 h-4" />
+                  Зураг байршуулах
+                </>
+              )}
             </Label>
             <Input
               id="avatar-upload"
@@ -112,9 +158,10 @@ export const ProfileTab = ({
               accept="image/*"
               className="hidden"
               onChange={handleAvatarChange}
+              disabled={isUploading}
             />
             <p className="text-xs text-muted-foreground text-center">
-              JPG, PNG эсвэл GIF. Хамгийн ихдээ 2MB.
+              JPG, PNG, GIF, WEBP. Хамгийн ихдээ 2MB.
             </p>
           </CardContent>
         </Card>
@@ -164,6 +211,18 @@ export const ProfileTab = ({
                 />
               </div>
 
+              {/* Phone Number */}
+              <div className="space-y-2">
+                <Label htmlFor="phoneNumber">Утасны дугаар</Label>
+                <Input
+                  id="phoneNumber"
+                  type="tel"
+                  value={phoneNumber}
+                  onChange={(e) => setPhoneNumber(e.target.value)}
+                  placeholder="Жишээ: 99119911"
+                />
+              </div>
+
               {/* Learning Goals */}
               <div className="space-y-2">
                 <Label htmlFor="learningGoals">Суралцах зорилго</Label>
@@ -171,24 +230,29 @@ export const ProfileTab = ({
                   id="learningGoals"
                   value={learningGoals}
                   onChange={(e) => setLearningGoals(e.target.value)}
-                  placeholder="Суралцах зорилгоо бичнэ үү..."
+                  placeholder="Жишээ: Математикийн мэдлэгээ сайжруулах, Программчлал сурах, Англи хэл дээршүүлэх&#10;&#10;(Таслалаар тусгаарлана уу)"
                   rows={4}
                 />
                 <p className="text-xs text-muted-foreground">
+                  Таслал (,) эсвэл шинэ мөрөөр тусгаарлана уу •{" "}
                   {learningGoals.length} / 500 тэмдэгт
                 </p>
               </div>
 
               {/* Action Buttons */}
               <div className="flex gap-3">
-                <Button type="submit" disabled={isSaving} className="cursor-pointer">
+                <Button
+                  type="submit"
+                  disabled={isSaving}
+                  className="cursor-pointer hover:text-white"
+                >
                   {isSaving ? (
                     <>
                       <Loader2 className="mr-2 h-4 w-4 animate-spin" />
                       Хадгалж байна...
                     </>
                   ) : (
-                    "Өөрчлөлт хадгалах"
+                    "Xадгалах"
                   )}
                 </Button>
                 <Button
@@ -198,6 +262,7 @@ export const ProfileTab = ({
                     setUsername(initialUsername);
                     setAvatarUrl(initialAvatarUrl);
                     setDateOfBirth(initialDateOfBirth);
+                    setPhoneNumber(initialPhoneNumber);
                     setLearningGoals(initialLearningGoals);
                   }}
                   className="cursor-pointer"
@@ -211,7 +276,7 @@ export const ProfileTab = ({
       </div>
 
       {/* Account Stats */}
-      <Card className="mt-6">
+      {/* <Card className="mt-6">
         <CardHeader>
           <CardTitle>Хэрэглэгчийн статистик</CardTitle>
         </CardHeader>
@@ -235,7 +300,7 @@ export const ProfileTab = ({
             </div>
           </div>
         </CardContent>
-      </Card>
+      </Card> */}
     </div>
   );
 };

@@ -6,7 +6,9 @@ export const WhyChooseUs = () => {
       <div className="container mx-auto px-4 max-w-[1400px]">
         <div className="grid md:grid-cols-2 gap-6 md:gap-8 items-center">
           <div>
-            <h1 className="text-h1 mb-6">Та юу ч байсан суралцаж чадна</h1>
+            <h1 className="text-h1 mb-6">
+              Та хүссэн зүйлээ сурч, эзэмшиж чадна
+            </h1>
             <p className="text-medium font-semibold">
               Математик, шинжлэх ухаан болон бусад хичээлийг гүн гүнзгий,
               бодитойгоор ойлгож эзэмшээрэй.

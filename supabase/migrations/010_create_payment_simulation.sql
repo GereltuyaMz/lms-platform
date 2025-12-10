@@ -13,7 +13,7 @@ CREATE TABLE course_purchases (
   amount_paid DECIMAL(10, 2) NOT NULL,                    -- Price paid in Tugrik (₮)
   payment_method TEXT NOT NULL CHECK (payment_method IN (
     'qpay',
-    'social_pay',
+    'bank',
     'card'
   )),
   status TEXT DEFAULT 'pending' CHECK (status IN (

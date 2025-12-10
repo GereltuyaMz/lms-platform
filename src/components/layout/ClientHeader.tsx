@@ -14,6 +14,7 @@ type ClientHeaderProps = {
 
 export const ClientHeader = ({ initialUser }: ClientHeaderProps) => {
   const [isScrolled, setIsScrolled] = useState(false);
+  const homeLink = initialUser ? "/dashboard" : "/";
 
   useEffect(() => {
     let ticking = false;
@@ -52,7 +53,7 @@ export const ClientHeader = ({ initialUser }: ClientHeaderProps) => {
       >
         <nav className="max-w-[1600px] mx-auto flex justify-between items-center px-4 h-full">
           <div className="flex items-center gap-8">
-            <Link href="/">
+            <Link href={homeLink}>
               <Image src="/edu-logo.png" alt="logo" width={50} height={50} />
             </Link>
 

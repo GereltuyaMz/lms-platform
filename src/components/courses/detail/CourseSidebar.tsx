@@ -10,6 +10,7 @@ type CourseSidebarProps = {
   thumbnailUrl: string | null;
   firstLessonId: string | null;
   isEnrolled: boolean;
+  hasPurchased: boolean;
 };
 
 export const CourseSidebar = ({
@@ -20,6 +21,7 @@ export const CourseSidebar = ({
   thumbnailUrl,
   firstLessonId,
   isEnrolled,
+  hasPurchased,
 }: CourseSidebarProps) => {
   return (
     <div className="sticky top-4">
@@ -69,6 +71,8 @@ export const CourseSidebar = ({
               courseSlug={courseSlug}
               firstLessonId={firstLessonId}
               isEnrolled={isEnrolled}
+              price={price}
+              hasPurchased={hasPurchased}
             />
             {/* <Button
               variant="outline"

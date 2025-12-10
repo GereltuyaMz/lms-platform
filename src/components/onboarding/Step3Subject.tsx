@@ -11,17 +11,17 @@ type Step3SubjectProps = {
 const subjects = [
   {
     value: "Math",
-    label: "Math",
+    label: "Математик",
     icon: "#️⃣",
   },
   {
     value: "Science",
-    label: "Science",
+    label: "Шинжлэх ухаан",
     icon: "⚗️",
   },
   {
     value: "Chemistry",
-    label: "Chemistry",
+    label: "Хими",
     icon: "🧪",
   },
 ]
@@ -43,9 +43,9 @@ export const Step3Subject = ({ onSelectSubject, onSkip }: Step3SubjectProps) => 
         {/* Speech bubble */}
         <div className="bg-teal-50 border-2 border-teal-500 rounded-2xl px-6 py-3 shadow-md relative mt-8">
           <p className="text-base font-medium text-teal-900">
-            Which subject do you want to
+            Та эхлээд ямар хичээл
             <br />
-            start learning first?
+            сурахыг хүсэж байна вэ?
           </p>
         </div>
       </div>
@@ -70,10 +70,10 @@ export const Step3Subject = ({ onSelectSubject, onSkip }: Step3SubjectProps) => 
       <div className="flex justify-center">
         <Button
           variant="ghost"
-          className="text-gray-500 hover:text-gray-700"
+          className="text-gray-500 hover:text-gray-700 cursor-pointer"
           onClick={onSkip}
         >
-          Skip for now
+          Алгасах
         </Button>
       </div>
     </div>

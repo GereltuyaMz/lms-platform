@@ -123,6 +123,7 @@ export default async function DashboardPage() {
             email={userEmail}
             avatarUrl={userStats.avatarUrl}
             dateOfBirth={userProfile?.date_of_birth || ""}
+            phoneNumber={userProfile?.phone_number || ""}
             learningGoals={userProfile?.learning_goals || ""}
           />
         }

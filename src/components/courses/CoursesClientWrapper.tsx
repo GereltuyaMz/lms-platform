@@ -91,7 +91,7 @@ export const CoursesClientWrapper = ({
         ref={coursesHeadingRef}
         className="mt-8 mb-8 text-4xl font-bold scroll-mt-24"
       >
-        Бүх сургалтууд
+        Бүх хичээлүүд
       </h1>
 
       <div className="flex gap-8">

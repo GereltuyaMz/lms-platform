@@ -7,6 +7,7 @@ import {
   Instructor,
 } from "@/components/courses/detail";
 import { checkEnrollment } from "@/lib/actions";
+import { hasCourseAccess } from "@/lib/actions/purchase";
 
 type PageProps = {
   params: Promise<{ slug: string }>;
@@ -83,8 +84,11 @@ const CourseDetailPage = async ({ params }: PageProps) => {
   // Get first lesson ID for enrollment link
   const firstLessonId = lessons?.[0]?.id || null;
 
-  // Check if user is enrolled
-  const enrollmentStatus = await checkEnrollment(course.id);
+  // Check if user is enrolled and has purchased
+  const [enrollmentStatus, hasPurchased] = await Promise.all([
+    checkEnrollment(course.id),
+    hasCourseAccess(course.id),
+  ]);
 
   return (
     <div className="min-h-screen bg-white">
@@ -116,6 +120,7 @@ const CourseDetailPage = async ({ params }: PageProps) => {
               thumbnailUrl={course.thumbnail_url}
               firstLessonId={firstLessonId}
               isEnrolled={enrollmentStatus.isEnrolled}
+              hasPurchased={hasPurchased}
             />
           </div>
         </div>

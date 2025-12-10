@@ -45,11 +45,11 @@ export const Step4Complete = ({ goal, subject }: Step4CompleteProps) => {
       {/* Success message */}
       <div className="space-y-4">
         <h1 className="text-2xl md:text-3xl lg:text-4xl font-bold text-gray-900">
-          Your personalized learning path
+          Таны хувийн суралцах зам
           <br />
-          is ready! Create your profile to
+          бэлэн боллоо! Профайл үүсгээд
           <br />
-          start your journey.
+          аяллаа эхлүүлээрэй.
         </h1>
       </div>
 
@@ -59,9 +59,9 @@ export const Step4Complete = ({ goal, subject }: Step4CompleteProps) => {
           onClick={handleCreateProfile}
           disabled={isLoading}
           size="lg"
-          className="bg-teal-500 hover:bg-teal-600 text-white px-12 py-6 text-lg rounded-full"
+          className="bg-teal-500 hover:bg-teal-600 text-white px-12 py-6 text-lg rounded-full cursor-pointer"
         >
-          {isLoading ? "Creating..." : "Create profile"}
+          {isLoading ? "Үүсгэж байна..." : "Профайл үүсгэх"}
         </Button>
       </div>
     </div>

@@ -18,6 +18,8 @@ type EnrollButtonProps = {
   courseSlug: string;
   firstLessonId: string | null;
   isEnrolled: boolean;
+  price: number;
+  hasPurchased: boolean;
 };
 
 export const EnrollButton = ({
@@ -25,19 +27,30 @@ export const EnrollButton = ({
   courseSlug,
   firstLessonId,
   isEnrolled,
+  price,
+  hasPurchased,
 }: EnrollButtonProps) => {
   const [isLoading, setIsLoading] = useState(false);
   const router = useRouter();
   const [showLoginModal, setShowLoginModal] = useState(false);
 
-  const handleEnroll = async () => {
+  const isFree = price === 0;
+  const isPaid = price > 0;
+
+  const handleClick = async () => {
+    // If already enrolled, just navigate to first lesson
     if (isEnrolled && firstLessonId) {
-      // Already enrolled, navigate to first lesson
       router.push(`/courses/${courseSlug}/learn/${firstLessonId}`);
       return;
     }
 
-    // Create enrollment
+    // If paid course and not purchased, redirect to checkout
+    if (isPaid && !hasPurchased) {
+      router.push(`/courses/${courseSlug}/checkout`);
+      return;
+    }
+
+    // Otherwise, create enrollment (for free courses or purchased courses)
     setIsLoading(true);
     try {
       const result = await createEnrollment(courseId);
@@ -61,23 +74,23 @@ export const EnrollButton = ({
     }
   };
 
+  // Determine button text
+  const getButtonText = () => {
+    if (isLoading) return "Бүртгэж байна...";
+    if (isEnrolled) return "Үргэлжлүүлэх";
+    if (isFree) return "Үнэгүй элсэх";
+    return "Элсэх"; // Paid course, not purchased yet
+  };
+
   return (
     <>
       <Button
-        onClick={handleEnroll}
-        className="w-full bg-primary text-white h-12 text-base font-bold"
-        disabled={isLoading || !firstLessonId}
+        onClick={handleClick}
+        className="w-full bg-primary text-white h-12 text-base font-bold cursor-pointer"
+        disabled={isLoading || (!firstLessonId && isFree && !isEnrolled)}
       >
-        {isLoading ? (
-          <>
-            <Loader2 className="w-4 h-4 mr-2 animate-spin" />
-            Бүртгэж байна...
-          </>
-        ) : isEnrolled ? (
-          "Үргэлжлүүлэх"
-        ) : (
-          "Хичээлд элсэх"
-        )}
+        {isLoading && <Loader2 className="w-4 h-4 mr-2 animate-spin" />}
+        {getButtonText()}
       </Button>
       <Dialog open={showLoginModal} onOpenChange={setShowLoginModal}>
         <DialogContent className="max-w-sm">

@@ -17,7 +17,8 @@ type ProfileUpdateData = {
   fullName?: string;
   avatarUrl?: string;
   dateOfBirth?: string;
-  learningGoals?: string;
+  phoneNumber?: string;
+  learningGoals?: string | string[];
 };
 
 /**
@@ -76,13 +77,33 @@ export async function updateUserProfile(
     }
 
     // Prepare update object with snake_case
-    const updateData: Record<string, string> = {};
+    const updateData: Record<string, unknown> = {};
     if (profileData.fullName) updateData.full_name = profileData.fullName;
     if (profileData.avatarUrl) updateData.avatar_url = profileData.avatarUrl;
     if (profileData.dateOfBirth)
       updateData.date_of_birth = profileData.dateOfBirth;
-    if (profileData.learningGoals)
-      updateData.learning_goals = profileData.learningGoals;
+    if (profileData.phoneNumber !== undefined)
+      updateData.phone_number = profileData.phoneNumber || null;
+    if (profileData.learningGoals !== undefined) {
+      // Handle both string and array inputs
+      let goalsArray: string[] = [];
+
+      if (typeof profileData.learningGoals === 'string') {
+        // Convert comma-separated string to array for database
+        // Split by comma, newline, or semicolon, then trim and filter empty strings
+        goalsArray = profileData.learningGoals
+          .split(/[,\n;]+/)
+          .map((goal) => goal.trim())
+          .filter((goal) => goal.length > 0);
+      } else if (Array.isArray(profileData.learningGoals)) {
+        // Already an array, just filter and trim
+        goalsArray = profileData.learningGoals
+          .map((goal) => String(goal).trim())
+          .filter((goal) => goal.length > 0);
+      }
+
+      updateData.learning_goals = goalsArray.length > 0 ? goalsArray : null;
+    }
 
     // Update profile
     const { error: updateError } = await supabase
@@ -108,6 +129,7 @@ export async function updateUserProfile(
       xpAwarded: completionResult.xpAwarded,
     };
   } catch (error) {
+    console.log("error", error);
     return handleActionError(error) as ProfileCompletionResult;
   }
 }
