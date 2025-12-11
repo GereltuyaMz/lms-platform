@@ -1,4 +1,5 @@
 import { useState, useEffect, useRef } from "react";
+import { useRouter } from "next/navigation";
 import { saveVideoProgress, getLessonProgress } from "@/lib/actions";
 import { toast } from "sonner";
 
@@ -13,6 +14,7 @@ export const useVideoProgress = ({
   courseId,
   videoDuration,
 }: UseVideoProgressProps) => {
+  const router = useRouter();
   const [isCompleted, setIsCompleted] = useState(false);
   const [lastSavedPosition, setLastSavedPosition] = useState(0);
   const [progressLoaded, setProgressLoaded] = useState(false);
@@ -38,24 +40,33 @@ export const useVideoProgress = ({
 
   // Save progress to database
   const saveProgress = async (position: number, completed: boolean) => {
-    // Pass videoDuration on completion for XP calculation
-    const result = await saveVideoProgress(
-      lessonId,
-      courseId,
-      position,
-      completed,
-      completed && !xpAwarded.current ? videoDuration : undefined
-    );
+    // Optimistic UI: Update state and show loading toast immediately
+    if (completed && !xpAwarded.current) {
+      setIsCompleted(true);
+      xpAwarded.current = true;
 
-    if (result.success) {
-      setLastSavedPosition(position);
+      // Show loading state
+      const loadingToast = toast.loading("Хадгалж байна...", {
+        description: "Хичээлийн явцыг хадгалж байна",
+      });
 
-      if (completed) {
-        setIsCompleted(true);
+      // Call server action in background
+      const result = await saveVideoProgress(
+        lessonId,
+        courseId,
+        position,
+        completed,
+        videoDuration
+      );
 
-        // Show video completion XP (awarded in single server call)
-        if (result.videoXpAwarded && !xpAwarded.current) {
-          xpAwarded.current = true;
+      // Dismiss loading toast
+      toast.dismiss(loadingToast);
+
+      if (result.success) {
+        setLastSavedPosition(position);
+
+        // Show success notifications
+        if (result.videoXpAwarded) {
           toast.success(`🎉 +${result.videoXpAwarded} XP`, {
             description: "Хичээлээ амжилттай дуусгалаа!",
           });
@@ -92,6 +103,30 @@ export const useVideoProgress = ({
             duration: 3000,
           });
         }
+
+        // Refresh router to update sidebar checkmark
+        // Small delay to ensure revalidatePath completes
+        setTimeout(() => router.refresh(), 100);
+      } else {
+        // Revert optimistic update on failure
+        setIsCompleted(false);
+        xpAwarded.current = false;
+        toast.error("Алдаа гарлаа", {
+          description: result.message || "Дахин оролдоно уу",
+        });
+      }
+    } else {
+      // For non-completion progress saves (every 5 seconds)
+      const result = await saveVideoProgress(
+        lessonId,
+        courseId,
+        position,
+        completed,
+        undefined
+      );
+
+      if (result.success) {
+        setLastSavedPosition(position);
       }
     }
   };

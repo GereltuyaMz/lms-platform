@@ -1,5 +1,6 @@
 "use server";
 
+import { revalidatePath } from "next/cache";
 import {
   getAuthenticatedUser,
   getUserEnrollment,
@@ -8,6 +9,8 @@ import {
   revalidateUserPages,
   handleActionError,
 } from "./helpers";
+import { updateUserStreak } from "./streak-actions";
+import { checkAndAwardBadges } from "./badges";
 
 type QuizAttemptResult = {
   success: boolean;
@@ -130,45 +133,61 @@ export async function saveQuizAttempt(
     let currentStreak: number | undefined;
 
     if (score >= passingScore) {
-      // Mark lesson as complete
-      await upsertLessonProgress(enrollment.id, lessonId, {
-        isCompleted: true,
-      });
+      // Run all completion tasks in parallel for better performance
+      const [, milestones, streakResult, courseData] = await Promise.all([
+        // Mark lesson as complete
+        upsertLessonProgress(enrollment.id, lessonId, {
+          isCompleted: true,
+        }),
 
-      // Check for milestone XP and return results
-      milestoneResults = await checkAndAwardMilestones(user.id, courseId);
+        // Check for milestone XP
+        checkAndAwardMilestones(user.id, courseId),
 
-      // Update user streak on completion
-      const { updateUserStreak } = await import("./streak-actions");
-      const streakResult = await updateUserStreak(user.id);
+        // Update user streak
+        updateUserStreak(user.id),
 
-      // Only show streak notification if it's a new streak day
+        // Get course slug for revalidation
+        supabase.from("courses").select("slug").eq("id", courseId).single(),
+      ]);
+
+      // Process results
+      milestoneResults = milestones;
+
       if (streakResult.success && streakResult.isNewStreakDay) {
         currentStreak = streakResult.currentStreak;
         streakBonusAwarded = streakResult.streakBonusAwarded;
         streakBonusMessage = streakResult.streakBonusMessage;
       }
 
-      // Check for badge awards on quiz completion
-      const { checkAndAwardBadges } = await import("./badges");
-      await checkAndAwardBadges("quiz");
-    }
+      // Badge checking in background (non-blocking)
+      checkAndAwardBadges("quiz").catch(() => {
+        // Silently fail - badges are nice-to-have
+      });
 
-    // Get course slug for proper revalidation
-    const { data: course } = await supabase
-      .from("courses")
-      .select("slug")
-      .eq("id", courseId)
-      .single();
+      // Revalidate relevant pages
+      revalidateUserPages();
 
-    // Revalidate relevant pages
-    const { revalidatePath } = await import("next/cache");
-    revalidateUserPages();
+      if (courseData.data?.slug) {
+        revalidatePath(
+          `/courses/${courseData.data.slug}/learn/${lessonId}`,
+          "page"
+        );
+        revalidatePath(`/courses/${courseData.data.slug}`, "page");
+      }
+    } else {
+      // For failed attempts, still get course slug for revalidation
+      const { data: course } = await supabase
+        .from("courses")
+        .select("slug")
+        .eq("id", courseId)
+        .single();
 
-    // Revalidate the specific course lesson pages
-    if (course?.slug) {
-      revalidatePath(`/courses/${course.slug}/learn/${lessonId}`, "page");
-      revalidatePath(`/courses/${course.slug}`, "page");
+      revalidateUserPages();
+
+      if (course?.slug) {
+        revalidatePath(`/courses/${course.slug}/learn/${lessonId}`, "page");
+        revalidatePath(`/courses/${course.slug}`, "page");
+      }
     }
 
     return {

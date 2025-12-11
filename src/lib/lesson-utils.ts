@@ -3,6 +3,8 @@ import type { QuizData } from "@/types/quiz";
 import { formatTime } from "./utils";
 import type { SupabaseClient } from "@supabase/supabase-js";
 import { getCourseXPEarned } from "./actions/xp-actions";
+import { getUserStreak } from "./actions/streak-actions";
+import { createClient } from "./supabase/server";
 
 // Transform lessons for sidebar display
 export const transformLessonsForSidebar = (
@@ -52,14 +54,24 @@ export const calculateCourseProgress = async (
   const progressPercentage =
     totalLessons > 0 ? Math.round((completedLessons / totalLessons) * 100) : 0;
 
-  // Get total XP earned for this course
-  const totalXp = await getCourseXPEarned(courseId);
+  // Get authenticated user for streak data
+  const supabase = await createClient();
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+
+  // Fetch total XP and streak in parallel
+  const [totalXp, streakData] = await Promise.all([
+    getCourseXPEarned(courseId),
+    user ? getUserStreak(user.id) : Promise.resolve({ currentStreak: 0 }),
+  ]);
 
   return {
     completed: completedLessons,
     total: totalLessons,
     percentage: progressPercentage,
     totalXp,
+    streak: streakData.currentStreak,
   };
 };
 

@@ -1,5 +1,6 @@
 "use server";
 
+import { revalidatePath } from "next/cache";
 import {
   getAuthenticatedUser,
   getUserEnrollment,
@@ -8,6 +9,9 @@ import {
   revalidateUserPages,
   handleActionError,
 } from "./helpers";
+import { awardVideoCompletionXP } from "./xp-actions";
+import { updateUserStreak } from "./streak-actions";
+import { checkAndAwardBadges } from "./badges";
 
 type ProgressResult = {
   success: boolean;
@@ -84,71 +88,64 @@ export async function saveVideoProgress(
       };
     }
 
-    // Check for milestone XP and return results
+    // Parallel execution for completion tasks
     let milestoneResults: Array<{
       success: boolean;
       message: string;
       xpAwarded?: number;
     }> = [];
-
-    if (isCompleted) {
-      milestoneResults = await checkAndAwardMilestones(user.id, courseId);
-    }
-
-    // Award video XP on completion (if videoDuration provided)
     let videoXpAwarded: number | undefined;
-
-    if (isCompleted && videoDuration && videoDuration > 0) {
-      const { awardVideoCompletionXP } = await import("./xp-actions");
-      const xpResult = await awardVideoCompletionXP(
-        lessonId,
-        courseId,
-        videoDuration
-      );
-
-      if (xpResult.success && xpResult.xpAwarded) {
-        videoXpAwarded = xpResult.xpAwarded;
-      }
-    }
-
-    // Update user streak on completion
     let streakBonusAwarded: number | undefined;
     let streakBonusMessage: string | undefined;
     let currentStreak: number | undefined;
 
     if (isCompleted) {
-      const { updateUserStreak } = await import("./streak-actions");
-      const streakResult = await updateUserStreak(user.id);
+      // Run all completion tasks in parallel for better performance
+      const [milestones, xpResult, streakResult, courseData] =
+        await Promise.all([
+          // Check for milestone XP
+          checkAndAwardMilestones(user.id, courseId),
 
-      // Only show streak notification if it's a new streak day
+          // Award video XP (if videoDuration provided)
+          videoDuration && videoDuration > 0
+            ? awardVideoCompletionXP(lessonId, courseId, videoDuration)
+            : Promise.resolve({ success: false, xpAwarded: 0 }),
+
+          // Update user streak
+          updateUserStreak(user.id),
+
+          // Get course slug for revalidation
+          supabase.from("courses").select("slug").eq("id", courseId).single(),
+        ]);
+
+      // Process results
+      milestoneResults = milestones;
+
+      if (xpResult.success && xpResult.xpAwarded) {
+        videoXpAwarded = xpResult.xpAwarded;
+      }
+
       if (streakResult.success && streakResult.isNewStreakDay) {
         currentStreak = streakResult.currentStreak;
         streakBonusAwarded = streakResult.streakBonusAwarded;
         streakBonusMessage = streakResult.streakBonusMessage;
       }
-    }
 
-    // Check for badge awards on completion
-    if (isCompleted) {
-      const { checkAndAwardBadges } = await import("./badges");
-      await checkAndAwardBadges("lesson");
-    }
+      // Badge checking in background (non-blocking)
+      checkAndAwardBadges("lesson").catch(() => {
+        // Silently fail - badges are nice-to-have
+      });
 
-    // Get course slug for proper revalidation
-    const { data: course } = await supabase
-      .from("courses")
-      .select("slug")
-      .eq("id", courseId)
-      .single();
+      // Revalidate relevant pages
+      revalidateUserPages();
 
-    // Revalidate relevant pages
-    const { revalidatePath } = await import("next/cache");
-    revalidateUserPages();
-
-    // Revalidate the specific course lesson pages
-    if (course?.slug) {
-      revalidatePath(`/courses/${course.slug}/learn/${lessonId}`, "page");
-      revalidatePath(`/courses/${course.slug}`, "page");
+      if (courseData.data?.slug) {
+        revalidatePath(
+          `/courses/${courseData.data.slug}/learn/${lessonId}`,
+          "page"
+        );
+        revalidatePath(`/courses/${courseData.data.slug}`, "page");
+      }
     }
 
     return {

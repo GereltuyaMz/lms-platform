@@ -96,6 +96,11 @@ export const QuizPlayer = ({
   const saveQuizAttemptToDatabase = async () => {
     if (!quizData) return;
 
+    // Show loading toast immediately
+    const loadingToast = toast.loading("Хадгалж байна...", {
+      description: "Тестийн үр дүнг хадгалж байна",
+    });
+
     // Calculate total points earned
     const pointsEarned = quizData.questions.reduce((total, question, index) => {
       const userAnswer = userAnswers[index];
@@ -111,6 +116,9 @@ export const QuizPlayer = ({
       pointsEarned: number;
     }> = [];
 
+    // Parallel execution: Save attempt and award XP simultaneously
+    const scorePercentage = (score / quizData.questions.length) * 100;
+
     const result = await saveQuizAttempt(
       lessonId,
       courseId,
@@ -120,13 +128,15 @@ export const QuizPlayer = ({
       answers
     );
 
+    // Dismiss loading toast
+    toast.dismiss(loadingToast);
+
     // Award XP if quiz attempt saved successfully
     if (result.success && result.attemptId) {
-      const scorePercentage = (score / quizData.questions.length) * 100;
-
       const xpResult = await awardQuizCompletionXP(
         result.attemptId,
         lessonId,
+        courseId,
         score,
         quizData.questions.length
       );
@@ -175,7 +185,12 @@ export const QuizPlayer = ({
       }
 
       // Refresh router to update sidebar checkmark
-      router.refresh();
+      // Small delay to ensure revalidatePath completes
+      setTimeout(() => router.refresh(), 100);
+    } else {
+      toast.error("Алдаа гарлаа", {
+        description: "Тестийн үр дүнг хадгалж чадсангүй",
+      });
     }
   };
 

@@ -104,6 +104,7 @@ export async function awardVideoCompletionXP(
 export async function awardQuizCompletionXP(
   quizAttemptId: string,
   lessonId: string,
+  courseId: string,
   scoreCorrect: number,
   totalQuestions: number
 ): Promise<XPResult> {
@@ -148,7 +149,7 @@ export async function awardQuizCompletionXP(
       "quiz_complete",
       quizAttemptId,
       `Completed quiz "${lessonTitle}" with ${Math.round(scorePercentage)}%`,
-      { ...metadata, lesson_id: lessonId }
+      { ...metadata, lesson_id: lessonId, course_id: courseId }
     );
 
     if (!success) {
