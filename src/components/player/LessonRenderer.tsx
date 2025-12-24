@@ -1,10 +1,11 @@
 import { VideoPlayer } from "./VideoPlayer";
+import { ContentItemRenderer } from "./ContentItemRenderer";
 import { QuizPlayer } from "./quiz/QuizPlayer";
-import type { Lesson } from "@/types/database/tables";
+import type { Lesson, LessonContent } from "@/types/database/tables";
 import type { QuizData } from "@/types/quiz";
 
 type LessonRendererProps = {
-  lesson: Lesson;
+  lesson: Lesson & { lesson_content?: LessonContent[] };
   courseId: string;
   quizData?: QuizData | null;
 };
@@ -14,6 +15,36 @@ export const LessonRenderer = ({
   courseId,
   quizData,
 }: LessonRendererProps) => {
+  const hasContentItems =
+    lesson.lesson_content && lesson.lesson_content.length > 0;
+
+  // New structure: render multiple content items
+  if (hasContentItems) {
+    return (
+      <div>
+        {lesson.lesson_content!.map((content) => (
+          <ContentItemRenderer
+            key={content.id}
+            content={content}
+            lessonId={lesson.id}
+            courseId={courseId}
+          />
+        ))}
+
+        {/* Render quiz after content if lesson has quiz data */}
+        {quizData && (
+          <QuizPlayer
+            title={`${lesson.title} - Шалгалт`}
+            quizData={quizData}
+            lessonId={lesson.id}
+            courseId={courseId}
+          />
+        )}
+      </div>
+    );
+  }
+
+  // Legacy: fallback to old rendering for courses without lesson_content
   switch (lesson.lesson_type) {
     case "video":
       return (

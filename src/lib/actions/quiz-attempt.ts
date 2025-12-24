@@ -169,7 +169,7 @@ export async function saveQuizAttempt(
 
       if (courseData.data?.slug) {
         revalidatePath(
-          `/courses/${courseData.data.slug}/learn/${lessonId}`,
+          `/courses/${courseData.data.slug}/learn/lesson/${lessonId}`,
           "page"
         );
         revalidatePath(`/courses/${courseData.data.slug}`, "page");
@@ -185,7 +185,7 @@ export async function saveQuizAttempt(
       revalidateUserPages();
 
       if (course?.slug) {
-        revalidatePath(`/courses/${course.slug}/learn/${lessonId}`, "page");
+        revalidatePath(`/courses/${course.slug}/learn/lesson/${lessonId}`, "page");
         revalidatePath(`/courses/${course.slug}`, "page");
       }
     }
@@ -308,5 +308,194 @@ export async function getQuizAttempts(lessonId: string, courseId: string) {
     return { data: attempts, error: null };
   } catch {
     return { data: null, error: "An unexpected error occurred" };
+  }
+}
+
+// =====================================================
+// UNIT QUIZ FUNCTIONS
+// =====================================================
+
+/**
+ * Save a completed unit quiz attempt
+ * @param unitId - UUID of the unit
+ * @param courseId - UUID of the course
+ * @param score - Number of correct answers
+ * @param totalQuestions - Total questions in quiz
+ * @param pointsEarned - Total points earned
+ * @param answers - Array of individual answers
+ * @returns Result object with success status
+ */
+export async function saveUnitQuizAttempt(
+  unitId: string,
+  courseId: string,
+  score: number,
+  totalQuestions: number,
+  pointsEarned: number,
+  answers: QuizAnswer[]
+): Promise<QuizAttemptResult> {
+  try {
+    const { user, supabase, error: authError } = await getAuthenticatedUser();
+
+    if (authError || !user) {
+      return {
+        success: false,
+        message: "You must be logged in to save quiz attempts",
+      };
+    }
+
+    // Get enrollment for this course
+    const { enrollment, error: enrollmentError } = await getUserEnrollment(
+      user.id,
+      courseId
+    );
+
+    if (enrollmentError || !enrollment) {
+      return {
+        success: false,
+        message: "You must be enrolled in this course",
+      };
+    }
+
+    // Create quiz attempt with unit_id
+    const { data: attempt, error: attemptError } = await supabase
+      .from("quiz_attempts")
+      .insert({
+        enrollment_id: enrollment.id,
+        unit_id: unitId,
+        lesson_id: null, // Unit quiz, not lesson quiz
+        score,
+        total_questions: totalQuestions,
+        points_earned: pointsEarned,
+      })
+      .select("id")
+      .single();
+
+    if (attemptError || !attempt) {
+      return {
+        success: false,
+        message: "Error saving quiz attempt",
+      };
+    }
+
+    // Save individual answers
+    if (answers.length > 0) {
+      const answerRecords = answers.map((answer) => ({
+        attempt_id: attempt.id,
+        question_id: answer.questionId,
+        selected_option_id: answer.selectedOptionId,
+        is_correct: answer.isCorrect,
+        points_earned: answer.pointsEarned,
+      }));
+
+      await supabase.from("quiz_answers").insert(answerRecords);
+    }
+
+    // Calculate passing score (80%) and handle completion
+    const passingScore = totalQuestions * 0.8;
+    let milestoneResults: Array<{
+      success: boolean;
+      message: string;
+      xpAwarded?: number;
+    }> = [];
+
+    let streakBonusAwarded: number | undefined;
+    let streakBonusMessage: string | undefined;
+    let currentStreak: number | undefined;
+
+    if (score >= passingScore) {
+      // Run completion tasks in parallel
+      const [milestones, streakResult, courseData] = await Promise.all([
+        checkAndAwardMilestones(user.id, courseId),
+        updateUserStreak(user.id),
+        supabase.from("courses").select("slug").eq("id", courseId).single(),
+      ]);
+
+      milestoneResults = milestones;
+
+      if (streakResult.success && streakResult.isNewStreakDay) {
+        currentStreak = streakResult.currentStreak;
+        streakBonusAwarded = streakResult.streakBonusAwarded;
+        streakBonusMessage = streakResult.streakBonusMessage;
+      }
+
+      // Badge checking in background
+      checkAndAwardBadges("quiz").catch(() => {});
+
+      // Revalidate pages
+      revalidateUserPages();
+
+      if (courseData.data?.slug) {
+        revalidatePath(`/courses/${courseData.data.slug}`, "page");
+      }
+    } else {
+      revalidateUserPages();
+    }
+
+    return {
+      success: true,
+      message: "Unit quiz attempt saved successfully",
+      attemptId: attempt.id,
+      milestoneResults:
+        milestoneResults.length > 0 ? milestoneResults : undefined,
+      streakBonusAwarded,
+      streakBonusMessage,
+      currentStreak,
+    };
+  } catch (error) {
+    return handleActionError(error) as QuizAttemptResult;
+  }
+}
+
+/**
+ * Get the best unit quiz score
+ * @param unitId - UUID of the unit
+ * @param courseId - UUID of the course
+ * @returns Best score data or null
+ */
+export async function getBestUnitQuizScore(
+  unitId: string,
+  courseId: string
+): Promise<BestScoreData | null> {
+  try {
+    const { user, supabase, error: authError } = await getAuthenticatedUser();
+
+    if (authError || !user) {
+      return null;
+    }
+
+    const { enrollment, error: enrollmentError } = await getUserEnrollment(
+      user.id,
+      courseId
+    );
+
+    if (enrollmentError || !enrollment) {
+      return null;
+    }
+
+    const { data: attempts, error: attemptsError } = await supabase
+      .from("quiz_attempts")
+      .select("score, total_questions, points_earned")
+      .eq("enrollment_id", enrollment.id)
+      .eq("unit_id", unitId)
+      .order("score", { ascending: false })
+      .order("points_earned", { ascending: false });
+
+    if (attemptsError || !attempts || attempts.length === 0) {
+      return null;
+    }
+
+    const bestAttempt = attempts[0];
+    const bestPercentage = Math.round(
+      (bestAttempt.score / bestAttempt.total_questions) * 100
+    );
+
+    return {
+      bestScore: bestAttempt.score,
+      totalQuestions: bestAttempt.total_questions,
+      bestPercentage,
+      attempts: attempts.length,
+    };
+  } catch {
+    return null;
   }
 }

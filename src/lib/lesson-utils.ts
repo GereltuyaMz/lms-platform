@@ -1,10 +1,78 @@
-import type { Lesson } from "@/types/database/tables";
+import type { Lesson, LessonContent, Unit } from "@/types/database/tables";
+import type { UnitWithLessons } from "@/types/database";
 import type { QuizData } from "@/types/quiz";
+import type { LessonType } from "@/types/database/enums";
 import { formatTime } from "./utils";
 import type { SupabaseClient } from "@supabase/supabase-js";
 import { getCourseXPEarned } from "./actions/xp-actions";
 import { getUserStreak } from "./actions/streak-actions";
 import { createClient } from "./supabase/server";
+
+// =====================================================
+// TYPES FOR SIDEBAR
+// =====================================================
+
+export type LessonItem = {
+  id: string;
+  title: string;
+  duration: string;
+  type: LessonType;
+  completed: boolean;
+  current: boolean;
+  locked: boolean;
+};
+
+export type LessonSection = {
+  section: string;
+  items: LessonItem[];
+};
+
+export type UnitSection = {
+  unit: Unit;
+  items: LessonItem[];
+  hasUnitQuiz: boolean;
+};
+
+// =====================================================
+// DURATION HELPERS
+// =====================================================
+
+/**
+ * Calculate total duration from lesson_content items
+ */
+export const calculateLessonDuration = (
+  lessonContent: LessonContent[] | undefined
+): number => {
+  if (!lessonContent || lessonContent.length === 0) return 0;
+  return lessonContent.reduce(
+    (total, item) => total + (item.duration_seconds || 0),
+    0
+  );
+};
+
+/**
+ * Get formatted duration string for a lesson
+ * Uses lesson_content if available, falls back to legacy duration_seconds
+ */
+export const getLessonDurationDisplay = (
+  lesson: Lesson & { lesson_content?: LessonContent[] }
+): string => {
+  // If lesson has content items, calculate from them
+  if (lesson.lesson_content && lesson.lesson_content.length > 0) {
+    const totalSeconds = calculateLessonDuration(lesson.lesson_content);
+    return totalSeconds > 0 ? formatTime(totalSeconds) : "";
+  }
+
+  // Legacy: use direct lesson fields
+  if (lesson.lesson_type === "video" && lesson.duration_seconds) {
+    return formatTime(lesson.duration_seconds);
+  }
+
+  if (lesson.lesson_type === "quiz") return "Quiz";
+  if (lesson.lesson_type === "assignment") return "Assignment";
+
+  return "";
+};
 
 // Transform lessons for sidebar display
 export const transformLessonsForSidebar = (
@@ -43,6 +111,43 @@ export const transformLessonsForSidebar = (
       locked: false, // TODO: implement lock logic based on enrollment
     })),
   }));
+};
+
+// =====================================================
+// UNIT-BASED SIDEBAR TRANSFORMATION (NEW)
+// =====================================================
+
+/**
+ * Transform units with lessons for sidebar display
+ * Uses the new unit-based structure instead of section_title grouping
+ * @param unitQuizMap - Optional map of unitId -> hasQuiz from fetchUnitsWithQuiz
+ */
+export const transformUnitsForSidebar = (
+  units: UnitWithLessons[],
+  currentLessonId: string,
+  completedLessonIds: string[] = [],
+  unitQuizMap: Map<string, boolean> = new Map()
+): UnitSection[] => {
+  return units.map((unit) => ({
+    unit,
+    items: unit.lessons.map((lesson) => ({
+      id: lesson.id,
+      title: lesson.title,
+      duration: getLessonDurationDisplay(lesson),
+      type: lesson.lesson_type,
+      completed: completedLessonIds.includes(lesson.id),
+      current: lesson.id === currentLessonId,
+      locked: false,
+    })),
+    hasUnitQuiz: unitQuizMap.get(unit.id) ?? false,
+  }));
+};
+
+/**
+ * Get all lessons from units in flat array (for navigation)
+ */
+export const getAllLessonsFromUnits = (units: UnitWithLessons[]): Lesson[] => {
+  return units.flatMap((unit) => unit.lessons);
 };
 
 // Calculate progress for a course
@@ -89,12 +194,44 @@ export const getNavigationUrls = (
 
   return {
     previousLessonUrl: previousLesson
-      ? `/courses/${courseSlug}/learn/${previousLesson.id}`
+      ? `/courses/${courseSlug}/learn/lesson/${previousLesson.id}`
       : undefined,
     nextLessonUrl: nextLesson
-      ? `/courses/${courseSlug}/learn/${nextLesson.id}`
+      ? `/courses/${courseSlug}/learn/lesson/${nextLesson.id}`
       : undefined,
   };
+};
+
+// =====================================================
+// UNIT QUIZ HELPERS
+// =====================================================
+
+/**
+ * Fetch which units have quizzes (batch query for efficiency)
+ * Returns a Map of unitId -> hasQuiz
+ */
+export const fetchUnitsWithQuiz = async (
+  supabase: SupabaseClient,
+  unitIds: string[]
+): Promise<Map<string, boolean>> => {
+  const map = new Map<string, boolean>();
+
+  if (unitIds.length === 0) return map;
+
+  const { data } = await supabase
+    .from("quiz_questions")
+    .select("unit_id")
+    .in("unit_id", unitIds)
+    .not("unit_id", "is", null);
+
+  if (data) {
+    const unitsWithQuiz = new Set(data.map((q) => q.unit_id));
+    unitIds.forEach((id) => map.set(id, unitsWithQuiz.has(id)));
+  } else {
+    unitIds.forEach((id) => map.set(id, false));
+  }
+
+  return map;
 };
 
 // Fetch and transform quiz data

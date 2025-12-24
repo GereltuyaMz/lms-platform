@@ -1,6 +1,6 @@
 "use client";
 
-import { CheckCircle2, Circle, Lock, PlayCircle } from "lucide-react";
+import { CheckCircle2, Circle, Lock, PlayCircle, BookCheck, ChevronRight } from "lucide-react";
 import { Progress } from "@/components/ui/progress";
 import {
   Accordion,
@@ -9,26 +9,39 @@ import {
   AccordionTrigger,
 } from "@/components/ui/accordion";
 import Link from "next/link";
+import type { LessonType } from "@/types/database";
+import type { Unit } from "@/types/database/tables";
 
+// Legacy type for section-based display
 type LessonItem = {
   id: string;
   title: string;
   duration: string;
-  type: "video" | "quiz" | "text" | "assignment";
+  type: LessonType;
   completed: boolean;
   current?: boolean;
   locked?: boolean;
 };
 
+// Legacy type
 type LessonSection = {
   section: string;
   items: LessonItem[];
 };
 
+// New type for unit-based display
+type UnitSection = {
+  unit: Unit;
+  items: LessonItem[];
+  hasUnitQuiz: boolean;
+};
+
 type LessonSidebarProps = {
   courseTitle: string;
   courseSlug: string;
-  lessons: LessonSection[];
+  // Support both legacy sections and new units
+  lessons?: LessonSection[];
+  units?: UnitSection[];
   progress: {
     completed: number;
     total: number;
@@ -42,8 +55,15 @@ export const LessonSidebar = ({
   courseTitle,
   courseSlug,
   lessons,
+  units,
   progress,
 }: LessonSidebarProps) => {
+  // Determine which data source to use
+  const hasUnits = units && units.length > 0;
+  const sections = hasUnits
+    ? units.map((u) => ({ section: u.unit.title, items: u.items, hasUnitQuiz: u.hasUnitQuiz, unitId: u.unit.id }))
+    : (lessons || []).map((l) => ({ section: l.section, items: l.items, hasUnitQuiz: false, unitId: null }));
+
   return (
     <aside className="w-[340px] bg-white border-r h-[calc(100vh-73px)] sticky top-[73px] overflow-y-auto">
       <div className="p-6">
@@ -80,21 +100,26 @@ export const LessonSidebar = ({
         {/* Lessons List */}
         <Accordion
           type="multiple"
-          defaultValue={lessons.map((_, i) => `section-${i}`)}
+          defaultValue={sections.map((_, i) => `section-${i}`)}
         >
-          {lessons.map((section, index) => (
+          {sections.map((section, index) => (
             <AccordionItem
-              key={index}
+              key={section.unitId || index}
               value={`section-${index}`}
               className="border-b"
             >
               <AccordionTrigger className="text-sm font-semibold hover:no-underline">
-                {section.section}
+                <div className="flex items-center gap-2">
+                  <span>{section.section}</span>
+                  {section.hasUnitQuiz && (
+                    <BookCheck className="w-4 h-4 text-purple-500" />
+                  )}
+                </div>
               </AccordionTrigger>
               <AccordionContent>
                 <div className="space-y-1">
                   {section.items.map((item) => {
-                    const lessonUrl = `/courses/${courseSlug}/learn/${item.id}`;
+                    const lessonUrl = `/courses/${courseSlug}/learn/lesson/${item.id}`;
 
                     if (item.locked) {
                       return (
@@ -111,9 +136,7 @@ export const LessonSidebar = ({
                                 {item.title}
                               </p>
                               <div className="flex items-center gap-2 text-xs text-muted-foreground">
-                                <span>
-                                  {item.type === "video" ? "📹" : "📝"}
-                                </span>
+                                <span>{getLessonEmoji(item.type)}</span>
                                 <span>{item.duration}</span>
                               </div>
                             </div>
@@ -158,7 +181,7 @@ export const LessonSidebar = ({
                               {item.title}
                             </p>
                             <div className="flex items-center gap-2 text-xs text-muted-foreground">
-                              <span>{item.type === "video" ? "📹" : "📝"}</span>
+                              <span>{getLessonEmoji(item.type)}</span>
                               <span>{item.duration}</span>
                             </div>
                           </div>
@@ -166,6 +189,30 @@ export const LessonSidebar = ({
                       </Link>
                     );
                   })}
+
+                  {/* Unit Quiz Button */}
+                  {section.hasUnitQuiz && section.unitId && (
+                    <Link
+                      href={`/courses/${courseSlug}/learn/unit-quiz/${section.unitId}`}
+                      className="block w-full mt-3 p-3 rounded-lg bg-purple-50 border border-purple-200
+                                 hover:bg-purple-100 transition-colors cursor-pointer"
+                    >
+                      <div className="flex items-center gap-3">
+                        <div className="shrink-0">
+                          <BookCheck className="w-5 h-5 text-purple-600" />
+                        </div>
+                        <div className="flex-1">
+                          <p className="text-sm font-medium text-purple-700">
+                            Бүлгийн тест
+                          </p>
+                          <p className="text-xs text-purple-500">
+                            Бүлгийн шалгалтыг өгөх
+                          </p>
+                        </div>
+                        <ChevronRight className="w-4 h-4 text-purple-400" />
+                      </div>
+                    </Link>
+                  )}
                 </div>
               </AccordionContent>
             </AccordionItem>
@@ -175,3 +222,20 @@ export const LessonSidebar = ({
     </aside>
   );
 };
+
+// Helper function to get emoji for lesson type
+const getLessonEmoji = (type: LessonType): string => {
+  const emojiMap: Record<LessonType, string> = {
+    video: "📹",
+    text: "📝",
+    quiz: "✏️",
+    assignment: "📋",
+    theory: "📖",
+    easy_example: "💡",
+    hard_example: "🧠",
+  };
+  return emojiMap[type] || "📹";
+};
+
+// Export types for use in other components
+export type { LessonItem, LessonSection, UnitSection };

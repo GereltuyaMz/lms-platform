@@ -8,6 +8,7 @@ import {
 } from "@/components/courses/detail";
 import { checkEnrollment } from "@/lib/actions";
 import { hasCourseAccess } from "@/lib/actions/purchase";
+import { getCourseUnits } from "@/lib/actions/unit-actions";
 
 type PageProps = {
   params: Promise<{ slug: string }>;
@@ -52,6 +53,10 @@ const CourseDetailPage = async ({ params }: PageProps) => {
     notFound();
   }
 
+  // Fetch units with lessons (new structure)
+  const units = await getCourseUnits(course.id);
+  const hasUnits = units.length > 0;
+
   // Parallel queries for stats and lessons
   const [{ data: stats }, { data: lessons }] = await Promise.all([
     supabase.rpc("calculate_course_stats", {
@@ -71,18 +76,25 @@ const CourseDetailPage = async ({ params }: PageProps) => {
     total_xp: 0,
   };
 
-  // Group lessons by section
-  const lessonsBySection = (lessons || []).reduce((acc, lesson) => {
-    const sectionTitle = lesson.section_title || "Uncategorized";
-    if (!acc[sectionTitle]) {
-      acc[sectionTitle] = [];
-    }
-    acc[sectionTitle].push(lesson);
-    return acc;
-  }, {} as Record<string, typeof lessons>);
+  // Group lessons by section (legacy fallback)
+  const lessonsBySection = hasUnits
+    ? undefined
+    : (lessons || []).reduce(
+        (acc, lesson) => {
+          const sectionTitle = lesson.section_title || "Uncategorized";
+          if (!acc[sectionTitle]) {
+            acc[sectionTitle] = [];
+          }
+          acc[sectionTitle].push(lesson);
+          return acc;
+        },
+        {} as Record<string, typeof lessons>
+      );
 
   // Get first lesson ID for enrollment link
-  const firstLessonId = lessons?.[0]?.id || null;
+  const firstLessonId = hasUnits
+    ? units[0]?.lessons?.[0]?.id || null
+    : lessons?.[0]?.id || null;
 
   // Check if user is enrolled and has purchased
   const [enrollmentStatus, hasPurchased] = await Promise.all([
@@ -106,7 +118,10 @@ const CourseDetailPage = async ({ params }: PageProps) => {
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-14">
           {/* Left Content - Course Content & Instructor */}
           <div className="lg:col-span-2 space-y-20">
-            <CourseContent lessonsBySection={lessonsBySection} />
+            <CourseContent
+              units={hasUnits ? units : undefined}
+              lessonsBySection={lessonsBySection}
+            />
             <Instructor teacher={course.teacher} />
           </div>
 

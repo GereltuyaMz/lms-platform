@@ -126,7 +126,7 @@ export const CourseCard = ({ course, enrollment }: CourseCardProps) => {
           <Link
             href={
               enrollment && enrollment.lastLessonId
-                ? `/courses/${course.slug}/learn/${enrollment.lastLessonId}`
+                ? `/courses/${course.slug}/learn/lesson/${enrollment.lastLessonId}`
                 : `/courses/${course.slug}`
             }
           >

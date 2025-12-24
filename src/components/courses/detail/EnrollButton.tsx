@@ -40,7 +40,7 @@ export const EnrollButton = ({
   const handleClick = async () => {
     // If already enrolled, just navigate to first lesson
     if (isEnrolled && firstLessonId) {
-      router.push(`/courses/${courseSlug}/learn/${firstLessonId}`);
+      router.push(`/courses/${courseSlug}/learn/lesson/${firstLessonId}`);
       return;
     }
 
@@ -58,7 +58,7 @@ export const EnrollButton = ({
       if (result.success) {
         // Navigate to first lesson after successful enrollment
         if (firstLessonId) {
-          router.push(`/courses/${courseSlug}/learn/${firstLessonId}`);
+          router.push(`/courses/${courseSlug}/learn/lesson/${firstLessonId}`);
         } else {
           // Refresh page to show updated enrollment status
           router.refresh();

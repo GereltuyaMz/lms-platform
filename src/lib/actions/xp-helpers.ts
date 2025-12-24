@@ -87,6 +87,41 @@ export async function isQuizRetry(
 }
 
 /**
+ * Check if user has previous quiz attempts on same unit
+ */
+export async function isUnitQuizRetry(
+  userId: string,
+  unitId: string,
+  currentAttemptId: string
+): Promise<boolean> {
+  const supabase = await createClient();
+
+  const { data } = await supabase
+    .from("quiz_attempts")
+    .select("id, enrollment_id!inner(user_id)")
+    .eq("enrollment_id.user_id", userId)
+    .eq("unit_id", unitId)
+    .neq("id", currentAttemptId);
+
+  return !!data && data.length > 0;
+}
+
+/**
+ * Get unit title by ID
+ */
+export async function getUnitTitle(unitId: string): Promise<string> {
+  const supabase = await createClient();
+
+  const { data } = await supabase
+    .from("units")
+    .select("title")
+    .eq("id", unitId)
+    .single();
+
+  return data?.title || "Unit";
+}
+
+/**
  * Get lesson title by ID
  */
 export async function getLessonTitle(lessonId: string): Promise<string> {

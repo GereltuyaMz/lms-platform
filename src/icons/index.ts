@@ -9,3 +9,6 @@ export { NotebookIcon } from "./Note";
 export { FacebookIcon } from "./Facebook";
 export { InstagramIcon } from "./Instagram";
 export { GoogleIcon } from "./Google";
+export { BookOpenIcon } from "./BookOpen";
+export { LightbulbIcon } from "./Lightbulb";
+export { BrainIcon } from "./Brain";

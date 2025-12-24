@@ -2,6 +2,8 @@ import type {
   Category,
   Course,
   Lesson,
+  LessonContent,
+  Unit,
   Enrollment,
   LessonProgress,
   QuizQuestion,
@@ -42,10 +44,61 @@ export interface LessonWithCourse extends Lesson {
   course: Course
 }
 
-// Group lessons by section for UI display
+// Group lessons by section for UI display (legacy)
 export interface LessonsBySection {
   section_title: string | null
   lessons: Lesson[]
+}
+
+// =====================================================
+// UNIT QUERIES
+// =====================================================
+
+// Unit with its lessons
+export interface UnitWithLessons extends Unit {
+  lessons: Lesson[]
+}
+
+// Unit with lessons and quiz info
+export interface UnitWithQuiz extends Unit {
+  lessons: Lesson[]
+  hasQuiz: boolean
+  quizQuestionCount?: number
+}
+
+// Course with units (new structure)
+export interface CourseWithUnits extends Course {
+  units: UnitWithLessons[]
+}
+
+// Group lessons by unit for UI display
+export interface LessonsByUnit {
+  unit: Unit
+  lessons: Lesson[]
+  hasQuiz: boolean
+}
+
+// =====================================================
+// LESSON CONTENT QUERIES
+// =====================================================
+
+// Lesson with its content items (theory, examples)
+export interface LessonWithContent extends Lesson {
+  lesson_content: LessonContent[]
+}
+
+// Lesson with content and quiz questions
+export interface LessonComplete extends Lesson {
+  lesson_content: LessonContent[]
+  quiz_questions: QuizQuestion[]
+  hasQuiz: boolean
+}
+
+// Unit with lessons that have content
+export interface UnitComplete extends Unit {
+  lessons: LessonWithContent[]
+  quiz_questions: QuizQuestion[]  // Unit-level quiz
+  hasUnitQuiz: boolean
 }
 
 // =====================================================
@@ -117,7 +170,15 @@ export interface QuizAnswerWithDetails extends QuizAnswer {
 
 // Complete quiz data for a lesson (for taking quiz)
 export interface QuizData {
-  lesson_id: string
+  lesson_id: string | null
+  unit_id: string | null
+  questions: QuizQuestionWithOptions[]
+}
+
+// Unit quiz data
+export interface UnitQuizData {
+  unit_id: string
+  unit_title: string
   questions: QuizQuestionWithOptions[]
 }
 

@@ -13,7 +13,8 @@ import { Button } from "@/components/ui/button";
 import type { Category, CourseWithCategories } from "@/types/database";
 
 type CoursesClientWrapperProps = {
-  categories: Category[];
+  examTypes: Category[];
+  subjectCategories: Category[];
   initialCourses: CourseWithCategories[];
   currentPage: number;
   totalPages: number;
@@ -21,7 +22,8 @@ type CoursesClientWrapperProps = {
 };
 
 export const CoursesClientWrapper = ({
-  categories,
+  examTypes,
+  subjectCategories,
   initialCourses,
   currentPage,
   totalPages,
@@ -33,12 +35,20 @@ export const CoursesClientWrapper = ({
   const coursesHeadingRef = useRef<HTMLHeadingElement>(null);
 
   const [filters, setFilters] = useState<FilterState>(() => {
-    const topicsParam = searchParams.get("topics");
-    const levelParam = searchParams.get("level");
+    const examSlug = searchParams.get("exam");
+    const subjectSlugs = searchParams.get("subjects");
+
+    // Convert slugs to IDs for internal state
+    const examId = examTypes.find((e) => e.slug === examSlug)?.id || examTypes[0]?.id || null;
+    const subjectIds = subjectSlugs
+      ? subjectCategories
+          .filter((s) => subjectSlugs.split(",").includes(s.slug))
+          .map((s) => s.id)
+      : [];
 
     return {
-      topics: topicsParam ? topicsParam.split(",") : [],
-      level: levelParam || "Бүгд",
+      examType: examId,
+      subjects: subjectIds,
     };
   });
 
@@ -47,20 +57,23 @@ export const CoursesClientWrapper = ({
 
     const params = new URLSearchParams();
 
-    // Add topic filters if any
-    if (newFilters.topics.length > 0) {
-      params.set("topics", newFilters.topics.join(","));
+    // Add exam type filter (using slug)
+    if (newFilters.examType) {
+      const examSlug = examTypes.find((e) => e.id === newFilters.examType)?.slug;
+      if (examSlug) params.set("exam", examSlug);
     }
 
-    // Add level filter only if it's not "Бүгд" (All)
-    if (newFilters.level && newFilters.level !== "Бүгд") {
-      params.set("level", newFilters.level);
+    // Add subject filters if any (using slugs)
+    if (newFilters.subjects.length > 0) {
+      const subjectSlugs = newFilters.subjects
+        .map((id) => subjectCategories.find((s) => s.id === id)?.slug)
+        .filter(Boolean)
+        .join(",");
+      if (subjectSlugs) params.set("subjects", subjectSlugs);
     }
 
-    // Only add page param if we have filters, otherwise clean URL
-    if (params.toString()) {
-      params.set("page", "1");
-    }
+    // Reset to page 1 when filters change
+    params.set("page", "1");
 
     const queryString = params.toString();
     const newUrl = queryString ? `/courses?${queryString}` : "/courses";
@@ -85,6 +98,12 @@ export const CoursesClientWrapper = ({
     });
   };
 
+  // Get display names for active filters
+  const getSubjectName = (id: string) => {
+    const subject = subjectCategories.find((s) => s.id === id);
+    return subject?.name_mn || subject?.name || id;
+  };
+
   return (
     <>
       <h1
@@ -96,9 +115,10 @@ export const CoursesClientWrapper = ({
 
       <div className="flex gap-8">
         {/* Filters Sidebar */}
-        <aside className="w-[250px] flex-shrink-0">
+        <aside className="w-[250px] shrink-0">
           <FilterCourses
-            categories={categories}
+            examTypes={examTypes}
+            subjectCategories={subjectCategories}
             onFilterChange={handleFilterChange}
             totalCourses={totalCount}
             filteredCount={initialCourses.length}
@@ -108,33 +128,33 @@ export const CoursesClientWrapper = ({
 
         {/* Course List */}
         <main className="flex-1">
-          <div className="mb-6 flex items-center justify-between">
-            <div className="flex items-center gap-2">
-              {filters.topics.length > 0 && (
-                <>
-                  {filters.topics.map((topic) => (
-                    <Button
-                      key={topic}
-                      variant="secondary"
-                      size="sm"
-                      className="gap-2"
-                      onClick={() => {
-                        const newTopics = filters.topics.filter(
-                          (t) => t !== topic
-                        );
-                        handleFilterChange({
-                          ...filters,
-                          topics: newTopics,
-                        });
-                      }}
-                    >
-                      {topic}
-                      <span>×</span>
-                    </Button>
-                  ))}
-                </>
-              )}
-            </div>
+          {/* Active filter tags */}
+          <div className="mb-6 flex items-center gap-2 flex-wrap">
+            {filters.subjects.length > 0 && (
+              <>
+                {filters.subjects.map((subjectId) => (
+                  <Button
+                    key={subjectId}
+                    variant="secondary"
+                    size="sm"
+                    className="gap-2"
+                    onClick={() => {
+                      const newSubjects = filters.subjects.filter(
+                        (id) => id !== subjectId
+                      );
+                      handleFilterChange({
+                        ...filters,
+                        subjects: newSubjects,
+                      });
+                    }}
+                  >
+                    {getSubjectName(subjectId)}
+                    <span>×</span>
+                  </Button>
+                ))}
+              </>
+            )}
+
           </div>
 
           {isPending ? (
