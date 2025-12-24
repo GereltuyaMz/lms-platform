@@ -185,10 +185,12 @@ NEXT_PUBLIC_SUPABASE_ANON_KEY=your_anon_key
 ## 📊 Configuration Summary
 
 **Supabase Project:**
+
 - URL: `https://pedpzfvyjnkapqylfbqi.supabase.co`
 - OAuth Callback: `https://pedpzfvyjnkapqylfbqi.supabase.co/auth/v1/callback`
 
 **Authentication Flow:**
+
 ```
 User clicks Google button
   ↓
@@ -206,6 +208,7 @@ Redirects to: /onboarding (new user) or /dashboard (existing user)
 ```
 
 **User Profile Creation:**
+
 - Full name extracted from Google user metadata
 - Email from Google account
 - Auto-assigned "student" role
@@ -220,6 +223,7 @@ Redirects to: /onboarding (new user) or /dashboard (existing user)
 **Cause:** The redirect URI in your Google Cloud Console doesn't match what Supabase is using.
 
 **Solution:**
+
 1. Go to Google Cloud Console → Credentials
 2. Verify the redirect URI is exactly:
    ```
@@ -233,6 +237,7 @@ Redirects to: /onboarding (new user) or /dashboard (existing user)
 **Cause:** OAuth consent screen is not properly configured.
 
 **Solution:**
+
 1. Go to Google Cloud Console → OAuth consent screen
 2. Ensure all required fields are filled
 3. Verify your email is added as a test user (if app is in testing mode)
@@ -243,6 +248,7 @@ Redirects to: /onboarding (new user) or /dashboard (existing user)
 **Cause:** Session exchange failed or user profile creation failed.
 
 **Solution:**
+
 1. Check Supabase logs: Authentication → Logs
 2. Verify Client ID and Client Secret are correct in Supabase
 3. Ensure Google+ API is enabled in Google Cloud Console
@@ -253,6 +259,7 @@ Redirects to: /onboarding (new user) or /dashboard (existing user)
 **Cause:** Cookie issues or middleware configuration.
 
 **Solution:**
+
 1. Clear all browser cookies for localhost
 2. Verify middleware.ts is not modifying cookies incorrectly
 3. Check browser console for cookie-related errors
@@ -263,6 +270,7 @@ Redirects to: /onboarding (new user) or /dashboard (existing user)
 **Cause:** Google credentials are incorrect or not properly saved.
 
 **Solution:**
+
 1. Go to Supabase Dashboard → Authentication → Providers → Google
 2. Re-copy Client ID and Client Secret from Google Cloud Console
 3. Ensure no extra spaces or characters
@@ -273,6 +281,7 @@ Redirects to: /onboarding (new user) or /dashboard (existing user)
 **Cause:** `has_completed_onboarding` flag not updating.
 
 **Solution:**
+
 1. Check Supabase → Table Editor → user_profiles
 2. Verify the onboarding action is properly updating the flag
 3. Check browser console for errors

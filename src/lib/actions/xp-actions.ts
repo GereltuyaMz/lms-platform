@@ -10,7 +10,9 @@ import {
   getEnrollmentId,
   isFirstLessonInCourse,
   isQuizRetry,
+  isUnitQuizRetry,
   getLessonTitle,
+  getUnitTitle,
   calculateVideoXP,
   calculateQuizXP,
   insertXPTransaction,
@@ -150,6 +152,76 @@ export async function awardQuizCompletionXP(
       quizAttemptId,
       `Completed quiz "${lessonTitle}" with ${Math.round(scorePercentage)}%`,
       { ...metadata, lesson_id: lessonId, course_id: courseId }
+    );
+
+    if (!success) {
+      return { success: false, message: "Error awarding XP" };
+    }
+
+    revalidateUserPages();
+
+    return {
+      success: true,
+      message: `You earned ${amount} XP!`,
+      xpAwarded: amount,
+    };
+  } catch (error) {
+    return handleActionError(error) as XPResult;
+  }
+}
+
+/**
+ * Award XP for unit quiz completion
+ */
+export async function awardUnitQuizCompletionXP(
+  quizAttemptId: string,
+  unitId: string,
+  courseId: string,
+  scoreCorrect: number,
+  totalQuestions: number
+): Promise<XPResult> {
+  try {
+    const { user, error: authError } = await getAuthenticatedUser();
+
+    if (authError || !user) {
+      return { success: false, message: "You must be logged in" };
+    }
+
+    // Check if already awarded
+    if (await hasXPBeenAwarded(user.id, "unit_quiz_complete", quizAttemptId)) {
+      return {
+        success: false,
+        message: "XP already awarded for this attempt",
+        xpAwarded: 0,
+      };
+    }
+
+    // Check if retry
+    const isRetry = await isUnitQuizRetry(user.id, unitId, quizAttemptId);
+
+    // Calculate XP (reuse existing quiz XP calculation)
+    const { amount, metadata } = await calculateQuizXP(scoreCorrect, totalQuestions, isRetry);
+
+    if (amount === 0) {
+      return {
+        success: false,
+        message: "No XP for retry attempts",
+        xpAwarded: 0,
+      };
+    }
+
+    // Get unit title
+    const unitTitle = await getUnitTitle(unitId);
+    const scorePercentage = totalQuestions > 0 ? (scoreCorrect / totalQuestions) * 100 : 0;
+
+    // Insert transaction
+    const success = await insertXPTransaction(
+      user.id,
+      amount,
+      "unit_quiz_complete",
+      quizAttemptId,
+      `Completed unit quiz "${unitTitle}" with ${Math.round(scorePercentage)}%`,
+      { ...metadata, unit_id: unitId, course_id: courseId }
     );
 
     if (!success) {

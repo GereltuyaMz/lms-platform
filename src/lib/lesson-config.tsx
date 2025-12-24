@@ -1,8 +1,8 @@
 import type { ReactElement } from "react";
-import { PlayIcon, NotebookIcon, DumbbellIcon } from "@/icons";
+import { PlayIcon, NotebookIcon, DumbbellIcon, BookOpenIcon, LightbulbIcon, BrainIcon } from "@/icons";
 import type { Lesson } from "@/types/database";
 
-export type LessonType = "video" | "text" | "quiz" | "assignment";
+export type LessonType = "video" | "text" | "quiz" | "assignment" | "theory" | "easy_example" | "hard_example";
 
 type LessonConfig = {
   icon: ReactElement;
@@ -18,6 +18,10 @@ export const LESSON_XP = {
   ASSIGNMENT: 150,
   TEXT_BASE: 30,
   TEXT_LONG_FORM: 50,
+  // Unit lesson types XP
+  THEORY: 50,
+  EASY_EXAMPLE: 40,
+  HARD_EXAMPLE: 60,
 } as const;
 
 export const LESSON_CONFIG: Record<LessonType, LessonConfig> = {
@@ -44,6 +48,37 @@ export const LESSON_CONFIG: Record<LessonType, LessonConfig> = {
   assignment: {
     icon: <DumbbellIcon width={20} height={20} fill="#10B981" />,
     calculateXP: () => LESSON_XP.ASSIGNMENT,
+    displayXP: (xp) => `${xp} XP`,
+  },
+  // Unit-based lesson types
+  theory: {
+    icon: <BookOpenIcon className="h-4 w-4 text-blue-600" />,
+    calculateXP: (lesson) => {
+      const durationBonus =
+        Math.floor((lesson.duration_seconds || 0) / 300) *
+        LESSON_XP.VIDEO_DURATION_BONUS_PER_5MIN;
+      return LESSON_XP.THEORY + durationBonus;
+    },
+    displayXP: (xp) => `${xp} XP`,
+  },
+  easy_example: {
+    icon: <LightbulbIcon className="h-4 w-4 text-green-500" />,
+    calculateXP: (lesson) => {
+      const durationBonus =
+        Math.floor((lesson.duration_seconds || 0) / 300) *
+        LESSON_XP.VIDEO_DURATION_BONUS_PER_5MIN;
+      return LESSON_XP.EASY_EXAMPLE + durationBonus;
+    },
+    displayXP: (xp) => `${xp} XP`,
+  },
+  hard_example: {
+    icon: <BrainIcon className="h-4 w-4 text-orange-500" />,
+    calculateXP: (lesson) => {
+      const durationBonus =
+        Math.floor((lesson.duration_seconds || 0) / 300) *
+        LESSON_XP.VIDEO_DURATION_BONUS_PER_5MIN;
+      return LESSON_XP.HARD_EXAMPLE + durationBonus;
+    },
     displayXP: (xp) => `${xp} XP`,
   },
 };

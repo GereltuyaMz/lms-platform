@@ -1,7 +1,6 @@
 import Image from "next/image";
 import { createClient } from "@/lib/supabase/server";
 import { CoursesClientWrapper } from "@/components/courses";
-import { parseCourseLevelToDb } from "@/lib/utils/formatters";
 
 // Revalidate page every 5 minutes (300 seconds) to cache course data
 export const revalidate = 300;
@@ -16,37 +15,33 @@ const CoursesPage = async ({ searchParams }: PageProps) => {
 
   const page = Number(params.page) || 1;
   const pageSize = 10;
-  const topicsParam = params.topics as string | undefined;
-  const levelParam = params.level as string | undefined;
+  // URL params use slugs
+  const examSlug = params.exam as string | undefined;
+  const subjectSlugs = params.subjects as string | undefined;
 
-  const { data: categories } = await supabase
+  // Fetch exam types (top-level categories)
+  const { data: examTypes } = await supabase
     .from("categories")
     .select("*")
-    .order("name");
+    .eq("category_type", "exam")
+    .is("parent_id", null)
+    .order("order_index");
 
-  // First, get filtered course IDs if category filter is applied
-  let filteredCourseIds: string[] | null = null;
+  // Fetch subject categories (children of exam types)
+  const { data: subjectCategories } = await supabase
+    .from("categories")
+    .select("*")
+    .eq("category_type", "subject")
+    .order("order_index");
 
-  if (topicsParam) {
-    const topics = topicsParam.split(",");
-    const categoryIds = categories
-      ?.filter((cat) => topics.includes(cat.name))
-      .map((cat) => cat.id);
+  // Convert slugs to IDs for filtering
+  const selectedExam = examTypes?.find((e) => e.slug === examSlug);
+  const selectedSubjectSlugsArray = subjectSlugs?.split(",") || [];
+  const selectedSubjects = subjectCategories?.filter((s) =>
+    selectedSubjectSlugsArray.includes(s.slug)
+  );
 
-    if (categoryIds && categoryIds.length > 0) {
-      // Get course IDs that have at least one of the selected categories
-      const { data: courseCategoryData } = await supabase
-        .from("course_categories")
-        .select("course_id")
-        .in("category_id", categoryIds);
-
-      filteredCourseIds = courseCategoryData?.map((cc) => cc.course_id) || [];
-    } else {
-      filteredCourseIds = []; // No matching categories
-    }
-  }
-
-  // Build query for courses with filters using the optimized view
+  // Build query for courses with filters
   let query = supabase
     .from("courses_with_stats")
     .select(
@@ -57,7 +52,8 @@ const CoursesPage = async ({ searchParams }: PageProps) => {
         categories (
           id,
           name,
-          slug
+          slug,
+          parent_id
         )
       ),
       teacher:teachers!instructor_id (
@@ -71,22 +67,40 @@ const CoursesPage = async ({ searchParams }: PageProps) => {
     )
     .eq("is_published", true);
 
-  // Apply category filter by course IDs
-  if (filteredCourseIds !== null) {
-    if (filteredCourseIds.length > 0) {
-      query = query.in("id", filteredCourseIds);
+  // Filter by subjects via course_categories
+  if (selectedSubjects && selectedSubjects.length > 0) {
+    const subjectIds = selectedSubjects.map((s) => s.id);
+    // Get course IDs that belong to selected subjects
+    const { data: courseCategories } = await supabase
+      .from("course_categories")
+      .select("course_id")
+      .in("category_id", subjectIds);
+
+    const courseIds = courseCategories?.map((cc) => cc.course_id) || [];
+    if (courseIds.length > 0) {
+      query = query.in("id", courseIds);
     } else {
-      // No courses match the filter, return empty result
+      // No courses match, return empty
       query = query.eq("id", "00000000-0000-0000-0000-000000000000");
     }
-  }
+  } else if (selectedExam) {
+    // Filter by exam - get courses in subjects under this exam
+    const relevantSubjectIds = subjectCategories
+      ?.filter((s) => s.parent_id === selectedExam.id)
+      .map((s) => s.id) || [];
 
-  // Convert Mongolian level to English database value
-  // Only filter by level if levelParam exists and is not "Бүгд" (All)
-  if (levelParam && levelParam.trim() !== "" && levelParam !== "Бүгд") {
-    const dbLevel = parseCourseLevelToDb(levelParam);
-    if (dbLevel) {
-      query = query.eq("level", dbLevel);
+    if (relevantSubjectIds.length > 0) {
+      const { data: courseCategories } = await supabase
+        .from("course_categories")
+        .select("course_id")
+        .in("category_id", relevantSubjectIds);
+
+      const courseIds = courseCategories?.map((cc) => cc.course_id) || [];
+      if (courseIds.length > 0) {
+        query = query.in("id", courseIds);
+      } else {
+        query = query.eq("id", "00000000-0000-0000-0000-000000000000");
+      }
     }
   }
 
@@ -98,7 +112,6 @@ const CoursesPage = async ({ searchParams }: PageProps) => {
     .order("created_at", { ascending: false })
     .range(startIndex, endIndex);
 
-  // No need to fetch lesson counts separately - they're already in the view!
   const totalPages = count ? Math.ceil(count / pageSize) : 0;
 
   return (
@@ -124,9 +137,10 @@ const CoursesPage = async ({ searchParams }: PageProps) => {
         </div>
       </section>
 
-      {/* Pass categories and courses to client wrapper */}
+      {/* Pass hierarchical data to client wrapper */}
       <CoursesClientWrapper
-        categories={categories || []}
+        examTypes={examTypes || []}
+        subjectCategories={subjectCategories || []}
         initialCourses={courses || []}
         currentPage={page}
         totalPages={totalPages}

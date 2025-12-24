@@ -1,11 +1,12 @@
 "use client";
 
 import { useState } from "react";
-import { ChevronDown, Zap } from "lucide-react";
+import { ChevronDown, Zap, BookCheck } from "lucide-react";
 import { EyeIcon } from "@/icons";
 import { formatDuration, formatTime, cn } from "@/lib/utils";
 import { getLessonIcon, getLessonXP } from "@/lib/lesson-config";
 import type { Lesson } from "@/types/database";
+import type { UnitWithLessons } from "@/types/database";
 import ReactPlayer from "react-player";
 import {
   Dialog,
@@ -15,21 +16,50 @@ import {
 } from "@/components/ui/dialog";
 
 type CourseContentProps = {
-  lessonsBySection: Record<string, Lesson[]>;
+  // Support both legacy sections and new units
+  lessonsBySection?: Record<string, Lesson[]>;
+  units?: UnitWithLessons[];
 };
 
-export const CourseContent = ({ lessonsBySection }: CourseContentProps) => {
-  const [openSections, setOpenSections] = useState<string[]>([
-    Object.keys(lessonsBySection)[0],
-  ]);
+// Unified section type for rendering
+type SectionData = {
+  id: string;
+  title: string;
+  description?: string | null;
+  lessons: Lesson[];
+  hasUnitQuiz?: boolean;
+};
+
+export const CourseContent = ({
+  lessonsBySection,
+  units,
+}: CourseContentProps) => {
+  // Convert data to unified format
+  const sections: SectionData[] = units?.length
+    ? units.map((unit) => ({
+        id: unit.id,
+        title: unit.title,
+        description: unit.description,
+        lessons: unit.lessons,
+        hasUnitQuiz: false, // Will be set when we have quiz data
+      }))
+    : Object.entries(lessonsBySection || {}).map(([title, lessons], index) => ({
+        id: `section-${index}`,
+        title,
+        lessons,
+      }));
+
+  const [openSections, setOpenSections] = useState<string[]>(
+    sections.length > 0 ? [sections[0].id] : []
+  );
 
   const [previewLesson, setPreviewLesson] = useState<Lesson | null>(null);
 
-  const toggleSection = (sectionTitle: string) => {
+  const toggleSection = (sectionId: string) => {
     setOpenSections((prev) =>
-      prev.includes(sectionTitle)
-        ? prev.filter((s) => s !== sectionTitle)
-        : [...prev, sectionTitle]
+      prev.includes(sectionId)
+        ? prev.filter((s) => s !== sectionId)
+        : [...prev, sectionId]
     );
   };
 
@@ -46,18 +76,15 @@ export const CourseContent = ({ lessonsBySection }: CourseContentProps) => {
       <h2 className="text-2xl font-bold mb-6">Хичээлийн агуулга</h2>
 
       <div className="space-y-2">
-        {Object.entries(lessonsBySection).map(([sectionTitle, lessons]) => {
-          const isOpen = openSections.includes(sectionTitle);
+        {sections.map((section) => {
+          const isOpen = openSections.includes(section.id);
 
           return (
-            <div
-              key={sectionTitle}
-              className="border rounded-lg overflow-hidden"
-            >
+            <div key={section.id} className="border rounded-lg overflow-hidden">
               {/* Section Header */}
               <button
-                onClick={() => toggleSection(sectionTitle)}
-                className="w-full px-4 py-3 bg-gray-50 hover:bg-gray-100 flex items-center justify-between transition-colors"
+                onClick={() => toggleSection(section.id)}
+                className="w-full px-4 py-3 bg-gray-50 hover:bg-gray-100 flex items-center justify-between transition-colors cursor-pointer"
               >
                 <div className="flex items-center gap-2">
                   <ChevronDown
@@ -66,17 +93,28 @@ export const CourseContent = ({ lessonsBySection }: CourseContentProps) => {
                       isOpen && "rotate-180"
                     )}
                   />
-                  <span className="font-semibold">{sectionTitle}</span>
+                  <span className="font-semibold">{section.title}</span>
+                  {section.hasUnitQuiz && (
+                    <BookCheck className="w-4 h-4 text-purple-500" />
+                  )}
                 </div>
                 <div className="text-sm text-muted-foreground">
-                  {lessons.length} хичээл • {calculateSectionDuration(lessons)}
+                  {section.lessons.length} хичээл •{" "}
+                  {calculateSectionDuration(section.lessons)}
                 </div>
               </button>
+
+              {/* Unit Description (if available) */}
+              {isOpen && section.description && (
+                <div className="px-4 py-2 bg-blue-50 border-t text-sm text-blue-700">
+                  {section.description}
+                </div>
+              )}
 
               {/* Lessons List */}
               {isOpen && (
                 <div className="bg-white">
-                  {lessons.map((lesson) => (
+                  {section.lessons.map((lesson) => (
                     <div
                       key={lesson.id}
                       className="px-4 py-3 flex items-center justify-between hover:bg-gray-50 border-t"

@@ -4,11 +4,12 @@ import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Label } from "@/components/ui/label";
-import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
+import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import type { Category } from "@/types/database";
 
 type FilterCoursesProps = {
-  categories: Category[];
+  examTypes: Category[];
+  subjectCategories: Category[];
   onFilterChange?: (filters: FilterState) => void;
   totalCourses?: number;
   filteredCount?: number;
@@ -16,56 +17,66 @@ type FilterCoursesProps = {
 };
 
 export type FilterState = {
-  topics: string[];
-  level: string;
+  examType: string | null;
+  subjects: string[];
 };
 
-const levels = ["Бүгд", "Анхан шат", "Дунд шат", "Ахисан шат"];
-
 export const FilterCourses = ({
-  categories,
+  examTypes,
+  subjectCategories,
   onFilterChange,
   totalCourses = 0,
   filteredCount = 0,
   initialFilters,
 }: FilterCoursesProps) => {
-  const [selectedTopics, setSelectedTopics] = useState<string[]>(
-    initialFilters?.topics || []
+  const [selectedExam, setSelectedExam] = useState<string | null>(
+    initialFilters?.examType || (examTypes[0]?.id ?? null)
   );
-  const [selectedLevel, setSelectedLevel] = useState<string>(
-    initialFilters?.level || "Бүгд"
+  const [selectedSubjects, setSelectedSubjects] = useState<string[]>(
+    initialFilters?.subjects || []
+  );
+
+  // Filter subjects based on selected exam type
+  const filteredSubjects = subjectCategories.filter(
+    (cat) => cat.parent_id === selectedExam
   );
 
   // Sync with parent filters when they change (e.g., from URL)
   useEffect(() => {
     if (initialFilters) {
-      setSelectedTopics(initialFilters.topics);
-      setSelectedLevel(initialFilters.level);
+      setSelectedExam(initialFilters.examType);
+      setSelectedSubjects(initialFilters.subjects);
     }
   }, [initialFilters]);
 
-  const handleTopicChange = (topic: string, checked: boolean) => {
-    const newTopics = checked
-      ? [...selectedTopics, topic]
-      : selectedTopics.filter((selectedTopic) => selectedTopic !== topic);
-
-    setSelectedTopics(newTopics);
-    onFilterChange?.({ topics: newTopics, level: selectedLevel });
+  const handleExamChange = (examId: string) => {
+    setSelectedExam(examId);
+    // Reset subjects when exam changes
+    setSelectedSubjects([]);
+    onFilterChange?.({
+      examType: examId,
+      subjects: [],
+    });
   };
 
-  const handleLevelChange = (level: string) => {
-    setSelectedLevel(level);
-    onFilterChange?.({ topics: selectedTopics, level });
+  const handleSubjectChange = (subjectId: string, checked: boolean) => {
+    const newSubjects = checked
+      ? [...selectedSubjects, subjectId]
+      : selectedSubjects.filter((id) => id !== subjectId);
+
+    setSelectedSubjects(newSubjects);
+    onFilterChange?.({
+      examType: selectedExam,
+      subjects: newSubjects,
+    });
   };
 
-  const handleClearTopic = () => {
-    setSelectedTopics([]);
-    onFilterChange?.({ topics: [], level: selectedLevel });
-  };
-
-  const handleClearLevel = () => {
-    setSelectedLevel("Бүгд");
-    onFilterChange?.({ topics: selectedTopics, level: "Бүгд" });
+  const handleClearSubjects = () => {
+    setSelectedSubjects([]);
+    onFilterChange?.({
+      examType: selectedExam,
+      subjects: [],
+    });
   };
 
   return (
@@ -74,71 +85,73 @@ export const FilterCourses = ({
         Нийт {filteredCount}-с {totalCourses} хичээл харагдаж байна
       </div>
 
+      {/* Exam Type Tabs */}
+      {examTypes.length > 0 && (
+        <div className="space-y-3 border-t pt-4">
+          <h3 className="text-sm font-semibold md:text-base">Шалгалтын төрөл</h3>
+          <Tabs
+            value={selectedExam || undefined}
+            onValueChange={handleExamChange}
+            className="w-full"
+          >
+            <TabsList className="w-full flex-wrap h-auto gap-1">
+              {examTypes.map((exam) => (
+                <TabsTrigger
+                  key={exam.id}
+                  value={exam.id}
+                  className="cursor-pointer text-xs md:text-sm flex-1 min-w-[60px]"
+                >
+                  {exam.icon && <span className="mr-1">{exam.icon}</span>}
+                  {exam.name}
+                </TabsTrigger>
+              ))}
+            </TabsList>
+          </Tabs>
+        </div>
+      )}
+
+      {/* Subject Categories */}
       <div className="space-y-3 border-t pt-4 md:space-y-4">
         <div className="flex items-center justify-between">
-          <h3 className="text-sm font-semibold md:text-base">Сэдэв</h3>
-          <Button
-            variant="ghost"
-            onClick={handleClearTopic}
-            className="cursor-pointer text-sm hover:bg-transparent hover:underline"
-          >
-            Цэвэрлэx
-          </Button>
+          <h3 className="text-sm font-semibold md:text-base">Хичээл</h3>
+          {selectedSubjects.length > 0 && (
+            <Button
+              variant="ghost"
+              onClick={handleClearSubjects}
+              className="cursor-pointer text-xs hover:bg-transparent hover:underline p-0 h-auto"
+            >
+              Цэвэрлэх
+            </Button>
+          )}
         </div>
 
         <div className="space-y-2.5 md:space-y-3">
-          {categories.map((category) => (
-            <div key={category.id} className="flex items-center space-x-2">
-              <Checkbox
-                id={category.slug}
-                checked={selectedTopics.includes(category.name)}
-                onCheckedChange={(checked) =>
-                  handleTopicChange(category.name, checked as boolean)
-                }
-                className="cursor-pointer"
-              />
-              <Label
-                htmlFor={category.slug}
-                className="cursor-pointer text-regular peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
-              >
-                {category.name}
-              </Label>
-            </div>
-          ))}
-        </div>
-      </div>
-
-      <div className="space-y-3 border-t pt-4 md:space-y-4">
-        <div className="flex items-center justify-between">
-          <h3 className="text-sm font-semibold md:text-base">Түвшин</h3>
-          <Button
-            variant="ghost"
-            onClick={handleClearLevel}
-            className="cursor-pointer text-sm hover:bg-transparent hover:underline"
-          >
-            Цэвэрлэx
-          </Button>
-        </div>
-
-        <RadioGroup value={selectedLevel} onValueChange={handleLevelChange}>
-          <div className="space-y-2.5 md:space-y-3">
-            {levels.map((level) => (
-              <div key={level} className="flex items-center space-x-2">
-                <RadioGroupItem
-                  value={level}
-                  id={level}
+          {filteredSubjects.length > 0 ? (
+            filteredSubjects.map((subject) => (
+              <div key={subject.id} className="flex items-center space-x-2">
+                <Checkbox
+                  id={subject.slug}
+                  checked={selectedSubjects.includes(subject.id)}
+                  onCheckedChange={(checked) =>
+                    handleSubjectChange(subject.id, checked as boolean)
+                  }
                   className="cursor-pointer"
                 />
                 <Label
-                  htmlFor={level}
-                  className="cursor-pointer text-regular peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
+                  htmlFor={subject.slug}
+                  className="cursor-pointer text-regular peer-disabled:cursor-not-allowed peer-disabled:opacity-70 flex items-center gap-1.5"
                 >
-                  {level}
+                  {subject.icon && <span>{subject.icon}</span>}
+                  {subject.name_mn || subject.name}
                 </Label>
               </div>
-            ))}
-          </div>
-        </RadioGroup>
+            ))
+          ) : (
+            <p className="text-sm text-muted-foreground">
+              Шалгалтын төрөл сонгоно уу
+            </p>
+          )}
+        </div>
       </div>
     </div>
   );

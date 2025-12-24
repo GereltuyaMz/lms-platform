@@ -57,7 +57,7 @@ export const CheckoutForm = ({ course, firstLessonId }: CheckoutFormProps) => {
         // Redirect to first lesson or dashboard after 1.5 seconds
         setTimeout(() => {
           if (firstLessonId) {
-            router.push(`/courses/${course.slug}/learn/${firstLessonId}`);
+            router.push(`/courses/${course.slug}/learn/lesson/${firstLessonId}`);
           } else {
             router.push("/dashboard");
           }

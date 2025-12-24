@@ -141,7 +141,7 @@ export async function saveVideoProgress(
 
       if (courseData.data?.slug) {
         revalidatePath(
-          `/courses/${courseData.data.slug}/learn/${lessonId}`,
+          `/courses/${courseData.data.slug}/learn/lesson/${lessonId}`,
           "page"
         );
         revalidatePath(`/courses/${courseData.data.slug}`, "page");
