@@ -49,26 +49,11 @@ export const UnitQuizPlayer = ({
   const [xpAwarded, setXpAwarded] = useState(0);
   const [isSubmitting, setIsSubmitting] = useState(false);
 
-  // Empty state
-  if (!quizData || quizData.questions.length === 0) {
-    return (
-      <div className="bg-white rounded-lg border overflow-hidden mb-6">
-        <div className="p-8 text-center">
-          <p className="text-lg text-muted-foreground mb-4">
-            Асуулт байхгүй байна
-          </p>
-          <p className="text-sm text-muted-foreground">
-            Энэ бүлгийн шалгалт хараахан үүсээгүй байна.
-          </p>
-        </div>
-      </div>
-    );
-  }
-
-  const question = quizData.questions[currentQuestion];
-  const isCorrect = selectedAnswer === question?.correctAnswer;
-
   const handleSubmit = () => {
+    if (!quizData) return;
+    const question = quizData.questions[currentQuestion];
+    const isCorrect = selectedAnswer === question?.correctAnswer;
+
     if (selectedAnswer !== null) {
       setShowExplanation(true);
       setUserAnswers({ ...userAnswers, [currentQuestion]: selectedAnswer });
@@ -79,6 +64,8 @@ export const UnitQuizPlayer = ({
   };
 
   const handleNext = async () => {
+    if (!quizData) return;
+
     if (currentQuestion < quizData.questions.length - 1) {
       setCurrentQuestion(currentQuestion + 1);
       setSelectedAnswer(null);
@@ -223,7 +210,38 @@ export const UnitQuizPlayer = ({
         });
       }
     }
-  }, [currentQuestion, selectedAnswer, showExplanation, isSubmitting, quizData, onQuizStateChange, nextLessonUrl, router]);
+  }, [
+    currentQuestion,
+    selectedAnswer,
+    showExplanation,
+    isSubmitting,
+    quizData,
+    onQuizStateChange,
+    nextLessonUrl,
+    router,
+    handleSubmit,
+    handleNext,
+    handlePrevious,
+    handleRetry,
+  ]);
+
+  // Empty state (after hooks)
+  if (!quizData || quizData.questions.length === 0) {
+    return (
+      <div className="bg-white rounded-lg border overflow-hidden mb-6">
+        <div className="p-8 text-center">
+          <p className="text-lg text-muted-foreground mb-4">
+            Асуулт байхгүй байна
+          </p>
+          <p className="text-sm text-muted-foreground">
+            Энэ бүлгийн шалгалт хараахан үүсээгүй байна.
+          </p>
+        </div>
+      </div>
+    );
+  }
+
+  const question = quizData.questions[currentQuestion];
 
   return (
     <div className="bg-white rounded-lg border overflow-hidden mb-6">
