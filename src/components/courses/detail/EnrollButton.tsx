@@ -16,7 +16,7 @@ import Link from "next/link";
 type EnrollButtonProps = {
   courseId: string;
   courseSlug: string;
-  firstLessonId: string | null;
+  continueButtonUrl: string | null;
   isEnrolled: boolean;
   price: number;
   hasPurchased: boolean;
@@ -25,7 +25,7 @@ type EnrollButtonProps = {
 export const EnrollButton = ({
   courseId,
   courseSlug,
-  firstLessonId,
+  continueButtonUrl,
   isEnrolled,
   price,
   hasPurchased,
@@ -38,9 +38,9 @@ export const EnrollButton = ({
   const isPaid = price > 0;
 
   const handleClick = async () => {
-    // If already enrolled, just navigate to first lesson
-    if (isEnrolled && firstLessonId) {
-      router.push(`/courses/${courseSlug}/learn/lesson/${firstLessonId}`);
+    // If already enrolled, navigate to next uncompleted lesson
+    if (isEnrolled && continueButtonUrl) {
+      router.push(continueButtonUrl);
       return;
     }
 
@@ -56,9 +56,9 @@ export const EnrollButton = ({
       const result = await createEnrollment(courseId);
 
       if (result.success) {
-        // Navigate to first lesson after successful enrollment
-        if (firstLessonId) {
-          router.push(`/courses/${courseSlug}/learn/lesson/${firstLessonId}`);
+        // Navigate to next uncompleted lesson after successful enrollment
+        if (continueButtonUrl) {
+          router.push(continueButtonUrl);
         } else {
           // Refresh page to show updated enrollment status
           router.refresh();
@@ -87,7 +87,7 @@ export const EnrollButton = ({
       <Button
         onClick={handleClick}
         className="w-full bg-primary text-white h-12 text-base font-bold cursor-pointer"
-        disabled={isLoading || (!firstLessonId && isFree && !isEnrolled)}
+        disabled={isLoading || (!continueButtonUrl && isFree && !isEnrolled)}
       >
         {isLoading && <Loader2 className="w-4 h-4 mr-2 animate-spin" />}
         {getButtonText()}

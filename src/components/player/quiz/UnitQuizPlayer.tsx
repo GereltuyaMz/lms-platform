@@ -1,14 +1,13 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
-import { Loader2 } from "lucide-react";
-import { Button } from "@/components/ui/button";
 import { QuizProgress } from "./QuizProgress";
 import { QuizQuestion } from "./QuizQuestion";
 import { QuizResults } from "./QuizResults";
 import { saveUnitQuizAttempt, awardUnitQuizCompletionXP } from "@/lib/actions";
 import { toast } from "sonner";
+import type { QuizControlsProps } from "../QuizControls";
 
 type QuizQuestionData = {
   id: string | number;
@@ -29,6 +28,8 @@ type UnitQuizPlayerProps = {
   quizData: QuizData | null;
   unitId: string;
   courseId: string;
+  nextLessonUrl?: string | null;
+  onQuizStateChange?: (state: QuizControlsProps | null) => void;
 };
 
 export const UnitQuizPlayer = ({
@@ -36,6 +37,8 @@ export const UnitQuizPlayer = ({
   quizData,
   unitId,
   courseId,
+  nextLessonUrl,
+  onQuizStateChange,
 }: UnitQuizPlayerProps) => {
   const router = useRouter();
   const [currentQuestion, setCurrentQuestion] = useState(0);
@@ -185,6 +188,43 @@ export const UnitQuizPlayer = ({
     setIsSubmitting(false);
   };
 
+  // Emit quiz state changes to parent component for sticky nav
+  useEffect(() => {
+    if (onQuizStateChange && quizData) {
+      if (currentQuestion !== -1) {
+        // During quiz: emit question controls
+        onQuizStateChange({
+          currentQuestion,
+          totalQuestions: quizData.questions.length,
+          selectedAnswer,
+          showExplanation,
+          isSubmitting,
+          isFirstQuestion: currentQuestion === 0,
+          isLastQuestion: currentQuestion === quizData.questions.length - 1,
+          onSubmit: handleSubmit,
+          onNext: handleNext,
+          onPrevious: handlePrevious,
+        });
+      } else {
+        // On results screen: emit results controls
+        onQuizStateChange({
+          currentQuestion: -1,
+          totalQuestions: quizData.questions.length,
+          selectedAnswer: null,
+          showExplanation: false,
+          isSubmitting: false,
+          isFirstQuestion: false,
+          isLastQuestion: false,
+          onSubmit: handleRetry,
+          onNext: nextLessonUrl ? () => router.push(nextLessonUrl) : undefined,
+          onPrevious: handleRetry,
+          isResultsScreen: true,
+          nextLessonUrl,
+        });
+      }
+    }
+  }, [currentQuestion, selectedAnswer, showExplanation, isSubmitting, quizData, onQuizStateChange, nextLessonUrl, router]);
+
   return (
     <div className="bg-white rounded-lg border overflow-hidden mb-6">
       {currentQuestion === -1 ? (
@@ -192,7 +232,6 @@ export const UnitQuizPlayer = ({
           score={score}
           totalQuestions={quizData.questions.length}
           xpAwarded={xpAwarded}
-          onRetry={handleRetry}
         />
       ) : (
         <div className="p-6">
@@ -218,35 +257,6 @@ export const UnitQuizPlayer = ({
             onAnswerSelect={setSelectedAnswer}
             questionId={question.id}
           />
-
-          <div className="flex justify-between items-center pt-4 border-t">
-            <Button
-              variant="outline"
-              onClick={handlePrevious}
-              disabled={currentQuestion === 0}
-            >
-              Өмнөх
-            </Button>
-
-            {!showExplanation ? (
-              <Button onClick={handleSubmit} disabled={selectedAnswer === null}>
-                Хариу илгээх
-              </Button>
-            ) : (
-              <Button onClick={handleNext} disabled={isSubmitting}>
-                {isSubmitting ? (
-                  <>
-                    <Loader2 className="w-4 h-4 mr-2 animate-spin" />
-                    Хадгалж байна...
-                  </>
-                ) : currentQuestion < quizData.questions.length - 1 ? (
-                  "Дараагийн асуулт"
-                ) : (
-                  "Үр дүнг харах"
-                )}
-              </Button>
-            )}
-          </div>
         </div>
       )}
     </div>

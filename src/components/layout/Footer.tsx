@@ -1,8 +1,16 @@
+"use client";
+
 import Link from "next/link";
 import Image from "next/image";
+import { usePathname } from "next/navigation";
 import { Separator } from "@/components/ui/separator";
 
 export const Footer = () => {
+  const pathname = usePathname();
+  const isLearnPage = pathname.includes('/learn/');
+
+  if (isLearnPage) return null;
+
   return (
     <footer className="bg-primary text-white px-36">
       <div className="container mx-auto py-20">

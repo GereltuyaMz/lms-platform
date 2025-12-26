@@ -9,6 +9,8 @@ import {
 import { checkEnrollment } from "@/lib/actions";
 import { hasCourseAccess } from "@/lib/actions/purchase";
 import { getCourseUnits } from "@/lib/actions/unit-actions";
+import { fetchUnitsWithQuiz } from "@/lib/lesson-utils";
+import { findNextUncompletedLesson } from "@/lib/utils";
 
 type PageProps = {
   params: Promise<{ slug: string }>;
@@ -102,6 +104,80 @@ const CourseDetailPage = async ({ params }: PageProps) => {
     hasCourseAccess(course.id),
   ]);
 
+  // Fetch completion data for enrolled users
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+
+  let completedLessonIds: string[] = [];
+  let completedUnitQuizIds: string[] = [];
+  let unitQuizMap = new Map<string, boolean>();
+
+  if (enrollmentStatus.isEnrolled && user) {
+    // Fetch enrollment ID
+    const { data: enrollment } = await supabase
+      .from("enrollments")
+      .select("id")
+      .eq("user_id", user.id)
+      .eq("course_id", course.id)
+      .single();
+
+    if (enrollment) {
+      // Parallel fetches for completion data
+      const [{ data: lessonProgressData }, { data: unitQuizAttemptsData }] =
+        await Promise.all([
+          // Get completed lessons
+          supabase
+            .from("lesson_progress")
+            .select("lesson_id")
+            .eq("enrollment_id", enrollment.id)
+            .eq("is_completed", true),
+
+          // Get passed unit quizzes
+          supabase
+            .from("quiz_attempts")
+            .select("unit_id")
+            .eq("enrollment_id", enrollment.id)
+            .eq("passed", true)
+            .not("unit_id", "is", null),
+        ]);
+
+      completedLessonIds = lessonProgressData?.map((p) => p.lesson_id) || [];
+      completedUnitQuizIds =
+        unitQuizAttemptsData?.map((q) => q.unit_id!) || [];
+    }
+  }
+
+  // Get units that have quizzes
+  if (hasUnits) {
+    unitQuizMap = await fetchUnitsWithQuiz(
+      supabase,
+      units.map((u) => u.id)
+    );
+  }
+
+  // Calculate next uncompleted lesson for continue button
+  let nextLessonData: { type: "lesson" | "unit-quiz"; id: string } | null =
+    null;
+
+  if (enrollmentStatus.isEnrolled && hasUnits) {
+    nextLessonData = findNextUncompletedLesson(
+      units,
+      completedLessonIds,
+      completedUnitQuizIds,
+      unitQuizMap
+    );
+  }
+
+  // Build continue button URL
+  const continueButtonUrl = nextLessonData
+    ? nextLessonData.type === "lesson"
+      ? `/courses/${slug}/learn/lesson/${nextLessonData.id}/theory`
+      : `/courses/${slug}/learn/lesson/${nextLessonData.id}/unit-quiz`
+    : firstLessonId
+      ? `/courses/${slug}/learn/lesson/${firstLessonId}/theory`
+      : null;
+
   return (
     <div className="min-h-screen bg-white">
       {/* Course Hero Section */}
@@ -121,6 +197,10 @@ const CourseDetailPage = async ({ params }: PageProps) => {
             <CourseContent
               units={hasUnits ? units : undefined}
               lessonsBySection={lessonsBySection}
+              courseSlug={course.slug}
+              completedLessonIds={completedLessonIds}
+              completedUnitQuizIds={completedUnitQuizIds}
+              unitQuizMap={unitQuizMap}
             />
             <Instructor teacher={course.teacher} />
           </div>
@@ -133,7 +213,7 @@ const CourseDetailPage = async ({ params }: PageProps) => {
               price={course.price}
               originalPrice={course.original_price}
               thumbnailUrl={course.thumbnail_url}
-              firstLessonId={firstLessonId}
+              continueButtonUrl={continueButtonUrl}
               isEnrolled={enrollmentStatus.isEnrolled}
               hasPurchased={hasPurchased}
             />

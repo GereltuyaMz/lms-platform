@@ -178,6 +178,7 @@ export interface QuizAttempt {
   score: number
   total_questions: number
   points_earned: number
+  passed: boolean              // Auto-computed: score >= total_questions * 0.8
   completed_at: string
 }
 

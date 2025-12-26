@@ -37,8 +37,9 @@ export const QuizQuestion = ({
       >
         <div className="space-y-3">
           {options.map((option, index) => (
-            <div
+            <Label
               key={index}
+              htmlFor={`option-${index}`}
               className={`
                 flex items-center space-x-3 p-4 rounded-lg border-2 transition-colors
                 ${
@@ -52,15 +53,11 @@ export const QuizQuestion = ({
                     ? "border-blue-500 bg-blue-50"
                     : "border-gray-200 hover:border-gray-300"
                 }
+                ${showExplanation ? "cursor-default" : "cursor-pointer"}
               `}
             >
               <RadioGroupItem value={index.toString()} id={`option-${index}`} />
-              <Label
-                htmlFor={`option-${index}`}
-                className="flex-1 cursor-pointer"
-              >
-                {option}
-              </Label>
+              <span className="flex-1">{option}</span>
               {showExplanation && index === correctAnswer && (
                 <CheckCircle className="w-5 h-5 text-green-600" />
               )}
@@ -69,7 +66,7 @@ export const QuizQuestion = ({
                 index !== correctAnswer && (
                   <XCircle className="w-5 h-5 text-red-600" />
                 )}
-            </div>
+            </Label>
           ))}
         </div>
       </RadioGroup>

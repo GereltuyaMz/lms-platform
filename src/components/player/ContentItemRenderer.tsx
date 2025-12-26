@@ -1,6 +1,6 @@
 "use client";
 
-import { BookOpen, Lightbulb, Brain, FileText, Paperclip } from "lucide-react";
+import { BookOpen, Lightbulb, FileText, Paperclip } from "lucide-react";
 import { VideoPlayer } from "./VideoPlayer";
 import type { LessonContent } from "@/types/database/tables";
 import type { ContentType } from "@/types/database/enums";
@@ -15,10 +15,8 @@ const getContentIcon = (type: ContentType) => {
   switch (type) {
     case "theory":
       return <BookOpen className="h-5 w-5 text-blue-600" />;
-    case "easy_example":
+    case "example":
       return <Lightbulb className="h-5 w-5 text-green-600" />;
-    case "hard_example":
-      return <Brain className="h-5 w-5 text-purple-600" />;
     case "text":
       return <FileText className="h-5 w-5 text-gray-600" />;
     case "attachment":
@@ -32,10 +30,8 @@ const getContentLabel = (type: ContentType): string => {
   switch (type) {
     case "theory":
       return "Теори";
-    case "easy_example":
-      return "Хялбар жишээ";
-    case "hard_example":
-      return "Хүнд жишээ";
+    case "example":
+      return "Жишээ";
     case "text":
       return "Текст";
     case "attachment":
