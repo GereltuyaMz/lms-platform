@@ -1,16 +1,24 @@
 "use client";
 
-import { CheckCircle2, Circle, Lock, PlayCircle, BookCheck, ChevronRight } from "lucide-react";
-import { Progress } from "@/components/ui/progress";
 import {
-  Accordion,
-  AccordionContent,
-  AccordionItem,
-  AccordionTrigger,
-} from "@/components/ui/accordion";
+  CheckCircle2,
+  Lock,
+  ChevronLeft,
+  ChevronRight,
+  BookOpen,
+  Lightbulb,
+  FileCheck,
+  Crown,
+} from "lucide-react";
+import { Progress } from "@/components/ui/progress";
+import { Button } from "@/components/ui/button";
 import Link from "next/link";
+import { useState } from "react";
 import type { LessonType } from "@/types/database";
 import type { Unit } from "@/types/database/tables";
+import { getStepLabel, type LessonStep } from "@/lib/lesson-step-utils";
+import { cn } from "@/lib/utils";
+import { LessonBreadcrumb } from "./LessonBreadcrumb";
 
 // Legacy type for section-based display
 type LessonItem = {
@@ -21,6 +29,8 @@ type LessonItem = {
   completed: boolean;
   current?: boolean;
   locked?: boolean;
+  isUnitQuiz?: boolean;
+  unitId?: string;
 };
 
 // Legacy type
@@ -49,6 +59,9 @@ type LessonSidebarProps = {
     streak?: number;
     totalXp: number;
   };
+  currentLessonTitle?: string;
+  currentStep?: LessonStep;
+  availableSteps?: LessonStep[];
 };
 
 export const LessonSidebar = ({
@@ -57,18 +70,81 @@ export const LessonSidebar = ({
   lessons,
   units,
   progress,
+  currentLessonTitle,
+  currentStep,
+  availableSteps = [],
 }: LessonSidebarProps) => {
   // Determine which data source to use
   const hasUnits = units && units.length > 0;
-  const sections = hasUnits
-    ? units.map((u) => ({ section: u.unit.title, items: u.items, hasUnitQuiz: u.hasUnitQuiz, unitId: u.unit.id }))
-    : (lessons || []).map((l) => ({ section: l.section, items: l.items, hasUnitQuiz: false, unitId: null }));
+
+  // Flatten all lessons from sections/units
+  const allLessons = hasUnits
+    ? units.flatMap((u) => u.items)
+    : (lessons || []).flatMap((l) => l.items);
+
+  // Find current lesson index
+  const currentLessonIndex = allLessons.findIndex((item) => item.current);
+  const [viewingLessonIndex, setViewingLessonIndex] = useState(
+    currentLessonIndex >= 0 ? currentLessonIndex : 0
+  );
+
+  const viewingLesson = allLessons[viewingLessonIndex];
+  const isFirstLesson = viewingLessonIndex === 0;
+  const isLastLesson = viewingLessonIndex === allLessons.length - 1;
+
+  // Find which section/unit the viewing lesson belongs to
+  const getSectionTitle = (lessonId: string) => {
+    if (hasUnits && units) {
+      for (const unit of units) {
+        if (unit.items.some((item) => item.id === lessonId)) {
+          return unit.unit.title;
+        }
+      }
+    } else if (lessons) {
+      for (const section of lessons) {
+        if (section.items.some((item) => item.id === lessonId)) {
+          return section.section;
+        }
+      }
+    }
+    return "";
+  };
+
+  const handlePrevious = () => {
+    if (!isFirstLesson) {
+      setViewingLessonIndex(viewingLessonIndex - 1);
+    }
+  };
+
+  const handleNext = () => {
+    if (!isLastLesson) {
+      setViewingLessonIndex(viewingLessonIndex + 1);
+    }
+  };
+
+  const getStepIcon = (step: LessonStep) => {
+    const iconClass = "w-4 h-4";
+    switch (step) {
+      case "theory":
+        return <BookOpen className={iconClass} />;
+      case "example":
+        return <Lightbulb className={iconClass} />;
+      case "test":
+        return <FileCheck className={iconClass} />;
+    }
+  };
+
+  if (!viewingLesson) {
+    return null;
+  }
+
+  const sectionTitle = getSectionTitle(viewingLesson.id);
 
   return (
     <aside className="w-[340px] bg-white border-r h-[calc(100vh-73px)] sticky top-[73px] overflow-y-auto">
-      <div className="p-6">
+      <div className="p-6 space-y-6">
         {/* Course Progress Card */}
-        <div className="bg-gradient-to-br from-blue-50 to-purple-50 rounded-xl p-4 mb-6 border">
+        <div className="bg-linear-to-br from-blue-50 to-purple-50 rounded-xl p-4 border">
           <h3 className="font-semibold text-sm mb-3">{courseTitle}</h3>
           <div className="space-y-3">
             <div>
@@ -97,127 +173,175 @@ export const LessonSidebar = ({
           </div>
         </div>
 
-        {/* Lessons List */}
-        <Accordion
-          type="multiple"
-          defaultValue={sections.map((_, i) => `section-${i}`)}
-        >
-          {sections.map((section, index) => (
-            <AccordionItem
-              key={section.unitId || index}
-              value={`section-${index}`}
-              className="border-b"
+        {/* Lesson Navigation */}
+        <div className="space-y-2">
+          {/* Metadata Row (Top) */}
+          <div className="flex items-center justify-center gap-2 text-xs text-muted-foreground">
+            {viewingLesson.locked && (
+              <Lock className="w-3.5 h-3.5 text-gray-400" />
+            )}
+            <span>{viewingLesson.duration}</span>
+          </div>
+
+          {/* Breadcrumb Navigation Row (Bottom) */}
+          <div className="flex items-center gap-2">
+            <Button
+              variant="ghost"
+              size="icon"
+              onClick={handlePrevious}
+              disabled={isFirstLesson}
+              className="h-7 w-7 shrink-0"
             >
-              <AccordionTrigger className="text-sm font-semibold hover:no-underline">
-                <div className="flex items-center gap-2">
-                  <span>{section.section}</span>
-                  {section.hasUnitQuiz && (
-                    <BookCheck className="w-4 h-4 text-purple-500" />
-                  )}
-                </div>
-              </AccordionTrigger>
-              <AccordionContent>
-                <div className="space-y-1">
-                  {section.items.map((item) => {
-                    const lessonUrl = `/courses/${courseSlug}/learn/lesson/${item.id}`;
+              <ChevronLeft className="h-3.5 w-3.5" />
+            </Button>
 
-                    if (item.locked) {
-                      return (
-                        <div
-                          key={item.id}
-                          className="w-full text-left p-3 rounded-lg transition-colors opacity-50 cursor-not-allowed"
-                        >
-                          <div className="flex items-start gap-3">
-                            <div className="flex-shrink-0 mt-0.5">
-                              <Lock className="w-4 h-4 text-gray-400" />
-                            </div>
-                            <div className="flex-1 min-w-0">
-                              <p className="text-sm font-medium mb-1 text-gray-700">
-                                {item.title}
-                              </p>
-                              <div className="flex items-center gap-2 text-xs text-muted-foreground">
-                                <span>{getLessonEmoji(item.type)}</span>
-                                <span>{item.duration}</span>
-                              </div>
-                            </div>
-                          </div>
-                        </div>
-                      );
-                    }
+            <div className="flex-1 flex justify-center">
+              <LessonBreadcrumb
+                courseTitle={courseTitle}
+                courseSlug={courseSlug}
+                unitOrSectionTitle={sectionTitle}
+                lessonTitle={viewingLesson.title}
+                compact
+              />
+            </div>
 
-                    return (
-                      <Link
-                        key={item.id}
-                        href={lessonUrl}
-                        className={`
-                          block w-full text-left p-3 rounded-lg transition-colors cursor-pointer
-                          ${
-                            item.current
-                              ? "bg-blue-50 border border-blue-200"
-                              : "hover:bg-gray-50"
-                          }
-                        `}
-                      >
-                        <div className="flex items-start gap-3">
-                          <div className="flex-shrink-0 mt-0.5">
-                            {item.completed ? (
-                              <CheckCircle2 className="w-5 h-5 text-green-600 " />
-                            ) : item.current ? (
-                              <PlayCircle className="w-4 h-4 text-blue-500" />
-                            ) : (
-                              <Circle className="w-4 h-4 text-gray-300" />
-                            )}
-                          </div>
-                          <div className="flex-1 min-w-0">
-                            <p
-                              className={`text-sm font-medium mb-1 ${
-                                item.current
-                                  ? "text-blue-700"
-                                  : item.completed
-                                  ? "text-gray-500"
-                                  : "text-gray-700"
-                              }`}
-                            >
-                              {item.title}
-                            </p>
-                            <div className="flex items-center gap-2 text-xs text-muted-foreground">
-                              <span>{getLessonEmoji(item.type)}</span>
-                              <span>{item.duration}</span>
-                            </div>
-                          </div>
-                        </div>
-                      </Link>
-                    );
-                  })}
+            <Button
+              variant="ghost"
+              size="icon"
+              onClick={handleNext}
+              disabled={isLastLesson}
+              className="h-7 w-7 shrink-0"
+            >
+              <ChevronRight className="h-3.5 w-3.5" />
+            </Button>
+          </div>
+        </div>
 
-                  {/* Unit Quiz Button */}
-                  {section.hasUnitQuiz && section.unitId && (
+        {/* Lesson Steps or Unit Quiz Button */}
+        {!viewingLesson.isUnitQuiz ? (
+          <div className="space-y-2">
+            {/* For current lesson: show actual available steps with completion state */}
+            {viewingLesson.current && availableSteps.length > 0
+              ? availableSteps.map((step) => {
+                  const isActive =
+                    step === currentStep && viewingLesson.current;
+                  const stepIndex = availableSteps.indexOf(step);
+                  const currentStepIndex = currentStep
+                    ? availableSteps.indexOf(currentStep)
+                    : -1;
+                  const isCompleted =
+                    stepIndex < currentStepIndex && viewingLesson.current;
+
+                  const stepUrl = `/courses/${courseSlug}/learn/lesson/${viewingLesson.id}/${step}`;
+
+                  return (
                     <Link
-                      href={`/courses/${courseSlug}/learn/unit-quiz/${section.unitId}`}
-                      className="block w-full mt-3 p-3 rounded-lg bg-purple-50 border border-purple-200
-                                 hover:bg-purple-100 transition-colors cursor-pointer"
+                      key={step}
+                      href={stepUrl}
+                      className={cn(
+                        "flex items-center gap-3 p-3 rounded-lg transition-all duration-200 cursor-pointer",
+                        isActive
+                          ? "bg-blue-500 text-white shadow-md"
+                          : "bg-gray-50 hover:bg-gray-100 text-gray-700"
+                      )}
                     >
-                      <div className="flex items-center gap-3">
-                        <div className="shrink-0">
-                          <BookCheck className="w-5 h-5 text-purple-600" />
-                        </div>
-                        <div className="flex-1">
-                          <p className="text-sm font-medium text-purple-700">
-                            Бүлгийн тест
-                          </p>
-                          <p className="text-xs text-purple-500">
-                            Бүлгийн шалгалтыг өгөх
-                          </p>
-                        </div>
-                        <ChevronRight className="w-4 h-4 text-purple-400" />
+                      <div
+                        className={cn(
+                          "shrink-0 flex items-center justify-center w-8 h-8 rounded-full transition-all",
+                          isActive
+                            ? "bg-white/20"
+                            : (step === "test" && viewingLesson.completed)
+                            ? "bg-yellow-100"
+                            : "bg-white"
+                        )}
+                      >
+                        {step === "test" && viewingLesson.completed ? (
+                          <Crown className="w-4 h-4 text-yellow-600" />
+                        ) : (
+                          <div
+                            className={cn(
+                              "transition-colors",
+                              isActive ? "text-white" : "text-gray-600"
+                            )}
+                          >
+                            {getStepIcon(step)}
+                          </div>
+                        )}
+                      </div>
+
+                      <div className="flex-1 text-left">
+                        <p
+                          className={cn(
+                            "text-sm font-medium",
+                            isActive && "font-semibold"
+                          )}
+                        >
+                          {getStepLabel(step)}
+                        </p>
+                      </div>
+
+                      {isActive && (
+                        <ChevronRight className="w-4 h-4 opacity-60" />
+                      )}
+                    </Link>
+                  );
+                })
+              : /* For other lessons: show all possible steps as clickable links */
+                (["theory", "example", "test"] as LessonStep[]).map((step) => {
+                  const stepUrl = `/courses/${courseSlug}/learn/lesson/${viewingLesson.id}/${step}`;
+                  const showCrown = step === "test" && viewingLesson.completed;
+
+                  return (
+                    <Link
+                      key={step}
+                      href={stepUrl}
+                      className="flex items-center gap-3 p-3 rounded-lg bg-gray-50 hover:bg-gray-100 text-gray-700 transition-all duration-200 cursor-pointer"
+                    >
+                      <div className={cn(
+                        "shrink-0 flex items-center justify-center w-8 h-8 rounded-full",
+                        showCrown ? "bg-yellow-100" : "bg-white"
+                      )}>
+                        {showCrown ? (
+                          <Crown className="w-4 h-4 text-yellow-600" />
+                        ) : (
+                          <div className="text-gray-600">{getStepIcon(step)}</div>
+                        )}
+                      </div>
+                      <div className="flex-1 text-left">
+                        <p className="text-sm font-medium">
+                          {getStepLabel(step)}
+                        </p>
                       </div>
                     </Link>
-                  )}
-                </div>
-              </AccordionContent>
-            </AccordionItem>
-          ))}
-        </Accordion>
+                  );
+                })}
+          </div>
+        ) : (
+          /* Unit Quiz Button */
+          <Link
+            href={`/courses/${courseSlug}/learn/lesson/${viewingLesson.unitId}/unit-quiz`}
+            className={cn(
+              "block w-full p-4 rounded-lg border-2 transition-colors cursor-pointer",
+              viewingLesson.completed
+                ? "bg-yellow-50 border-yellow-200 hover:bg-yellow-100"
+                : "bg-purple-50 border-purple-200 hover:bg-purple-100"
+            )}
+          >
+            <div className="flex items-center justify-center gap-2">
+              {viewingLesson.completed ? (
+                <Crown className="w-5 h-5 text-yellow-600" />
+              ) : (
+                <FileCheck className="w-5 h-5 text-purple-600" />
+              )}
+              <span className={cn(
+                "text-sm font-semibold",
+                viewingLesson.completed ? "text-yellow-700" : "text-purple-700"
+              )}>
+                {viewingLesson.completed ? "Бүлгийн тест дууссан" : "Бүлгийн тестэд орох"}
+              </span>
+            </div>
+          </Link>
+        )}
       </div>
     </aside>
   );
@@ -231,8 +355,8 @@ const getLessonEmoji = (type: LessonType): string => {
     quiz: "✏️",
     assignment: "📋",
     theory: "📖",
-    easy_example: "💡",
-    hard_example: "🧠",
+    example: "💡",
+    "unit-quiz": "🎯",
   };
   return emojiMap[type] || "📹";
 };

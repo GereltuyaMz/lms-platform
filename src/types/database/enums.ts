@@ -1,9 +1,9 @@
 export type CourseLevel = 'Beginner' | 'Intermediate' | 'Advanced'
-export type LessonType = 'video' | 'text' | 'quiz' | 'assignment' | 'theory' | 'easy_example' | 'hard_example'
+export type LessonType = 'video' | 'text' | 'quiz' | 'assignment' | 'theory' | 'example' | 'unit-quiz'
 export type CategoryType = 'exam' | 'subject'
 
 // Content types for lesson_content table
-export type ContentType = 'theory' | 'easy_example' | 'hard_example' | 'text' | 'attachment'
+export type ContentType = 'theory' | 'example' | 'text' | 'attachment'
 
 // Unit-specific lesson types (subset of LessonType for type safety)
-export type UnitLessonType = 'theory' | 'easy_example' | 'hard_example'
+export type UnitLessonType = 'theory' | 'example'

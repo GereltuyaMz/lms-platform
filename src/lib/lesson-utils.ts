@@ -20,6 +20,8 @@ export type LessonItem = {
   completed: boolean;
   current: boolean;
   locked: boolean;
+  isUnitQuiz?: boolean;
+  unitId?: string;
 };
 
 export type LessonSection = {
@@ -121,16 +123,21 @@ export const transformLessonsForSidebar = (
  * Transform units with lessons for sidebar display
  * Uses the new unit-based structure instead of section_title grouping
  * @param unitQuizMap - Optional map of unitId -> hasQuiz from fetchUnitsWithQuiz
+ * @param currentUnitQuizId - Current unit quiz ID if viewing a unit quiz
+ * @param completedUnitQuizIds - Array of completed unit quiz IDs
  */
 export const transformUnitsForSidebar = (
   units: UnitWithLessons[],
   currentLessonId: string,
   completedLessonIds: string[] = [],
-  unitQuizMap: Map<string, boolean> = new Map()
+  unitQuizMap: Map<string, boolean> = new Map(),
+  currentUnitQuizId?: string,
+  completedUnitQuizIds: string[] = []
 ): UnitSection[] => {
-  return units.map((unit) => ({
-    unit,
-    items: unit.lessons.map((lesson) => ({
+  return units.map((unit) => {
+    const hasUnitQuiz = unitQuizMap.get(unit.id) ?? false;
+
+    const lessonItems: LessonItem[] = unit.lessons.map((lesson) => ({
       id: lesson.id,
       title: lesson.title,
       duration: getLessonDurationDisplay(lesson),
@@ -138,9 +145,29 @@ export const transformUnitsForSidebar = (
       completed: completedLessonIds.includes(lesson.id),
       current: lesson.id === currentLessonId,
       locked: false,
-    })),
-    hasUnitQuiz: unitQuizMap.get(unit.id) ?? false,
-  }));
+    }));
+
+    // Append unit quiz as last item if it exists
+    const unitQuizItem: LessonItem | null = hasUnitQuiz
+      ? {
+          id: `unit-quiz-${unit.id}`,
+          title: `${unit.title} - Бүлгийн тест`,
+          duration: "Тест",
+          type: "unit-quiz" as LessonType,
+          completed: completedUnitQuizIds.includes(unit.id),
+          current: currentLessonId === `unit-quiz-${unit.id}` || currentUnitQuizId === unit.id,
+          locked: false,
+          isUnitQuiz: true,
+          unitId: unit.id,
+        }
+      : null;
+
+    return {
+      unit,
+      items: unitQuizItem ? [...lessonItems, unitQuizItem] : lessonItems,
+      hasUnitQuiz,
+    };
+  });
 };
 
 /**
@@ -297,3 +324,6 @@ export const fetchQuizData = async (
     }),
   };
 };
+
+// Re-export client-safe step helpers
+export { getAvailableSteps, getStepLabel, type LessonStep } from './lesson-step-utils';

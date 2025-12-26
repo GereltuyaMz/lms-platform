@@ -1,18 +1,15 @@
 import { CheckCircle } from "lucide-react";
-import { Button } from "@/components/ui/button";
 
 type QuizResultsProps = {
   score: number;
   totalQuestions: number;
   xpAwarded: number;
-  onRetry: () => void;
 };
 
 export const QuizResults = ({
   score,
   totalQuestions,
   xpAwarded,
-  onRetry,
 }: QuizResultsProps) => {
   return (
     <div className="p-8 text-center">
@@ -31,16 +28,6 @@ export const QuizResults = ({
           </p>
         </div>
       )}
-
-      <div className="flex gap-3 justify-center">
-        <Button
-          variant="outline"
-          onClick={onRetry}
-          className="hover:text-white cursor-pointer"
-        >
-          Дахин турших
-        </Button>
-      </div>
     </div>
   );
 };

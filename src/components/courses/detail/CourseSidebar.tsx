@@ -8,7 +8,7 @@ type CourseSidebarProps = {
   price: number;
   originalPrice: number | null;
   thumbnailUrl: string | null;
-  firstLessonId: string | null;
+  continueButtonUrl: string | null;
   isEnrolled: boolean;
   hasPurchased: boolean;
 };
@@ -19,7 +19,7 @@ export const CourseSidebar = ({
   price,
   originalPrice,
   thumbnailUrl,
-  firstLessonId,
+  continueButtonUrl,
   isEnrolled,
   hasPurchased,
 }: CourseSidebarProps) => {
@@ -69,7 +69,7 @@ export const CourseSidebar = ({
             <EnrollButton
               courseId={courseId}
               courseSlug={courseSlug}
-              firstLessonId={firstLessonId}
+              continueButtonUrl={continueButtonUrl}
               isEnrolled={isEnrolled}
               price={price}
               hasPurchased={hasPurchased}
