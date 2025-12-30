@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { useRouter } from "next/navigation";
 import { QuizProgress } from "./QuizProgress";
 import { QuizQuestion } from "./QuizQuestion";
@@ -49,39 +49,21 @@ export const UnitQuizPlayer = ({
   const [xpAwarded, setXpAwarded] = useState(0);
   const [isSubmitting, setIsSubmitting] = useState(false);
 
-  const handleSubmit = () => {
+  const handleSubmit = useCallback(() => {
     if (!quizData) return;
     const question = quizData.questions[currentQuestion];
     const isCorrect = selectedAnswer === question?.correctAnswer;
 
     if (selectedAnswer !== null) {
       setShowExplanation(true);
-      setUserAnswers({ ...userAnswers, [currentQuestion]: selectedAnswer });
+      setUserAnswers((prev) => ({ ...prev, [currentQuestion]: selectedAnswer }));
       if (isCorrect) {
-        setScore(score + 1);
+        setScore((prev) => prev + 1);
       }
     }
-  };
+  }, [quizData, currentQuestion, selectedAnswer]);
 
-  const handleNext = async () => {
-    if (!quizData) return;
-
-    if (currentQuestion < quizData.questions.length - 1) {
-      setCurrentQuestion(currentQuestion + 1);
-      setSelectedAnswer(null);
-      setShowExplanation(false);
-    } else {
-      setIsSubmitting(true);
-      try {
-        await saveQuizAttemptToDatabase();
-        setCurrentQuestion(-1);
-      } finally {
-        setIsSubmitting(false);
-      }
-    }
-  };
-
-  const saveQuizAttemptToDatabase = async () => {
+  const saveQuizAttemptToDatabase = useCallback(async () => {
     if (!quizData) return;
 
     const loadingToast = toast.loading("Хадгалж байна...", {
@@ -155,17 +137,35 @@ export const UnitQuizPlayer = ({
         description: "Тестийн үр дүнг хадгалж чадсангүй",
       });
     }
-  };
+  }, [quizData, userAnswers, score, unitId, courseId, router]);
 
-  const handlePrevious = () => {
+  const handleNext = useCallback(async () => {
+    if (!quizData) return;
+
+    if (currentQuestion < quizData.questions.length - 1) {
+      setCurrentQuestion((prev) => prev + 1);
+      setSelectedAnswer(null);
+      setShowExplanation(false);
+    } else {
+      setIsSubmitting(true);
+      try {
+        await saveQuizAttemptToDatabase();
+        setCurrentQuestion(-1);
+      } finally {
+        setIsSubmitting(false);
+      }
+    }
+  }, [quizData, currentQuestion, saveQuizAttemptToDatabase]);
+
+  const handlePrevious = useCallback(() => {
     if (currentQuestion > 0) {
-      setCurrentQuestion(currentQuestion - 1);
+      setCurrentQuestion((prev) => prev - 1);
       setSelectedAnswer(null);
       setShowExplanation(false);
     }
-  };
+  }, [currentQuestion]);
 
-  const handleRetry = () => {
+  const handleRetry = useCallback(() => {
     setCurrentQuestion(0);
     setScore(0);
     setSelectedAnswer(null);
@@ -173,7 +173,7 @@ export const UnitQuizPlayer = ({
     setUserAnswers({});
     setXpAwarded(0);
     setIsSubmitting(false);
-  };
+  }, []);
 
   // Emit quiz state changes to parent component for sticky nav
   useEffect(() => {

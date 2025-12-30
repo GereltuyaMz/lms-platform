@@ -8,8 +8,9 @@ import { Separator } from "@/components/ui/separator";
 export const Footer = () => {
   const pathname = usePathname();
   const isLearnPage = pathname.includes('/learn/');
+  const isMockTestTakePage = pathname.includes('/mock-test') && pathname.includes('/take');
 
-  if (isLearnPage) return null;
+  if (isLearnPage || isMockTestTakePage) return null;
 
   return (
     <footer className="bg-primary text-white px-36">

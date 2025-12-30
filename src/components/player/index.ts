@@ -13,3 +13,4 @@ export * from "./NavigationControls";
 export * from "./QuizControls";
 export * from "./TestPageWrapper";
 export * from "./LessonBreadcrumb";
+export * from "./LessonContentLoading";

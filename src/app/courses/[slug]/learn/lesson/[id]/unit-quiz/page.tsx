@@ -1,13 +1,6 @@
-import { LessonSidebar, LessonPageClient, LessonStickyNav } from "@/components/player";
-import { UnitQuizPlayer } from "@/components/player/quiz";
 import { createClient } from "@/lib/supabase/server";
 import { notFound, redirect } from "next/navigation";
-import {
-  transformUnitsForSidebar,
-  calculateCourseProgress,
-  fetchUnitsWithQuiz,
-} from "@/lib/lesson-utils";
-import { checkEnrollment, getCourseProgress } from "@/lib/actions";
+import { checkEnrollment } from "@/lib/actions";
 import {
   getCourseUnits,
   getUnitQuizQuestions,
@@ -63,23 +56,8 @@ export default async function UnitQuizPage({ params }: PageProps) {
     redirect(`/courses/${slug}`);
   }
 
-  // Parallel fetches
-  const [units, quizQuestions, { data: progressData }] = await Promise.all([
-    getCourseUnits(course.id),
-    getUnitQuizQuestions(unitId),
-    getCourseProgress(course.id),
-  ]);
-
-  // Fetch completed unit quiz attempts
-  const { data: completedQuizAttempts } = await supabase
-    .from("quiz_attempts")
-    .select("unit_id, enrollments!inner(user_id)")
-    .eq("enrollments.user_id", user.id)
-    .eq("passed", true)
-    .not("unit_id", "is", null);
-
-  const completedUnitQuizIds =
-    completedQuizAttempts?.map((qa) => qa.unit_id!) || [];
+  // Fetch quiz questions only (sidebar data is handled by layout)
+  const quizQuestions = await getUnitQuizQuestions(unitId);
 
   // Transform quiz data for the player
   type QuizOption = { option_text: string; is_correct: boolean };
@@ -101,27 +79,8 @@ export default async function UnitQuizPage({ params }: PageProps) {
         }
       : null;
 
-  // Sidebar data
-  const completedLessonIds =
-    progressData?.filter((p) => p.is_completed).map((p) => p.lesson_id) || [];
-  const unitIds = units.map((u) => u.id);
-  const unitQuizMap = await fetchUnitsWithQuiz(supabase, unitIds);
-  const sidebarUnits = transformUnitsForSidebar(
-    units,
-    `unit-quiz-${unitId}`,
-    completedLessonIds,
-    unitQuizMap,
-    unitId,
-    completedUnitQuizIds
-  );
-  const totalLessons = units.flatMap((u) => u.lessons).length;
-  const progress = await calculateCourseProgress(
-    totalLessons,
-    completedLessonIds.length,
-    course.id
-  );
-
   // Find next lesson after this unit quiz
+  const units = await getCourseUnits(course.id);
   const currentUnitIndex = units.findIndex((u) => u.id === unitId);
   let nextLessonUrl: string | null = null;
 
@@ -133,27 +92,14 @@ export default async function UnitQuizPage({ params }: PageProps) {
   }
 
   return (
-    <LessonPageClient>
-      <div className="min-h-screen">
-        <div className="flex max-w-[1600px] mx-auto">
-          <LessonSidebar
-            courseTitle={course.title}
-            courseSlug={course.slug}
-            units={sidebarUnits}
-            progress={progress}
-          />
-
-          <main className="flex-1 p-6 bg-muted pb-24">
-            <UnitQuizPageClient
-              title={`${unit.title} - Бүлгийн тест`}
-              quizData={quizData}
-              unitId={unitId}
-              courseId={course.id}
-              nextLessonUrl={nextLessonUrl}
-            />
-          </main>
-        </div>
-      </div>
-    </LessonPageClient>
+    <div className="bg-white rounded-lg border overflow-hidden mb-6">
+      <UnitQuizPageClient
+        title={`${unit.title} - Бүлгийн тест`}
+        quizData={quizData}
+        unitId={unitId}
+        courseId={course.id}
+        nextLessonUrl={nextLessonUrl}
+      />
+    </div>
   );
 }

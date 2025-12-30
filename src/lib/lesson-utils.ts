@@ -7,6 +7,7 @@ import type { SupabaseClient } from "@supabase/supabase-js";
 import { getCourseXPEarned } from "./actions/xp-actions";
 import { getUserStreak } from "./actions/streak-actions";
 import { createClient } from "./supabase/server";
+import type { LessonStep } from "./lesson-step-utils";
 
 // =====================================================
 // TYPES FOR SIDEBAR
@@ -323,6 +324,58 @@ export const fetchQuizData = async (
       };
     }),
   };
+};
+
+/**
+ * Batch fetch available steps for multiple lessons
+ * Returns a Map of lessonId -> availableSteps
+ */
+export const fetchAvailableStepsForLessons = async (
+  supabase: SupabaseClient,
+  lessonIds: string[]
+): Promise<Map<string, LessonStep[]>> => {
+  const map = new Map<string, LessonStep[]>();
+
+  if (lessonIds.length === 0) return map;
+
+  // Fetch lesson content for all lessons in parallel
+  const { data: lessonContents } = await supabase
+    .from("lesson_content")
+    .select("lesson_id, content_type")
+    .in("lesson_id", lessonIds);
+
+  // Fetch quiz data for all lessons in parallel
+  const { data: quizQuestions } = await supabase
+    .from("quiz_questions")
+    .select("lesson_id")
+    .in("lesson_id", lessonIds)
+    .not("lesson_id", "is", null);
+
+  // Group content by lesson
+  const contentByLesson = new Map<string, string[]>();
+  lessonContents?.forEach((lc) => {
+    if (!contentByLesson.has(lc.lesson_id)) {
+      contentByLesson.set(lc.lesson_id, []);
+    }
+    contentByLesson.get(lc.lesson_id)!.push(lc.content_type);
+  });
+
+  // Track which lessons have quizzes
+  const lessonsWithQuiz = new Set(quizQuestions?.map((q) => q.lesson_id) || []);
+
+  // Build available steps for each lesson
+  lessonIds.forEach((lessonId) => {
+    const steps: LessonStep[] = [];
+    const contentTypes = contentByLesson.get(lessonId) || [];
+
+    if (contentTypes.includes("theory")) steps.push("theory");
+    if (contentTypes.includes("example")) steps.push("example");
+    if (lessonsWithQuiz.has(lessonId)) steps.push("test");
+
+    map.set(lessonId, steps);
+  });
+
+  return map;
 };
 
 // Re-export client-safe step helpers

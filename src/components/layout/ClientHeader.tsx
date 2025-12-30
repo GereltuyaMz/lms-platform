@@ -68,6 +68,14 @@ export const ClientHeader = ({ initialUser }: ClientHeaderProps) => {
               </li>
               <li>
                 <Link
+                  href="/mock-test"
+                  className="transition-colors duration-200 hover:text-primary"
+                >
+                  ЭЕШ Тест
+                </Link>
+              </li>
+              <li>
+                <Link
                   href="/guide"
                   className="transition-colors duration-200 hover:text-primary"
                 >

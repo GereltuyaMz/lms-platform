@@ -1,7 +1,6 @@
 "use client";
 
 import {
-  CheckCircle2,
   Lock,
   ChevronLeft,
   ChevronRight,
@@ -62,6 +61,7 @@ type LessonSidebarProps = {
   currentLessonTitle?: string;
   currentStep?: LessonStep;
   availableSteps?: LessonStep[];
+  lessonStepsMap?: Map<string, LessonStep[]>;
 };
 
 export const LessonSidebar = ({
@@ -70,9 +70,9 @@ export const LessonSidebar = ({
   lessons,
   units,
   progress,
-  currentLessonTitle,
   currentStep,
   availableSteps = [],
+  lessonStepsMap = new Map(),
 }: LessonSidebarProps) => {
   // Determine which data source to use
   const hasUnits = units && units.length > 0;
@@ -225,12 +225,6 @@ export const LessonSidebar = ({
               ? availableSteps.map((step) => {
                   const isActive =
                     step === currentStep && viewingLesson.current;
-                  const stepIndex = availableSteps.indexOf(step);
-                  const currentStepIndex = currentStep
-                    ? availableSteps.indexOf(currentStep)
-                    : -1;
-                  const isCompleted =
-                    stepIndex < currentStepIndex && viewingLesson.current;
 
                   const stepUrl = `/courses/${courseSlug}/learn/lesson/${viewingLesson.id}/${step}`;
 
@@ -250,7 +244,7 @@ export const LessonSidebar = ({
                           "shrink-0 flex items-center justify-center w-8 h-8 rounded-full transition-all",
                           isActive
                             ? "bg-white/20"
-                            : (step === "test" && viewingLesson.completed)
+                            : step === "test" && viewingLesson.completed
                             ? "bg-yellow-100"
                             : "bg-white"
                         )}
@@ -286,8 +280,8 @@ export const LessonSidebar = ({
                     </Link>
                   );
                 })
-              : /* For other lessons: show all possible steps as clickable links */
-                (["theory", "example", "test"] as LessonStep[]).map((step) => {
+              : /* For other lessons: show their actual available steps from lessonStepsMap */
+                (lessonStepsMap.get(viewingLesson.id) || []).map((step) => {
                   const stepUrl = `/courses/${courseSlug}/learn/lesson/${viewingLesson.id}/${step}`;
                   const showCrown = step === "test" && viewingLesson.completed;
 
@@ -297,14 +291,18 @@ export const LessonSidebar = ({
                       href={stepUrl}
                       className="flex items-center gap-3 p-3 rounded-lg bg-gray-50 hover:bg-gray-100 text-gray-700 transition-all duration-200 cursor-pointer"
                     >
-                      <div className={cn(
-                        "shrink-0 flex items-center justify-center w-8 h-8 rounded-full",
-                        showCrown ? "bg-yellow-100" : "bg-white"
-                      )}>
+                      <div
+                        className={cn(
+                          "shrink-0 flex items-center justify-center w-8 h-8 rounded-full",
+                          showCrown ? "bg-yellow-100" : "bg-white"
+                        )}
+                      >
                         {showCrown ? (
                           <Crown className="w-4 h-4 text-yellow-600" />
                         ) : (
-                          <div className="text-gray-600">{getStepIcon(step)}</div>
+                          <div className="text-gray-600">
+                            {getStepIcon(step)}
+                          </div>
                         )}
                       </div>
                       <div className="flex-1 text-left">
@@ -333,11 +331,17 @@ export const LessonSidebar = ({
               ) : (
                 <FileCheck className="w-5 h-5 text-purple-600" />
               )}
-              <span className={cn(
-                "text-sm font-semibold",
-                viewingLesson.completed ? "text-yellow-700" : "text-purple-700"
-              )}>
-                {viewingLesson.completed ? "Бүлгийн тест дууссан" : "Бүлгийн тестэд орох"}
+              <span
+                className={cn(
+                  "text-sm font-semibold",
+                  viewingLesson.completed
+                    ? "text-yellow-700"
+                    : "text-purple-700"
+                )}
+              >
+                {viewingLesson.completed
+                  ? "Бүлгийн тест дууссан"
+                  : "Бүлгийн тестэд орох"}
               </span>
             </div>
           </Link>
@@ -345,20 +349,6 @@ export const LessonSidebar = ({
       </div>
     </aside>
   );
-};
-
-// Helper function to get emoji for lesson type
-const getLessonEmoji = (type: LessonType): string => {
-  const emojiMap: Record<LessonType, string> = {
-    video: "📹",
-    text: "📝",
-    quiz: "✏️",
-    assignment: "📋",
-    theory: "📖",
-    example: "💡",
-    "unit-quiz": "🎯",
-  };
-  return emojiMap[type] || "📹";
 };
 
 // Export types for use in other components

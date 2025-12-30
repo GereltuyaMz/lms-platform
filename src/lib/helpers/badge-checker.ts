@@ -14,7 +14,9 @@ type BadgeProgress = {
 /**
  * Check course completion count for user
  */
-export async function getCourseCompletionCount(userId: string): Promise<number> {
+export async function getCourseCompletionCount(
+  userId: string
+): Promise<number> {
   const supabase = await createClient();
 
   const { count } = await supabase
@@ -29,7 +31,9 @@ export async function getCourseCompletionCount(userId: string): Promise<number> 
 /**
  * Check lesson completion count for user
  */
-export async function getLessonCompletionCount(userId: string): Promise<number> {
+export async function getLessonCompletionCount(
+  userId: string
+): Promise<number> {
   const supabase = await createClient();
 
   const { count } = await supabase
@@ -54,7 +58,8 @@ export async function getPerfectQuizCount(userId: string): Promise<number> {
 
   if (!data) return 0;
 
-  return data.filter((attempt) => attempt.score === attempt.total_questions).length;
+  return data.filter((attempt) => attempt.score === attempt.total_questions)
+    .length;
 }
 
 /**
@@ -142,21 +147,25 @@ export async function getCategoryCompletionCount(
 
   const { data } = await supabase
     .from("enrollments")
-    .select(`
+    .select(
+      `
       progress_percentage,
       course:course_id(
         course_categories(
           category:category_id(slug)
         )
       )
-    `)
+    `
+    )
     .eq("user_id", userId)
     .eq("progress_percentage", 100);
 
   if (!data) return 0;
 
   return data.filter((enrollment) => {
-    const course = enrollment.course as { course_categories?: Array<{ category?: { slug?: string } }> } | null;
+    const course = enrollment.course as {
+      course_categories?: Array<{ category?: { slug?: string } }>;
+    } | null;
     const categories = course?.course_categories;
     return categories?.some((cc) => cc.category?.slug === categorySlug);
   }).length;
@@ -230,7 +239,9 @@ export async function checkBadgeRequirement(
 /**
  * Get all badges that user has newly qualified for (not yet awarded)
  */
-export async function getNewlyQualifiedBadges(userId: string): Promise<Badge[]> {
+export async function getNewlyQualifiedBadges(
+  userId: string
+): Promise<Badge[]> {
   const supabase = await createClient();
 
   // Get all badges
