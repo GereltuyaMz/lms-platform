@@ -36,6 +36,9 @@ export async function middleware(request: NextRequest) {
   // Get user (not currently used but kept for future authentication logic)
   await supabase.auth.getUser();
 
+  // Add pathname to headers for layout detection
+  supabaseResponse.headers.set("x-pathname", request.nextUrl.pathname);
+
   // Add your custom middleware logic here
   // For example, protect routes:
   // if (!user && request.nextUrl.pathname.startsWith('/dashboard')) {

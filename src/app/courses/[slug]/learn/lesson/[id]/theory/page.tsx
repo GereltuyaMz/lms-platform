@@ -1,21 +1,11 @@
-import {
-  LessonSidebar,
-  LessonPageClient,
-  TheoryContent,
-  LessonStickyNav,
-} from "@/components/player";
+import { TheoryContent, LessonStickyNav } from "@/components/player";
 import { createClient } from "@/lib/supabase/server";
 import { notFound, redirect } from "next/navigation";
 import {
-  transformLessonsForSidebar,
-  transformUnitsForSidebar,
-  calculateCourseProgress,
-  fetchUnitsWithQuiz,
-  getAllLessonsFromUnits,
   fetchQuizData,
   getAvailableSteps,
+  getAllLessonsFromUnits,
 } from "@/lib/lesson-utils";
-import { checkEnrollment, getCourseProgress } from "@/lib/actions";
 import {
   getCourseUnits,
   getLessonWithContent,
@@ -35,10 +25,10 @@ export default async function TheoryPage({ params }: PageProps) {
   const lessonId = id;
   const supabase = await createClient();
 
-  // Fetch course by slug
+  // Fetch course by slug (needed for courseId)
   const { data: course, error: courseError } = await supabase
     .from("courses")
-    .select("id, title, slug, thumbnail_url")
+    .select("id, slug")
     .eq("slug", slug)
     .single();
 
@@ -46,24 +36,7 @@ export default async function TheoryPage({ params }: PageProps) {
     notFound();
   }
 
-  // Check if user is enrolled
-  const enrollmentStatus = await checkEnrollment(course.id);
-  if (!enrollmentStatus.isEnrolled) {
-    redirect(`/courses/${slug}`);
-  }
-
-  // Get authenticated user
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
-
-  if (!user) {
-    redirect(`/courses/${slug}`);
-  }
-
-  // Fetch units and lesson data
-  const units = await getCourseUnits(course.id);
-  const hasUnits = units.length > 0;
+  // Fetch lesson content
   const lessonWithContent = await getLessonWithContent(lessonId);
 
   // Fetch quiz data to determine available steps
@@ -87,100 +60,30 @@ export default async function TheoryPage({ params }: PageProps) {
     }
   }
 
-  // Fetch lesson progress
-  const { data: progressData } = await getCourseProgress(course.id);
-  const completedLessonIds =
-    progressData?.filter((p) => p.is_completed).map((p) => p.lesson_id) || [];
-  const completedCount = completedLessonIds.length;
-
-  // Fetch completed unit quiz attempts
-  const { data: completedQuizAttempts } = await supabase
-    .from("quiz_attempts")
-    .select("unit_id, enrollments!inner(user_id)")
-    .eq("enrollments.user_id", user.id)
-    .eq("passed", true)
-    .not("unit_id", "is", null);
-
-  const completedUnitQuizIds =
-    completedQuizAttempts?.map((qa) => qa.unit_id!) || [];
-
-  // Get all lessons for navigation
+  // Get all lessons for sticky nav
+  const units = await getCourseUnits(course.id);
+  const hasUnits = units.length > 0;
   const allLessons = hasUnits ? getAllLessonsFromUnits(units) : [];
 
-  // Transform data for sidebar
-  const sidebarLessons = hasUnits
-    ? undefined
-    : transformLessonsForSidebar(allLessons, lessonId, completedLessonIds);
-
-  const unitQuizMap = hasUnits
-    ? await fetchUnitsWithQuiz(
-        supabase,
-        units.map((u) => u.id)
-      )
-    : new Map<string, boolean>();
-
-  const sidebarUnits = hasUnits
-    ? transformUnitsForSidebar(
-        units,
-        lessonId,
-        completedLessonIds,
-        unitQuizMap,
-        undefined,
-        completedUnitQuizIds
-      )
-    : undefined;
-
-  const { data: courseStats } = await supabase.rpc("calculate_course_stats", {
-    course_uuid: course.id,
-  });
-
-  const totalLessons = courseStats?.[0]?.lesson_count || allLessons.length;
-  const progress = await calculateCourseProgress(
-    totalLessons,
-    completedCount,
-    course.id
-  );
-
   return (
-    <LessonPageClient>
-      <div className="min-h-screen">
-        <div className="flex max-w-[1600px] mx-auto">
-          <LessonSidebar
-            key={`sidebar-${completedCount}-${lessonId}`}
-            courseTitle={course.title}
-            courseSlug={course.slug}
-            lessons={sidebarLessons}
-            units={sidebarUnits}
-            progress={progress}
-            currentLessonTitle={lessonWithContent?.title}
-            currentStep="theory"
-            availableSteps={availableSteps}
-          />
+    <>
+      <TheoryContent
+        lessonContent={lessonWithContent?.lesson_content}
+        courseId={course.id}
+        lessonId={lessonId}
+      />
 
-          <main className="flex-1 p-6 bg-muted">
-            <TheoryContent
-              lessonContent={lessonWithContent?.lesson_content}
-              courseId={course.id}
-              lessonId={lessonId}
-            />
-
-            {/* Bottom padding to prevent content hiding behind sticky nav */}
-            <div className="h-20 md:h-24" />
-          </main>
-        </div>
-
-        {/* Sticky Navigation */}
-        <LessonStickyNav
-          mode="navigation"
-          navigationProps={{
-            courseSlug: slug,
-            lessonId,
-            currentStep: "theory",
-            availableSteps,
-            allLessons,
-          }}
-        />
-      </div>
-    </LessonPageClient>
+      {/* Sticky Navigation */}
+      <LessonStickyNav
+        mode="navigation"
+        navigationProps={{
+          courseSlug: slug,
+          lessonId,
+          currentStep: "theory",
+          availableSteps,
+          allLessons,
+        }}
+      />
+    </>
   );
 }

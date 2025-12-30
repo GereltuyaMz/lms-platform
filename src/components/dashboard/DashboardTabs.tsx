@@ -3,10 +3,10 @@
 import { useState, useEffect } from "react";
 import { useSearchParams, useRouter } from "next/navigation";
 import { BoardIcon } from "@/icons";
-import { Trophy, User, ShoppingBag } from "lucide-react";
+import { Trophy, User, ShoppingBag, FileBarChart } from "lucide-react";
 import { cn } from "@/lib/utils";
 
-type TabId = "courses" | "achievements" | "profile" | "shop";
+type TabId = "courses" | "achievements" | "test-results" | "profile" | "shop";
 
 type Tab = {
   id: TabId;
@@ -17,6 +17,7 @@ type Tab = {
 type DashboardTabsProps = {
   coursesContent: React.ReactNode;
   achievementsContent: React.ReactNode;
+  testResultsContent: React.ReactNode;
   profileContent: React.ReactNode;
   shopContent: React.ReactNode;
 };
@@ -33,6 +34,11 @@ const tabs: Tab[] = [
     icon: <Trophy className="w-6 h-6" />,
   },
   {
+    id: "test-results",
+    label: "Тестийн үр дүн",
+    icon: <FileBarChart className="w-6 h-6" />,
+  },
+  {
     id: "profile",
     label: "Профайл",
     icon: <User className="w-6 h-6" />,
@@ -47,6 +53,7 @@ const tabs: Tab[] = [
 export const DashboardTabs = ({
   coursesContent,
   achievementsContent,
+  testResultsContent,
   profileContent,
   shopContent,
 }: DashboardTabsProps) => {
@@ -55,16 +62,25 @@ export const DashboardTabs = ({
 
   // Read tab from URL or default to "courses"
   const tabFromUrl = searchParams.get("tab") as TabId | null;
-  const initialTab = tabFromUrl && ["courses", "achievements", "profile", "shop"].includes(tabFromUrl)
-    ? tabFromUrl
-    : "courses";
+  const initialTab =
+    tabFromUrl &&
+    ["courses", "achievements", "test-results", "profile", "shop"].includes(
+      tabFromUrl
+    )
+      ? tabFromUrl
+      : "courses";
 
   const [activeTab, setActiveTab] = useState<TabId>(initialTab);
 
   // Sync with URL changes
   useEffect(() => {
     const urlTab = searchParams.get("tab") as TabId | null;
-    if (urlTab && ["courses", "achievements", "profile", "shop"].includes(urlTab)) {
+    if (
+      urlTab &&
+      ["courses", "achievements", "test-results", "profile", "shop"].includes(
+        urlTab
+      )
+    ) {
       setActiveTab(urlTab);
     }
   }, [searchParams]);
@@ -78,6 +94,7 @@ export const DashboardTabs = ({
   const contentMap: Record<TabId, React.ReactNode> = {
     courses: coursesContent,
     achievements: achievementsContent,
+    "test-results": testResultsContent,
     profile: profileContent,
     shop: shopContent,
   };
