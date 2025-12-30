@@ -8,11 +8,12 @@ import { QuizResults } from "./QuizResults";
 import { saveQuizAttempt, awardQuizCompletionXP } from "@/lib/actions";
 import { toast } from "sonner";
 import type { QuizControlsProps } from "../QuizControls";
+import type { QuizOptionUI } from "@/types/quiz";
 
 type QuizQuestionData = {
   id: string | number;
   question: string;
-  options: string[];
+  options: QuizOptionUI[];
   correctAnswer: number;
   explanation: string;
   points?: number;
@@ -64,13 +65,32 @@ export const QuizPlayer = ({
       return total + (isCorrect ? question.points || 10 : 0);
     }, 0);
 
-    // Prepare answers array (empty for now - quiz structure doesn't have option IDs yet)
-    const answers: Array<{
-      questionId: string;
-      selectedOptionId: string;
-      isCorrect: boolean;
-      pointsEarned: number;
-    }> = [];
+    // Build answers array from userAnswers
+    const answers = quizData.questions
+      .map((question, index) => {
+        const selectedIndex = userAnswers[index];
+
+        // Skip unanswered questions
+        if (selectedIndex === undefined || selectedIndex === null) {
+          return null;
+        }
+
+        // Bounds checking
+        if (selectedIndex >= question.options.length) {
+          return null;
+        }
+
+        const selectedOption = question.options[selectedIndex];
+        const isCorrect = selectedIndex === question.correctAnswer;
+
+        return {
+          questionId: question.id.toString(),
+          selectedOptionId: selectedOption.id,
+          isCorrect,
+          pointsEarned: isCorrect ? question.points || 10 : 0,
+        };
+      })
+      .filter((answer): answer is NonNullable<typeof answer> => answer !== null);
 
     // Parallel execution: Save attempt and award XP simultaneously
     const scorePercentage = (score / quizData.questions.length) * 100;
