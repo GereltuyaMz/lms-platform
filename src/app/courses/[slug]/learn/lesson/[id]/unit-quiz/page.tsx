@@ -60,7 +60,12 @@ export default async function UnitQuizPage({ params }: PageProps) {
   const quizQuestions = await getUnitQuizQuestions(unitId);
 
   // Transform quiz data for the player
-  type QuizOption = { option_text: string; is_correct: boolean };
+  type QuizOption = {
+    id: string;
+    option_text: string;
+    is_correct: boolean;
+    order_index: number;
+  };
 
   const quizData =
     quizQuestions.length > 0
@@ -69,7 +74,11 @@ export default async function UnitQuizPage({ params }: PageProps) {
           questions: quizQuestions.map((q) => ({
             id: q.id,
             question: q.question,
-            options: q.options.map((opt: QuizOption) => opt.option_text),
+            options: q.options.map((opt: QuizOption) => ({
+              id: opt.id,
+              text: opt.option_text,
+              orderIndex: opt.order_index,
+            })),
             correctAnswer: q.options.findIndex(
               (opt: QuizOption) => opt.is_correct
             ),

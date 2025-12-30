@@ -8,11 +8,12 @@ import { QuizResults } from "./QuizResults";
 import { saveUnitQuizAttempt, awardUnitQuizCompletionXP } from "@/lib/actions";
 import { toast } from "sonner";
 import type { QuizControlsProps } from "../QuizControls";
+import type { QuizOptionUI } from "@/types/quiz";
 
 type QuizQuestionData = {
   id: string | number;
   question: string;
-  options: string[];
+  options: QuizOptionUI[];
   correctAnswer: number;
   explanation: string;
   points?: number;
@@ -76,6 +77,33 @@ export const UnitQuizPlayer = ({
       return total + (correct ? q.points || 10 : 0);
     }, 0);
 
+    // Build answers array from userAnswers
+    const answers = quizData.questions
+      .map((question, index) => {
+        const selectedIndex = userAnswers[index];
+
+        // Skip unanswered questions
+        if (selectedIndex === undefined || selectedIndex === null) {
+          return null;
+        }
+
+        // Bounds checking
+        if (selectedIndex >= question.options.length) {
+          return null;
+        }
+
+        const selectedOption = question.options[selectedIndex];
+        const isCorrect = selectedIndex === question.correctAnswer;
+
+        return {
+          questionId: question.id.toString(),
+          selectedOptionId: selectedOption.id,
+          isCorrect,
+          pointsEarned: isCorrect ? question.points || 10 : 0,
+        };
+      })
+      .filter((answer): answer is NonNullable<typeof answer> => answer !== null);
+
     const scorePercentage = (score / quizData.questions.length) * 100;
 
     const result = await saveUnitQuizAttempt(
@@ -84,7 +112,7 @@ export const UnitQuizPlayer = ({
       score,
       quizData.questions.length,
       pointsEarned,
-      []
+      answers
     );
 
     toast.dismiss(loadingToast);

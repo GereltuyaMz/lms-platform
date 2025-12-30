@@ -4,11 +4,12 @@ import { useState } from "react";
 import { LessonStickyNav } from "@/components/player";
 import { UnitQuizPlayer } from "@/components/player/quiz";
 import type { QuizControlsProps } from "@/components/player/QuizControls";
+import type { QuizOptionUI } from "@/types/quiz";
 
 type QuizQuestionData = {
   id: string | number;
   question: string;
-  options: string[];
+  options: QuizOptionUI[];
   correctAnswer: number;
   explanation: string;
   points?: number;

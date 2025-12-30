@@ -1,7 +1,13 @@
+export type QuizOptionUI = {
+  id: string;
+  text: string;
+  orderIndex: number;
+};
+
 export type QuizQuestion = {
   id: string;
   question: string;
-  options: string[];
+  options: QuizOptionUI[];
   correctAnswer: number;
   explanation: string;
   points: number;

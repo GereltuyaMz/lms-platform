@@ -1,10 +1,11 @@
 import { CheckCircle, XCircle } from "lucide-react";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { Label } from "@/components/ui/label";
+import type { QuizOptionUI } from "@/types/quiz";
 
 type QuizQuestionProps = {
   question: string;
-  options: string[];
+  options: QuizOptionUI[];
   selectedAnswer: number | null;
   correctAnswer: number;
   showExplanation: boolean;
@@ -38,8 +39,8 @@ export const QuizQuestion = ({
         <div className="space-y-3">
           {options.map((option, index) => (
             <Label
-              key={index}
-              htmlFor={`option-${index}`}
+              key={option.id}
+              htmlFor={`option-${option.id}`}
               className={`
                 flex items-center space-x-3 p-4 rounded-lg border-2 transition-colors
                 ${
@@ -56,8 +57,8 @@ export const QuizQuestion = ({
                 ${showExplanation ? "cursor-default" : "cursor-pointer"}
               `}
             >
-              <RadioGroupItem value={index.toString()} id={`option-${index}`} />
-              <span className="flex-1">{option}</span>
+              <RadioGroupItem value={index.toString()} id={`option-${option.id}`} />
+              <span className="flex-1">{option.text}</span>
               {showExplanation && index === correctAnswer && (
                 <CheckCircle className="w-5 h-5 text-green-600" />
               )}

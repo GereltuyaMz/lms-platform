@@ -317,7 +317,11 @@ export const fetchQuizData = async (
       return {
         id: q.id,
         question: q.question,
-        options: sortedOptions.map((opt) => opt.option_text),
+        options: sortedOptions.map((opt) => ({
+          id: opt.id,
+          text: opt.option_text,
+          orderIndex: opt.order_index,
+        })),
         correctAnswer: sortedOptions.findIndex((opt) => opt.is_correct),
         explanation: q.explanation,
         points: q.points,
