@@ -25,6 +25,7 @@ type CourseCardProps = {
   price: number;
   originalPrice?: number;
   thumbnail?: string;
+  applicableCoupon?: { discount_percentage: number };
 };
 
 export const CourseCard = ({
@@ -38,7 +39,11 @@ export const CourseCard = ({
   price,
   originalPrice,
   thumbnail,
+  applicableCoupon,
 }: CourseCardProps) => {
+  const discountPercentage = applicableCoupon?.discount_percentage ?? 0;
+  const discountAmount = Math.round((price * discountPercentage) / 100);
+  const finalPrice = price - discountAmount;
   return (
     <Link href={`/courses/${slug}`}>
       <Card className="overflow-hidden transition-shadow hover:shadow-lg cursor-pointer">
@@ -112,12 +117,21 @@ export const CourseCard = ({
 
             {/* Right side: Pricing */}
             <div className="flex flex-col items-end gap-0.5 sm:gap-1">
+              {applicableCoupon && (
+                <div className="mb-1 rounded-md border border-emerald-200 bg-emerald-50 px-2 py-1 text-xs text-emerald-800 dark:border-emerald-800 dark:bg-emerald-950 dark:text-emerald-200">
+                  <span className="font-semibold">{discountPercentage}% хямдрал</span> ·{" "}
+                  {discountAmount.toLocaleString()}₮ хэмнэнэ
+                </div>
+              )}
               <span className="text-lg font-bold sm:text-xl">
-                {price.toLocaleString()}₮
+                {applicableCoupon ? finalPrice.toLocaleString() : price.toLocaleString()}₮
               </span>
-              {originalPrice && (
+              {(applicableCoupon || originalPrice) && (
                 <span className="text-xs text-muted-foreground line-through sm:text-sm">
-                  {originalPrice.toLocaleString()}₮
+                  {applicableCoupon
+                    ? price.toLocaleString()
+                    : originalPrice?.toLocaleString()}
+                  ₮
                 </span>
               )}
             </div>

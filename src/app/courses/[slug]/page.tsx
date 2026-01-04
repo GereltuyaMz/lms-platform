@@ -109,6 +109,24 @@ const CourseDetailPage = async ({ params }: PageProps) => {
     data: { user },
   } = await supabase.auth.getUser();
 
+  // Fetch applicable coupon for this course
+  let applicableCoupon = null;
+
+  if (user) {
+    const { data: coupon } = await supabase
+      .from("course_discount_coupons")
+      .select("id, discount_percentage, expires_at")
+      .eq("user_id", user.id)
+      .eq("course_id", course.id)
+      .eq("is_used", false)
+      .or(`expires_at.is.null,expires_at.gt.${new Date().toISOString()}`)
+      .order("discount_percentage", { ascending: false })
+      .limit(1)
+      .maybeSingle();
+
+    applicableCoupon = coupon;
+  }
+
   let completedLessonIds: string[] = [];
   let completedUnitQuizIds: string[] = [];
   let unitQuizMap = new Map<string, boolean>();
@@ -216,6 +234,7 @@ const CourseDetailPage = async ({ params }: PageProps) => {
               continueButtonUrl={continueButtonUrl}
               isEnrolled={enrollmentStatus.isEnrolled}
               hasPurchased={hasPurchased}
+              applicableCoupon={applicableCoupon}
             />
           </div>
         </div>

@@ -19,6 +19,7 @@ type CoursesClientWrapperProps = {
   currentPage: number;
   totalPages: number;
   totalCount: number;
+  userCoupons?: Record<string, { discount_percentage: number }>;
 };
 
 export const CoursesClientWrapper = ({
@@ -28,6 +29,7 @@ export const CoursesClientWrapper = ({
   currentPage,
   totalPages,
   totalCount,
+  userCoupons,
 }: CoursesClientWrapperProps) => {
   const router = useRouter();
   const searchParams = useSearchParams();
@@ -164,7 +166,7 @@ export const CoursesClientWrapper = ({
               ))}
             </div>
           ) : (
-            <CoursesList courses={initialCourses} />
+            <CoursesList courses={initialCourses} userCoupons={userCoupons} />
           )}
 
           <CoursesPagination
