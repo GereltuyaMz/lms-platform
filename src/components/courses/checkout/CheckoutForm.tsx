@@ -7,7 +7,8 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { Loader2, Check } from "lucide-react";
+import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
+import { Loader2, Check, CheckCircle } from "lucide-react";
 import { toast } from "sonner";
 import { simulatePurchase } from "@/lib/actions/purchase";
 import { formatDuration, getInitials } from "@/lib/utils";
@@ -36,20 +37,29 @@ type CheckoutFormProps = {
     } | null;
   };
   firstLessonId: string | null;
+  applicableCoupon?: {
+    id: string;
+    discount_percentage: number;
+    expires_at: string | null;
+  } | null;
 };
 
 type PaymentMethod = "card" | "bank" | "qpay";
 
-export const CheckoutForm = ({ course, firstLessonId }: CheckoutFormProps) => {
+export const CheckoutForm = ({ course, firstLessonId, applicableCoupon }: CheckoutFormProps) => {
   const router = useRouter();
   const [selectedMethod, setSelectedMethod] = useState<PaymentMethod>("card");
   const [isProcessing, setIsProcessing] = useState(false);
+
+  const discountPercentage = applicableCoupon?.discount_percentage ?? 0;
+  const discountAmount = Math.round((course.price * discountPercentage) / 100);
+  const finalPrice = course.price - discountAmount;
 
   const handlePurchase = async () => {
     setIsProcessing(true);
 
     try {
-      const result = await simulatePurchase(course.id, selectedMethod);
+      const result = await simulatePurchase(course.id, selectedMethod, applicableCoupon?.id);
 
       if (result.success) {
         toast.success(result.message);
@@ -196,6 +206,40 @@ export const CheckoutForm = ({ course, firstLessonId }: CheckoutFormProps) => {
         <CardContent className="p-6 md:p-8">
           <h2 className="text-xl font-bold mb-6">Төлбөрийн мэдээлэл</h2>
 
+          {/* Coupon Alert */}
+          {applicableCoupon && (
+            <Alert className="mb-6 bg-emerald-50 border-emerald-200 dark:bg-emerald-950 dark:border-emerald-800">
+              <CheckCircle className="h-4 w-4 text-emerald-600 dark:text-emerald-400" />
+              <AlertTitle className="text-emerald-900 dark:text-emerald-100">
+                Купон идэвхжсэн!
+              </AlertTitle>
+              <AlertDescription className="text-emerald-800 dark:text-emerald-200">
+                {discountPercentage === 100 ? (
+                  <>
+                    Та энэ хичээлийг <strong>100% үнэгүй</strong> авах эрхтэй байна.
+                    <br />
+                    <span className="text-sm opacity-80">
+                      XP дэлгүүрээс авсан таны купон ашиглагдана.
+                    </span>
+                  </>
+                ) : (
+                  <>
+                    Та <strong>{discountPercentage}% хямдралтай</strong> худалдан авна.
+                    <br />
+                    Хуучин үнэ: <del>{course.price.toLocaleString()}₮</del>
+                    {" → "}
+                    <strong className="text-lg">{finalPrice.toLocaleString()}₮</strong>
+                    {applicableCoupon.expires_at && (
+                      <p className="text-xs mt-1 opacity-70">
+                        Дуусах хугацаа: {new Date(applicableCoupon.expires_at).toLocaleDateString('mn-MN')}
+                      </p>
+                    )}
+                  </>
+                )}
+              </AlertDescription>
+            </Alert>
+          )}
+
           {/* Payment Method Selection */}
           <div className="space-y-3 mb-6">
             <p className="text-sm font-medium mb-3">Төлбөрийн хэлбэр:</p>
@@ -296,9 +340,23 @@ export const CheckoutForm = ({ course, firstLessonId }: CheckoutFormProps) => {
           <div className="border-t pt-6 mb-6">
             <div className="flex justify-between items-center mb-6">
               <span className="text-lg font-semibold">Нийт дүн:</span>
-              <span className="text-2xl font-bold">
-                {course.price.toLocaleString()}₮
-              </span>
+              {applicableCoupon ? (
+                <div className="text-right">
+                  <div className="text-sm text-muted-foreground line-through">
+                    {course.price.toLocaleString()}₮
+                  </div>
+                  <div className="text-2xl font-bold text-emerald-600 dark:text-emerald-400">
+                    {finalPrice.toLocaleString()}₮
+                  </div>
+                  <div className="text-xs text-emerald-700 dark:text-emerald-300">
+                    {discountPercentage}% хямдарсан
+                  </div>
+                </div>
+              ) : (
+                <span className="text-2xl font-bold">
+                  {course.price.toLocaleString()}₮
+                </span>
+              )}
             </div>
 
             {/* Purchase Button */}

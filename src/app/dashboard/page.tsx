@@ -20,6 +20,7 @@ import {
   getUserMockTestAttempts,
 } from "@/lib/actions";
 import { getUserBadgeProgress } from "@/lib/actions/badges";
+import { getUserOrders } from "@/lib/actions/shop-actions";
 import type { CourseLevel } from "@/types/database/enums";
 
 export default async function DashboardPage() {
@@ -38,7 +39,7 @@ export default async function DashboardPage() {
 
   const userEmail = user.email || "";
 
-  // Fetch real user stats, enrollments, profile, profile completion, badges, and mock test attempts from database
+  // Fetch real user stats, enrollments, profile, profile completion, badges, mock test attempts, and orders from database
   const [
     { data: userStats },
     { data: enrollments },
@@ -46,6 +47,7 @@ export default async function DashboardPage() {
     profileCompletionResult,
     badgeProgress,
     mockTestAttempts,
+    userOrders,
   ] = await Promise.all([
     getUserStats(),
     getUserEnrollments(),
@@ -53,6 +55,7 @@ export default async function DashboardPage() {
     checkProfileCompletion(),
     getUserBadgeProgress(),
     getUserMockTestAttempts(),
+    getUserOrders(),
   ]);
 
   // Use empty array if no enrollments or error
@@ -138,7 +141,7 @@ export default async function DashboardPage() {
             }
           />
         }
-        shopContent={<ShopTab />}
+        shopContent={<ShopTab orders={userOrders} />}
       />
     </div>
   );
