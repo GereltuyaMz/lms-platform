@@ -18,6 +18,12 @@ export type ShippingAddress = {
   addressLine: string;
 };
 
+export type ApplicableCoupon = {
+  id?: string;
+  discount_percentage: number;
+  expires_at?: string | null;
+};
+
 export type ProductMetadata = {
   course_id?: string;
   duration_hours?: number;

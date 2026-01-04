@@ -3,9 +3,10 @@ import type { CourseWithCategories } from "@/types/database";
 
 type CoursesListProps = {
   courses: CourseWithCategories[];
+  userCoupons?: Record<string, { discount_percentage: number }>;
 };
 
-export const CoursesList = ({ courses }: CoursesListProps) => {
+export const CoursesList = ({ courses, userCoupons }: CoursesListProps) => {
   if (courses.length === 0) {
     return (
       <div className="text-center py-12">
@@ -37,7 +38,13 @@ export const CoursesList = ({ courses }: CoursesListProps) => {
           thumbnail: course.thumbnail_url || undefined,
         };
 
-        return <CourseCard key={course.id} {...courseProps} />;
+        return (
+          <CourseCard
+            key={course.id}
+            {...courseProps}
+            applicableCoupon={userCoupons?.[course.id]}
+          />
+        );
       })}
     </div>
   );

@@ -114,6 +114,36 @@ const CoursesPage = async ({ searchParams }: PageProps) => {
 
   const totalPages = count ? Math.ceil(count / pageSize) : 0;
 
+  // Fetch user's coupons for all courses
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+  const userCoupons: Map<string, { discount_percentage: number }> = new Map();
+
+  if (user) {
+    const { data: coupons } = await supabase
+      .from("course_discount_coupons")
+      .select("course_id, discount_percentage")
+      .eq("user_id", user.id)
+      .eq("is_used", false)
+      .or(`expires_at.is.null,expires_at.gt.${new Date().toISOString()}`);
+
+    if (coupons) {
+      // Create map of courseId -> highest discount
+      coupons.forEach((coupon) => {
+        const existing = userCoupons.get(coupon.course_id);
+        if (
+          !existing ||
+          coupon.discount_percentage > existing.discount_percentage
+        ) {
+          userCoupons.set(coupon.course_id, {
+            discount_percentage: coupon.discount_percentage,
+          });
+        }
+      });
+    }
+  }
+
   return (
     <div className="container mx-auto px-4 py-20">
       <section>
@@ -145,6 +175,7 @@ const CoursesPage = async ({ searchParams }: PageProps) => {
         currentPage={page}
         totalPages={totalPages}
         totalCount={count || 0}
+        userCoupons={Object.fromEntries(userCoupons)}
       />
     </div>
   );
