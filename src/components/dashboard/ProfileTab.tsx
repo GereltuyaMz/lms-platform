@@ -1,7 +1,7 @@
 "use client";
 
-import { useState } from "react";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { useState, useEffect } from "react";
+import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -10,9 +10,12 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { getInitials } from "@/lib/utils";
 import { updateUserProfile } from "@/lib/actions";
 import { uploadAvatar } from "@/lib/storage/avatar-upload";
+import { getUserShippingAddress, saveShippingAddress } from "@/lib/actions/shipping-address-actions";
 import { createClient } from "@/lib/supabase/client";
+import { ShippingAddressForm } from "@/components/shop/ShippingAddressForm";
+import type { ShippingAddress } from "@/types/shop";
 import { toast } from "sonner";
-import { Upload, Loader2 } from "lucide-react";
+import { Upload, Loader2, Package } from "lucide-react";
 
 type ProfileTabProps = {
   username: string;
@@ -38,6 +41,16 @@ export const ProfileTab = ({
   const [learningGoals, setLearningGoals] = useState(initialLearningGoals);
   const [isSaving, setIsSaving] = useState(false);
   const [isUploading, setIsUploading] = useState(false);
+
+  const [shippingAddress, setShippingAddress] = useState<ShippingAddress | null>(null);
+  const [isLoadingAddress, setIsLoadingAddress] = useState(true);
+
+  // Load shipping address on mount
+  useEffect(() => {
+    getUserShippingAddress()
+      .then((address) => setShippingAddress(address))
+      .finally(() => setIsLoadingAddress(false));
+  }, []);
 
   const handleAvatarChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
@@ -106,6 +119,16 @@ export const ProfileTab = ({
       toast.error("Алдаа гарлаа. Дахин оролдоно уу.");
     } finally {
       setIsSaving(false);
+    }
+  };
+
+  const handleSaveAddress = async (address: ShippingAddress) => {
+    const result = await saveShippingAddress(address);
+    if (result.success) {
+      toast.success(result.message);
+      setShippingAddress(result.address || address);
+    } else {
+      toast.error(result.message);
     }
   };
 
@@ -272,6 +295,34 @@ export const ProfileTab = ({
           </CardContent>
         </Card>
       </div>
+
+      {/* Shipping Address Section */}
+      <Card className="mt-6">
+        <CardHeader>
+          <div className="flex items-center gap-2">
+            <Package className="w-5 h-5 text-muted-foreground" />
+            <div>
+              <CardTitle>Хүргэлтийн хаяг</CardTitle>
+              <CardDescription>
+                XP дэлгүүрээс физик бараа захиалах үед ашиглагдана
+              </CardDescription>
+            </div>
+          </div>
+        </CardHeader>
+        <CardContent>
+          {isLoadingAddress ? (
+            <div className="flex items-center justify-center py-8">
+              <Loader2 className="w-6 h-6 animate-spin text-muted-foreground" />
+            </div>
+          ) : (
+            <ShippingAddressForm
+              mode="profile"
+              address={shippingAddress}
+              onSave={handleSaveAddress}
+            />
+          )}
+        </CardContent>
+      </Card>
 
       {/* Account Stats */}
       {/* <Card className="mt-6">

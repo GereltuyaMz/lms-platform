@@ -271,3 +271,21 @@ export interface ShoppingCart {
   course_id: string
   added_at: string
 }
+
+// =====================================================
+// SHOP_SHIPPING_ADDRESSES
+// =====================================================
+
+export interface ShopShippingAddress {
+  id: string
+  user_id: string
+  full_name: string
+  phone: string
+  city: string | null
+  district: string | null
+  khoroo: string | null
+  address_line: string
+  is_default: boolean
+  created_at: string
+  updated_at: string
+}

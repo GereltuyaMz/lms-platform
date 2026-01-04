@@ -85,7 +85,8 @@ export async function processPurchase(
  */
 export async function simulatePurchase(
   courseId: string,
-  paymentMethod: "card" | "bank" | "qpay" = "card"
+  paymentMethod: "card" | "bank" | "qpay" = "card",
+  couponId?: string
 ): Promise<PurchaseResult> {
   try {
     const { user, supabase, error: authError } = await getAuthenticatedUser();
@@ -105,7 +106,44 @@ export async function simulatePurchase(
       return { success: false, message: "Сургалт олдсонгүй" };
     }
 
-    // 2. Check if already purchased
+    let finalPrice = course.price;
+    let appliedCoupon = null;
+
+    // 2. Validate and apply coupon if provided
+    if (couponId) {
+      const { data: coupon, error: couponError } = await supabase
+        .from("course_discount_coupons")
+        .select("*")
+        .eq("id", couponId)
+        .eq("user_id", user.id)
+        .eq("course_id", courseId)
+        .eq("is_used", false)
+        .single();
+
+      if (couponError || !coupon) {
+        return {
+          success: false,
+          message: "Купон олдсонгүй эсвэл хүчингүй байна",
+        };
+      }
+
+      // Check expiration
+      if (coupon.expires_at && new Date(coupon.expires_at) < new Date()) {
+        return {
+          success: false,
+          message: "Купоны хугацаа дууссан байна",
+        };
+      }
+
+      // Calculate discounted price
+      const discountAmount = Math.round(
+        (course.price * coupon.discount_percentage) / 100
+      );
+      finalPrice = course.price - discountAmount;
+      appliedCoupon = coupon;
+    }
+
+    // 3. Check if already purchased
     const alreadyPurchased = await hasCourseAccess(courseId);
     if (alreadyPurchased) {
       return {
@@ -114,16 +152,16 @@ export async function simulatePurchase(
       };
     }
 
-    // 3. Simulate payment processing (2 second delay)
+    // 4. Simulate payment processing (2 second delay)
     await new Promise((resolve) => setTimeout(resolve, 2000));
 
-    // 4. Create purchase record
+    // 5. Create purchase record with discounted price
     const { error: purchaseError } = await supabase
       .from("course_purchases")
       .insert({
         user_id: user.id,
         course_id: courseId,
-        amount_paid: course.price,
+        amount_paid: finalPrice,
         payment_method: paymentMethod,
         status: "completed",
         purchased_at: new Date().toISOString(),
@@ -134,7 +172,18 @@ export async function simulatePurchase(
       return { success: false, message: "Төлбөр боловсруулахад алдаа гарлаа" };
     }
 
-    // 5. Auto-enroll user
+    // 6. Mark coupon as used if applied
+    if (appliedCoupon) {
+      await supabase
+        .from("course_discount_coupons")
+        .update({
+          is_used: true,
+          used_at: new Date().toISOString(),
+        })
+        .eq("id", appliedCoupon.id);
+    }
+
+    // 7. Auto-enroll user
     const enrollmentResult = await createEnrollment(courseId);
 
     if (!enrollmentResult.success) {
@@ -144,7 +193,7 @@ export async function simulatePurchase(
       };
     }
 
-    // 6. Revalidate pages
+    // 8. Revalidate pages
     revalidateUserPages();
 
     return {

@@ -52,7 +52,7 @@ export default async function CheckoutPage({ params }: PageProps) {
   }
 
   // Run all access checks in parallel
-  const [enrollmentResult, purchaseCheck] = await Promise.all([
+  const [enrollmentResult, purchaseCheck, couponResult] = await Promise.all([
     checkEnrollment(course.id),
     supabase
       .from("course_purchases")
@@ -60,6 +60,16 @@ export default async function CheckoutPage({ params }: PageProps) {
       .eq("user_id", user.id)
       .eq("course_id", course.id)
       .eq("status", "completed")
+      .maybeSingle(),
+    supabase
+      .from("course_discount_coupons")
+      .select("id, discount_percentage, expires_at")
+      .eq("user_id", user.id)
+      .eq("course_id", course.id)
+      .eq("is_used", false)
+      .or(`expires_at.is.null,expires_at.gt.${new Date().toISOString()}`)
+      .order("discount_percentage", { ascending: false })
+      .limit(1)
       .maybeSingle(),
   ]);
 
@@ -146,6 +156,7 @@ export default async function CheckoutPage({ params }: PageProps) {
           key={course.id}
           course={courseData}
           firstLessonId={firstLesson?.id || null}
+          applicableCoupon={couponResult.data}
         />
       </main>
     </div>
