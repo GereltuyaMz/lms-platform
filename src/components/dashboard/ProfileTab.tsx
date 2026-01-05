@@ -82,7 +82,7 @@ export const ProfileTab = ({
           id: loadingToast,
         });
       }
-    } catch (error) {
+    } catch {
       toast.error("Алдаа гарлаа. Дахин оролдоно уу.", { id: loadingToast });
     } finally {
       setIsUploading(false);

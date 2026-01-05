@@ -267,7 +267,7 @@ export async function hasCourseAccess(courseId: string): Promise<boolean> {
       .single();
 
     return !!enrollment;
-  } catch (error) {
+  } catch {
     return false;
   }
 }

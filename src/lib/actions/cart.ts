@@ -1,6 +1,5 @@
 "use server";
 
-import { createClient } from "@/lib/supabase/server";
 import {
   getAuthenticatedUser,
   revalidateUserPages,
@@ -269,7 +268,7 @@ export async function isInCart(courseId: string): Promise<boolean> {
       .single();
 
     return !!data;
-  } catch (error) {
+  } catch {
     return false;
   }
 }
