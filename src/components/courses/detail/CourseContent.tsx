@@ -5,7 +5,7 @@ import { ChevronDown, Zap, BookCheck, Crown, Star, Square } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { EyeIcon } from "@/icons";
 import { formatDuration, formatTime, cn } from "@/lib/utils";
-import { getLessonIcon, getLessonXP } from "@/lib/lesson-config";
+import { getLessonXP } from "@/lib/lesson-config";
 import type { Lesson } from "@/types/database";
 import type { UnitWithLessons } from "@/types/database";
 import ReactPlayer from "react-player";

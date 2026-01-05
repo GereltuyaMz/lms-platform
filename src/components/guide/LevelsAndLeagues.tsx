@@ -119,7 +119,7 @@ export const LevelsAndLeagues = ({
           Түвшин өсөх тусам өндөр лигт шилжинэ. Лиг бүр өөр амжилтыг илэрхийлнэ.
         </p>
         <div className="grid grid-cols-2 md:grid-cols-5 gap-4">
-          {leagues.map((league, index) => (
+          {leagues.map((league) => (
             <div
               key={league.name}
               className={`bg-white rounded-xl p-6 border-2 text-center transition-all duration-200 ${
