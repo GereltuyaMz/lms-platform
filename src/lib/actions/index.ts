@@ -10,4 +10,5 @@ export * from "./badges";
 export * from "./cart";
 export * from "./purchase";
 export * from "./mock-test-actions";
+export * from "./ai-chat-actions";
 // Note: xp-helpers and helpers are not exported - they're server-only and used internally

@@ -1,5 +1,4 @@
 import { redirect } from "next/navigation";
-import { createClient } from "@/lib/supabase/server";
 import {
   Hero,
   FeatureCards,
@@ -7,6 +6,7 @@ import {
   GamificationSection,
   CallToAction,
 } from "@/components/home";
+import { createClient } from "@/lib/supabase/server";
 
 export default async function Page() {
   const supabase = await createClient();

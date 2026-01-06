@@ -19,6 +19,7 @@ import {
 } from "@/lib/lesson-utils";
 import { checkEnrollment, getCourseProgress } from "@/lib/actions";
 import { getCourseUnits, getLessonWithContent } from "@/lib/actions/unit-actions";
+import { AIChatWidget } from "@/components/ai-teacher";
 
 export const revalidate = 0;
 
@@ -198,6 +199,20 @@ export default async function LessonLayout({ children, params }: LayoutProps) {
           </main>
         </div>
       </div>
+
+      <AIChatWidget
+        lessonId={lessonId}
+        lessonStep={currentStep}
+        lessonTitle={isUnitQuiz ? unitData?.title || "" : lessonWithContent?.title || ""}
+        lessonContent={
+          !isUnitQuiz && lessonWithContent?.lesson_content
+            ? lessonWithContent.lesson_content
+                .map((c) => c.content || "")
+                .join(" ")
+                .substring(0, 1000)
+            : undefined
+        }
+      />
     </LessonPageClient>
   );
 }
