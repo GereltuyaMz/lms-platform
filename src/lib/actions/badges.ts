@@ -195,6 +195,7 @@ export async function getUserBadgeStats(): Promise<BadgeStats> {
  * This function is called after lesson completion, quiz completion, etc.
  */
 export async function checkAndAwardBadges(
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   _triggerType: "lesson" | "quiz" | "course" | "streak" | "xp"
 ): Promise<BadgeResult> {
   try {

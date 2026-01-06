@@ -480,6 +480,39 @@
 
 ---
 
+## 🔧 Admin Panel (Branch: 16-create-admin-authentication)
+
+**Build Order:**
+1. ✅ Admin auth + layout (middleware, sidebar, header, breadcrumbs)
+2. ✅ Category CRUD
+3. ✅ Course CRUD (with categories, teacher selection)
+4. ✅ Unit CRUD
+5. ✅ Lesson CRUD (video, text, quiz types)
+6. ⏳ Lesson editor (video + text content blocks) - basic form done
+7. ✅ Quiz builder (questions + options)
+8. ⏳ Reordering & bulk publishing - not yet implemented
+9. ⏳ Thumbnail upload to Supabase Storage - not yet implemented
+
+**Routes (flat):**
+- `/admin` - Dashboard with stats
+- `/admin/categories` - Category CRUD
+- `/admin/courses` - Course table & CRUD
+- `/admin/units/[id]` - Unit detail with lessons
+- `/admin/lessons/[id]` - Lesson editor
+- `/admin/lessons/[id]/quiz` - Quiz builder
+
+**Files Created:**
+- `src/middleware.ts` - Admin route protection
+- `src/lib/actions/admin/` - Server actions (auth, categories, courses, units, lessons, quiz)
+- `src/components/admin/` - Admin UI components
+- `src/app/admin/` - Admin routes
+
+**Design:** Tables, minimal, white/gray backgrounds, shadcn components
+
+**To Use:** Set `role = 'admin'` in `user_profiles` table for your user
+
+---
+
 **Next Immediate Steps:**
 
 ### 🔴 CRITICAL - Apply Database Changes

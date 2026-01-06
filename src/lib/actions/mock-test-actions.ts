@@ -233,7 +233,9 @@ export async function saveMockTestAnswer(
  * Timer now calculates remaining time from end_time, eliminating need for periodic updates.
  */
 export async function updateTimerState(
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   _attemptId: string,
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   _timeRemainingSeconds: number
 ): Promise<ActionResult> {
   // No-op function kept for backward compatibility

@@ -1,24 +1,16 @@
 import { createClient } from "@/lib/supabase/server";
-import {
-  XPGuideHero,
-  HowXPWorks,
-  LevelsAndLeagues,
-  StreakSystem,
-  ComingSoonSection,
-} from "@/components/guide";
+import { HowXPWorks, LevelsAndLeagues } from "@/components/guide";
 import { calculateLevel } from "@/lib/mock-data";
 
 export default async function GuidePage() {
   const supabase = await createClient();
 
-  // Try to get user data for personalization
   const {
     data: { user },
   } = await supabase.auth.getUser();
 
   let userXP = 0;
   let userLevel = 1;
-  let userStreak = 0;
 
   if (user) {
     const { data: profile } = await supabase
@@ -30,7 +22,6 @@ export default async function GuidePage() {
     if (profile) {
       userXP = profile.total_xp || 0;
       userLevel = calculateLevel(userXP);
-      userStreak = profile.current_streak || 0;
     }
   }
 
