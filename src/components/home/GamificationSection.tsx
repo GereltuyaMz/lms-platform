@@ -2,7 +2,7 @@ import Image from "next/image";
 
 export const GamificationSection = () => {
   return (
-    <section className="py-10 md:py-0 ">
+    <section className=" ">
       <div className="max-w-[1512px] mx-auto px-8 lg:px-[120px] flex items-center justify-center">
         <div className="bg-gradient-to-r from-[#eaf7f6] to-[rgba(234,247,246,0)] border flex flex-col gap-10 p-6 md:p-10 rounded-3xl w-full max-w-[1056px]">
           <h2 className="text-[#1a1a1a] text-3xl md:text-[40px] font-semibold leading-none max-w-[518px]">

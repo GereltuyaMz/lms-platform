@@ -4,7 +4,7 @@ import Link from "next/link";
 
 export const FeaturedCourse = () => {
   return (
-    <section className="py-10 md:py-0">
+    <section className="">
       <div className="max-w-[1512px] mx-auto px-8 lg:px-[120px] flex items-center justify-center">
         <div className="bg-gradient-to-r from-[#eaf7f6] to-[rgba(234,247,246,0)] border border-[rgba(77,152,244,0.2)] flex flex-col lg:flex-row items-end justify-between p-6 md:p-10 rounded-3xl gap-8 w-full max-w-[1056px]">
           <div className="flex flex-col gap-6 w-full lg:w-[518px]">

@@ -4,7 +4,7 @@ import Link from "next/link";
 
 export const CallToAction = () => {
   return (
-    <section className="min-h-[700px] md:min-h-[800px] py-24 md:py-32 overflow-hidden">
+    <section className="pb-24 md:pb-32 overflow-hidden">
       <div className="max-w-[1512px] mx-auto px-8 lg:px-[120px] flex items-center justify-center">
         <div className="flex flex-col lg:flex-row items-center justify-between gap-16 md:gap-20 max-w-[1056px] w-full">
           <div className="flex flex-col gap-12 md:gap-14 w-full lg:w-[500px]">
@@ -19,8 +19,8 @@ export const CallToAction = () => {
             </Link>
           </div>
 
-          <div className="relative w-full lg:w-[450px] h-[400px] md:h-[500px] lg:h-[500px]">
-            <div className="absolute bg-[#ff9600] left-0 rounded-xl w-[180px] h-[180px] md:w-[210px] md:h-[210px] lg:w-[220px] lg:h-[220px] top-0 overflow-hidden">
+          <div className="relative w-full max-w-[360px] md:max-w-[370px] lg:w-[450px] lg:max-w-none h-[400px] md:h-[420px] lg:h-[500px] mx-auto lg:mx-0">
+            <div className="absolute bg-[#ff9600] left-0 rounded-xl w-[170px] h-[170px] md:w-[180px] md:h-[180px] lg:w-[220px] lg:h-[220px] top-0 overflow-hidden">
               <div className="absolute inset-[10%] flex items-center justify-center">
                 <Image
                   src="/assets/home/cta-shape-1.png"
@@ -32,9 +32,9 @@ export const CallToAction = () => {
               </div>
             </div>
 
-            <div className="absolute bg-[#79b933] left-[190px] md:left-[220px] lg:left-[230px] rounded-xl w-[180px] h-[180px] md:w-[210px] md:h-[210px] lg:w-[220px] lg:h-[220px] top-[25px] md:top-[30px]" />
+            <div className="absolute bg-[#79b933] left-[180px] md:left-[185px] lg:left-[230px] rounded-xl w-[170px] h-[170px] md:w-[180px] md:h-[180px] lg:w-[220px] lg:h-[220px] top-[25px] md:top-[20px] lg:top-[30px]" />
 
-            <div className="absolute left-0 w-[180px] h-[180px] md:w-[210px] md:h-[210px] lg:w-[220px] lg:h-[220px] top-[200px] md:top-[240px] lg:top-[250px]">
+            <div className="absolute left-0 w-[170px] h-[170px] md:w-[180px] md:h-[180px] lg:w-[220px] lg:h-[220px] top-[190px] md:top-[195px] lg:top-[250px]">
               <div className="bg-[#49c0f8] relative rounded-xl w-full h-full rotate-180 scale-y-[-1] overflow-hidden">
                 <div className="absolute inset-0 flex items-center justify-center">
                   <Image
@@ -47,7 +47,7 @@ export const CallToAction = () => {
               </div>
             </div>
 
-            <div className="absolute left-[190px] md:left-[220px] lg:left-[230px] w-[180px] h-[180px] md:w-[210px] md:h-[210px] lg:w-[220px] lg:h-[220px] top-[225px] md:top-[270px] lg:top-[280px]">
+            <div className="absolute left-[180px] md:left-[185px] lg:left-[230px] w-[170px] h-[170px] md:w-[180px] md:h-[180px] lg:w-[220px] lg:h-[220px] top-[215px] md:top-[215px] lg:top-[280px]">
               <div className="bg-[#ff9600] relative rounded-xl w-full h-full rotate-180 scale-y-[-1] overflow-hidden">
                 <div className="absolute inset-[10%] flex items-center justify-center">
                   <Image

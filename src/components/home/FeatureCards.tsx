@@ -18,8 +18,6 @@ type StackingCardProps = {
   progress: MotionValue<number>;
   range: [number, number];
   targetScale: number;
-  paddingTop?: string;
-  paddingBottom?: string;
 };
 
 const StackingCard = ({
@@ -35,8 +33,6 @@ const StackingCard = ({
   progress,
   range,
   targetScale,
-  paddingTop = "0",
-  paddingBottom = "0",
 }: StackingCardProps) => {
   const containerRef = useRef<HTMLDivElement>(null);
   const scale = useTransform(progress, range, [1, targetScale]);
@@ -44,11 +40,7 @@ const StackingCard = ({
   return (
     <div
       ref={containerRef}
-      style={{
-        paddingTop,
-        paddingBottom,
-      }}
-      className="flex items-center justify-center sticky top-10"
+      className="flex items-center justify-center sticky top-10 py-[60px] md:py-[90px] lg:py-[120px]"
     >
       <motion.div
         style={{
@@ -114,8 +106,6 @@ export const FeatureCards = () => {
             progress={scrollYProgress}
             range={[0, 1]}
             targetScale={0.9}
-            paddingTop="90px"
-            paddingBottom="90px"
           />
 
           <StackingCard
@@ -131,8 +121,6 @@ export const FeatureCards = () => {
             progress={scrollYProgress}
             range={[0.25, 1]}
             targetScale={0.95}
-            paddingTop="90px"
-            paddingBottom="90px"
           />
 
           <StackingCard
@@ -148,8 +136,6 @@ export const FeatureCards = () => {
             progress={scrollYProgress}
             range={[0.5, 1]}
             targetScale={1}
-            paddingTop="90px"
-            paddingBottom="90px"
           />
         </div>
       </section>
