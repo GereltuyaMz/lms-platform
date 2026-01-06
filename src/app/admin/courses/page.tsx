@@ -11,15 +11,15 @@ export default async function CoursesPage() {
     <div className="space-y-6">
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-2xl font-semibold text-gray-900">Courses</h1>
+          <h1 className="text-2xl font-semibold text-gray-900">Хичээлүүд</h1>
           <p className="text-gray-500 mt-1">
-            Manage your course catalog ({courses.length} total)
+            Хичээлийн каталогийг удирдах ({courses.length} нийт)
           </p>
         </div>
         <Button asChild>
           <Link href="/admin/courses/new">
             <Plus className="h-4 w-4 mr-2" />
-            Add Course
+            Хичээл нэмэх
           </Link>
         </Button>
       </div>

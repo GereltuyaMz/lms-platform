@@ -26,8 +26,7 @@ export const CourseForm = ({ course, categories, teachers }: CourseFormProps) =>
   const [formData, setFormData] = useState<CourseFormData>({
     title: course?.title || "",
     description: course?.description || "",
-    thumbnail_url: course?.thumbnail_url || "",
-    level: course?.level || "Beginner",
+    thumbnail_url: course?.thumbnail_url || null,
     price: course?.price || 0,
     original_price: course?.original_price || null,
     instructor_id: course?.instructor_id || null,
@@ -39,7 +38,7 @@ export const CourseForm = ({ course, categories, teachers }: CourseFormProps) =>
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!formData.title.trim()) {
-      toast.error("Title is required");
+      toast.error("Гарчиг оруулна уу");
       return;
     }
     setIsSubmitting(true);
@@ -72,7 +71,7 @@ export const CourseForm = ({ course, categories, teachers }: CourseFormProps) =>
 
   return (
     <form onSubmit={handleSubmit} className="space-y-6">
-      <CourseDetailsCard formData={formData} teachers={teachers} onChange={handleChange} />
+      <CourseDetailsCard formData={formData} teachers={teachers} courseId={course?.id} onChange={handleChange} />
       <CategoryCard
         categories={categories}
         selectedIds={formData.category_ids}
@@ -86,10 +85,10 @@ export const CourseForm = ({ course, categories, teachers }: CourseFormProps) =>
       )}
       <div className="flex items-center gap-4">
         <Button type="submit" disabled={isSubmitting}>
-          {isSubmitting ? "Saving..." : isEditing ? "Update Course" : "Create Course"}
+          {isSubmitting ? "Хадгалж байна..." : isEditing ? "Хадгалах" : "Үүсгэх"}
         </Button>
         <Button type="button" variant="outline" onClick={() => router.push("/admin/courses")}>
-          Cancel
+          Болих
         </Button>
       </div>
     </form>
