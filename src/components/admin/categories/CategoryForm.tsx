@@ -27,16 +27,12 @@ type CategoryFormProps = {
   parentCategories: Category[];
 };
 
-export const CategoryForm = ({
-  category,
-  parentCategories,
-}: CategoryFormProps) => {
+export const CategoryForm = ({ category, parentCategories }: CategoryFormProps) => {
   const router = useRouter();
   const isEditing = !!category;
 
   const [formData, setFormData] = useState<CategoryFormData>({
     name: category?.name || "",
-    name_mn: category?.name_mn || "",
     description: category?.description || "",
     category_type: category?.category_type || "subject",
     parent_id: category?.parent_id || null,
@@ -50,7 +46,7 @@ export const CategoryForm = ({
     e.preventDefault();
 
     if (!formData.name.trim()) {
-      toast.error("Name is required");
+      toast.error("Нэр оруулна уу");
       return;
     }
 
@@ -79,47 +75,35 @@ export const CategoryForm = ({
       <Card className="border-gray-200">
         <CardHeader>
           <CardTitle className="text-lg">
-            {isEditing ? "Edit Category" : "New Category"}
+            {isEditing ? "Ангилал засах" : "Шинэ ангилал"}
           </CardTitle>
         </CardHeader>
         <CardContent className="space-y-6">
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-            <div className="space-y-2">
-              <Label htmlFor="name">Name (English)</Label>
-              <Input
-                id="name"
-                value={formData.name}
-                onChange={(e) => handleChange("name", e.target.value)}
-                placeholder="e.g., Mathematics"
-                required
-              />
-            </div>
-
-            <div className="space-y-2">
-              <Label htmlFor="name_mn">Name (Mongolian)</Label>
-              <Input
-                id="name_mn"
-                value={formData.name_mn || ""}
-                onChange={(e) => handleChange("name_mn", e.target.value || null)}
-                placeholder="e.g., Математик"
-              />
-            </div>
+          <div className="space-y-2">
+            <Label htmlFor="name">Нэр</Label>
+            <Input
+              id="name"
+              value={formData.name}
+              onChange={(e) => handleChange("name", e.target.value)}
+              placeholder="жишээ нь: Mathematics"
+              required
+            />
           </div>
 
           <div className="space-y-2">
-            <Label htmlFor="description">Description</Label>
+            <Label htmlFor="description">Тайлбар</Label>
             <Textarea
               id="description"
               value={formData.description || ""}
               onChange={(e) => handleChange("description", e.target.value || null)}
-              placeholder="Brief description of this category..."
+              placeholder="Ангилалын товч тайлбар..."
               rows={3}
             />
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
             <div className="space-y-2">
-              <Label htmlFor="category_type">Type</Label>
+              <Label htmlFor="category_type">Төрөл</Label>
               <Select
                 value={formData.category_type}
                 onValueChange={(value: "exam" | "subject") =>
@@ -127,20 +111,20 @@ export const CategoryForm = ({
                 }
               >
                 <SelectTrigger>
-                  <SelectValue placeholder="Select type" />
+                  <SelectValue placeholder="Төрөл сонгох" />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="exam">Exam Type</SelectItem>
-                  <SelectItem value="subject">Subject</SelectItem>
+                  <SelectItem value="exam">Шалгалтын төрөл</SelectItem>
+                  <SelectItem value="subject">Хичээл</SelectItem>
                 </SelectContent>
               </Select>
               <p className="text-xs text-gray-500">
-                Exam types are top-level, subjects can be nested
+                Шалгалтын төрөл нь дээд түвшин, хичээл нь дотор байрлана
               </p>
             </div>
 
             <div className="space-y-2">
-              <Label htmlFor="parent_id">Parent Category</Label>
+              <Label htmlFor="parent_id">Эцэг ангилал</Label>
               <Select
                 value={formData.parent_id || "none"}
                 onValueChange={(value) =>
@@ -148,14 +132,14 @@ export const CategoryForm = ({
                 }
               >
                 <SelectTrigger>
-                  <SelectValue placeholder="Select parent" />
+                  <SelectValue placeholder="Эцэг ангилал сонгох" />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="none">None (Top Level)</SelectItem>
+                  <SelectItem value="none">Байхгүй (Дээд түвшин)</SelectItem>
                   {parentCategories.map((parent) => (
                     <SelectItem key={parent.id} value={parent.id}>
                       {parent.icon && `${parent.icon} `}
-                      {parent.name_mn || parent.name}
+                      {parent.name}
                     </SelectItem>
                   ))}
                 </SelectContent>
@@ -163,48 +147,49 @@ export const CategoryForm = ({
             </div>
 
             <div className="space-y-2">
-              <Label htmlFor="order_index">Sort Order</Label>
+              <Label htmlFor="order_index">Эрэмбэ</Label>
               <Input
                 id="order_index"
                 type="number"
+                inputMode="numeric"
                 min={0}
                 value={formData.order_index}
                 onChange={(e) =>
                   handleChange("order_index", parseInt(e.target.value) || 0)
                 }
               />
-              <p className="text-xs text-gray-500">Lower numbers appear first</p>
+              <p className="text-xs text-gray-500">Бага тоо эхэнд харагдана</p>
             </div>
           </div>
 
           <div className="space-y-2">
-            <Label htmlFor="icon">Icon (Emoji)</Label>
+            <Label htmlFor="icon">Дүрс (Emoji)</Label>
             <Input
               id="icon"
               value={formData.icon || ""}
               onChange={(e) => handleChange("icon", e.target.value || null)}
-              placeholder="e.g., 📐"
+              placeholder="жишээ нь: 📐"
               className="w-32"
             />
             <p className="text-xs text-gray-500">
-              Use an emoji as the category icon
+              Emoji ашиглан ангилалын дүрсийг тодорхойлно
             </p>
           </div>
 
           <div className="flex items-center gap-4 pt-4 border-t">
             <Button type="submit" disabled={isSubmitting}>
               {isSubmitting
-                ? "Saving..."
+                ? "Хадгалж байна..."
                 : isEditing
-                ? "Update Category"
-                : "Create Category"}
+                ? "Ангилал шинэчлэх"
+                : "Ангилал үүсгэх"}
             </Button>
             <Button
               type="button"
               variant="outline"
               onClick={() => router.push("/admin/categories")}
             >
-              Cancel
+              Цуцлах
             </Button>
           </div>
         </CardContent>

@@ -12,20 +12,22 @@ import {
   BreadcrumbPage,
   BreadcrumbSeparator,
 } from "@/components/ui/breadcrumb";
+import { useBreadcrumb } from "./BreadcrumbContext";
 
 const routeLabels: Record<string, string> = {
-  admin: "Dashboard",
-  categories: "Categories",
-  courses: "Courses",
-  units: "Units",
-  lessons: "Lessons",
-  quiz: "Quiz Builder",
-  new: "New",
-  edit: "Edit",
+  admin: "Хянах самбар",
+  categories: "Ангилал",
+  courses: "Хичээлүүд",
+  units: "Бүлэгүүд",
+  lessons: "Хичээлүүд",
+  quiz: "Шалгалт үүсгэгч",
+  new: "Шинэ",
+  edit: "Засах",
 };
 
 export const AdminBreadcrumb = () => {
   const pathname = usePathname();
+  const { entityLabel } = useBreadcrumb();
   const segments = pathname.split("/").filter(Boolean);
 
   // Build breadcrumb items
@@ -38,9 +40,9 @@ export const AdminBreadcrumb = () => {
 
     let label = routeLabels[segment] || segment;
 
-    // For UUIDs, we'll show a placeholder (in real implementation, fetch from DB)
+    // For UUIDs, use entityLabel from context if available
     if (isUuid) {
-      label = "...";
+      label = entityLabel ? `Засах: ${entityLabel}` : "Засах";
     }
 
     return {
