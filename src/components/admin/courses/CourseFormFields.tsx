@@ -202,7 +202,7 @@ const CategoryGroup = ({
       {categories.map((cat) => (
         <label key={cat.id} className="flex items-center gap-2 cursor-pointer">
           <Checkbox checked={selectedIds.includes(cat.id)} onCheckedChange={() => onToggle(cat.id)} />
-          <span className="text-sm">{cat.icon && `${cat.icon} `}{cat.name_mn || cat.name}</span>
+          <span className="text-sm">{cat.icon && `${cat.icon} `}{cat.name}</span>
         </label>
       ))}
     </div>

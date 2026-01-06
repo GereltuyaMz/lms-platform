@@ -73,7 +73,7 @@ export const CourseTableRow = ({
         <div className="flex flex-wrap gap-1">
           {course.categories.slice(0, 2).map((cat) => (
             <Badge key={cat.id} variant="outline" className="text-xs">
-              {cat.name_mn || cat.name}
+              {cat.name}
             </Badge>
           ))}
           {course.categories.length > 2 && (

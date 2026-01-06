@@ -1,19 +1,22 @@
 "use client";
 
-import { useState } from "react";
-import Link from "next/link";
+import { useState, useMemo } from "react";
 import { useRouter } from "next/navigation";
-import { Edit, Trash2, ChevronRight } from "lucide-react";
 import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from "@/components/ui/table";
-import { Button } from "@/components/ui/button";
-import { Badge } from "@/components/ui/badge";
+  DndContext,
+  closestCenter,
+  KeyboardSensor,
+  PointerSensor,
+  useSensor,
+  useSensors,
+  DragEndEvent,
+} from "@dnd-kit/core";
+import {
+  arrayMove,
+  SortableContext,
+  sortableKeyboardCoordinates,
+  verticalListSortingStrategy,
+} from "@dnd-kit/sortable";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -25,7 +28,9 @@ import {
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
 import { toast } from "sonner";
-import { deleteCategory } from "@/lib/actions/admin/categories";
+import { deleteCategory, updateCategoryOrder } from "@/lib/actions/admin/categories";
+import { ParentCategoryGroup } from "./ParentCategoryGroup";
+import { SortableCategoryRow } from "./SortableCategoryRow";
 import type { Category } from "@/types/database/tables";
 
 type CategoryTableProps = {
@@ -36,32 +41,52 @@ export const CategoryTable = ({ categories }: CategoryTableProps) => {
   const router = useRouter();
   const [deleteId, setDeleteId] = useState<string | null>(null);
   const [isDeleting, setIsDeleting] = useState(false);
+  const [expandedParents, setExpandedParents] = useState<Set<string>>(new Set());
+  const [localCategories, setLocalCategories] = useState<Category[]>(categories);
 
-  // Build hierarchy map
-  const parentMap = new Map<string, Category>();
-  categories.forEach((cat) => {
-    if (!cat.parent_id) parentMap.set(cat.id, cat);
-  });
+  const sensors = useSensors(
+    useSensor(PointerSensor, { activationConstraint: { distance: 8 } }),
+    useSensor(KeyboardSensor, { coordinateGetter: sortableKeyboardCoordinates })
+  );
 
-  // Sort: parents first, then children under their parents
-  const sortedCategories = [...categories].sort((a, b) => {
-    // If one is a parent and one is a child
-    if (!a.parent_id && b.parent_id) return -1;
-    if (a.parent_id && !b.parent_id) return 1;
+  // Group categories by parent
+  const { parents, childrenByParent, orphans } = useMemo(() => {
+    const parentCats = localCategories
+      .filter((c) => !c.parent_id && c.category_type === "exam")
+      .sort((a, b) => a.order_index - b.order_index);
 
-    // If both are children, group by parent
-    if (a.parent_id && b.parent_id) {
-      if (a.parent_id !== b.parent_id) {
-        return a.parent_id.localeCompare(b.parent_id);
+    const childMap = new Map<string, Category[]>();
+    const orphanCats: Category[] = [];
+
+    localCategories.forEach((cat) => {
+      if (cat.parent_id) {
+        const existing = childMap.get(cat.parent_id) || [];
+        childMap.set(cat.parent_id, [...existing, cat].sort((a, b) => a.order_index - b.order_index));
+      } else if (cat.category_type === "subject") {
+        orphanCats.push(cat);
       }
-    }
+    });
 
-    // Same level, sort by order_index then name
-    if (a.order_index !== b.order_index) {
-      return a.order_index - b.order_index;
-    }
-    return a.name.localeCompare(b.name);
-  });
+    return {
+      parents: parentCats,
+      childrenByParent: childMap,
+      orphans: orphanCats.sort((a, b) => a.order_index - b.order_index),
+    };
+  }, [localCategories]);
+
+  const toggleExpand = (parentId: string) => {
+    setExpandedParents((prev) => {
+      const next = new Set(prev);
+      if (next.has(parentId)) {
+        next.delete(parentId);
+      } else {
+        next.add(parentId);
+      }
+      return next;
+    });
+  };
+
+  const handleEdit = (id: string) => router.push(`/admin/categories/${id}`);
 
   const handleDelete = async () => {
     if (!deleteId) return;
@@ -71,6 +96,7 @@ export const CategoryTable = ({ categories }: CategoryTableProps) => {
 
     if (result.success) {
       toast.success(result.message);
+      setLocalCategories((prev) => prev.filter((c) => c.id !== deleteId));
       router.refresh();
     } else {
       toast.error(result.message);
@@ -80,115 +106,119 @@ export const CategoryTable = ({ categories }: CategoryTableProps) => {
     setDeleteId(null);
   };
 
-  const getParentName = (parentId: string | null) => {
-    if (!parentId) return null;
-    const parent = parentMap.get(parentId);
-    return parent?.name_mn || parent?.name || null;
+  const handleDragEnd = async (items: Category[], event: DragEndEvent) => {
+    const { active, over } = event;
+    if (!over || active.id === over.id) return;
+
+    const oldIndex = items.findIndex((c) => c.id === active.id);
+    const newIndex = items.findIndex((c) => c.id === over.id);
+    if (oldIndex === -1 || newIndex === -1) return;
+
+    const reordered = arrayMove(items, oldIndex, newIndex);
+    const updates = reordered.map((cat, index) => ({ id: cat.id, order_index: index }));
+
+    // Optimistic update
+    setLocalCategories((prev) => {
+      const updated = [...prev];
+      updates.forEach((u) => {
+        const idx = updated.findIndex((c) => c.id === u.id);
+        if (idx !== -1) updated[idx] = { ...updated[idx], order_index: u.order_index };
+      });
+      return updated;
+    });
+
+    const result = await updateCategoryOrder(updates);
+    if (!result.success) {
+      toast.error(result.message);
+      setLocalCategories(categories);
+    }
   };
+
+  if (localCategories.length === 0) {
+    return (
+      <div className="rounded-lg border border-gray-200 bg-white p-8 text-center text-gray-500">
+        Ангилал олдсонгүй. Эхний ангилалаа үүсгэнэ үү.
+      </div>
+    );
+  }
 
   return (
     <>
-      <div className="rounded-lg border border-gray-200 bg-white">
-        <Table>
-          <TableHeader>
-            <TableRow className="bg-gray-50">
-              <TableHead className="font-medium">Name</TableHead>
-              <TableHead className="font-medium">Type</TableHead>
-              <TableHead className="font-medium">Parent</TableHead>
-              <TableHead className="font-medium">Order</TableHead>
-              <TableHead className="font-medium text-right">Actions</TableHead>
-            </TableRow>
-          </TableHeader>
-          <TableBody>
-            {sortedCategories.length === 0 ? (
-              <TableRow>
-                <TableCell
-                  colSpan={5}
-                  className="text-center text-gray-500 py-8"
-                >
-                  No categories found. Create your first category.
-                </TableCell>
-              </TableRow>
-            ) : (
-              sortedCategories.map((category) => (
-                <TableRow key={category.id} className="hover:bg-gray-50">
-                  <TableCell>
-                    <div className="flex items-center gap-2">
-                      {category.parent_id && (
-                        <ChevronRight className="h-4 w-4 text-gray-400 ml-4" />
-                      )}
-                      {category.icon && (
-                        <span className="text-lg">{category.icon}</span>
-                      )}
-                      <div>
-                        <p className="font-medium text-gray-900">
-                          {category.name_mn || category.name}
-                        </p>
-                        {category.name_mn && (
-                          <p className="text-sm text-gray-500">{category.name}</p>
-                        )}
-                      </div>
-                    </div>
-                  </TableCell>
-                  <TableCell>
-                    <Badge
-                      variant={
-                        category.category_type === "exam"
-                          ? "default"
-                          : "secondary"
-                      }
-                      className="capitalize"
-                    >
-                      {category.category_type}
-                    </Badge>
-                  </TableCell>
-                  <TableCell className="text-gray-600">
-                    {getParentName(category.parent_id) || "—"}
-                  </TableCell>
-                  <TableCell className="text-gray-600">
-                    {category.order_index}
-                  </TableCell>
-                  <TableCell className="text-right">
-                    <div className="flex items-center justify-end gap-2">
-                      <Button variant="ghost" size="sm" asChild>
-                        <Link href={`/admin/categories/${category.id}`}>
-                          <Edit className="h-4 w-4" />
-                        </Link>
-                      </Button>
-                      <Button
-                        variant="ghost"
-                        size="sm"
-                        onClick={() => setDeleteId(category.id)}
-                        className="text-red-600 hover:text-red-700 hover:bg-red-50"
-                      >
-                        <Trash2 className="h-4 w-4" />
-                      </Button>
-                    </div>
-                  </TableCell>
-                </TableRow>
-              ))
-            )}
-          </TableBody>
-        </Table>
+      <div className="rounded-lg border border-gray-200 bg-white overflow-hidden">
+        {/* Header */}
+        <div className="flex items-center gap-3 px-4 py-3 bg-gray-50 border-b border-gray-200 text-sm font-medium text-gray-600">
+          <div className="w-4" />
+          <div className="w-4" />
+          <div className="flex-1">Нэр</div>
+          <div className="w-20">Төрөл</div>
+          <div className="w-12 text-center">Эрэмбэ</div>
+          <div className="w-20 text-right">Үйлдэл</div>
+        </div>
+
+        {/* Parent categories */}
+        <DndContext
+          sensors={sensors}
+          collisionDetection={closestCenter}
+          onDragEnd={(e) => handleDragEnd(parents, e)}
+        >
+          <SortableContext items={parents.map((p) => p.id)} strategy={verticalListSortingStrategy}>
+            {parents.map((parent) => (
+              <ParentCategoryGroup
+                key={parent.id}
+                parent={parent}
+                childCategories={childrenByParent.get(parent.id) || []}
+                isExpanded={expandedParents.has(parent.id)}
+                onToggle={() => toggleExpand(parent.id)}
+                onEdit={handleEdit}
+                onDelete={setDeleteId}
+                onChildDragEnd={(e) => handleDragEnd(childrenByParent.get(parent.id) || [], e)}
+              />
+            ))}
+          </SortableContext>
+        </DndContext>
+
+        {/* Orphan categories */}
+        {orphans.length > 0 && (
+          <>
+            <div className="px-4 py-2 bg-gray-100 text-sm font-medium text-gray-600 border-b border-gray-200">
+              Бусад (Эцэг ангилалгүй)
+            </div>
+            <DndContext
+              sensors={sensors}
+              collisionDetection={closestCenter}
+              onDragEnd={(e) => handleDragEnd(orphans, e)}
+            >
+              <SortableContext items={orphans.map((o) => o.id)} strategy={verticalListSortingStrategy}>
+                {orphans.map((orphan) => (
+                  <SortableCategoryRow
+                    key={orphan.id}
+                    category={orphan}
+                    onEdit={handleEdit}
+                    onDelete={setDeleteId}
+                  />
+                ))}
+              </SortableContext>
+            </DndContext>
+          </>
+        )}
       </div>
 
       <AlertDialog open={!!deleteId} onOpenChange={() => setDeleteId(null)}>
         <AlertDialogContent>
           <AlertDialogHeader>
-            <AlertDialogTitle>Delete Category</AlertDialogTitle>
+            <AlertDialogTitle>Ангилал устгах</AlertDialogTitle>
             <AlertDialogDescription>
-              Are you sure you want to delete this category? This action cannot
-              be undone.
+              Та энэ ангилалыг устгахдаа итгэлтэй байна уу? Энэ үйлдлийг буцаах боломжгүй.
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
-            <AlertDialogCancel disabled={isDeleting}>Cancel</AlertDialogCancel>
+            <AlertDialogCancel disabled={isDeleting}>Цуцлах</AlertDialogCancel>
             <AlertDialogAction
               onClick={handleDelete}
               disabled={isDeleting}
               className="bg-red-600 hover:bg-red-700"
             >
-              {isDeleting ? "Deleting..." : "Delete"}
+              {isDeleting ? "Устгаж байна..." : "Устгах"}
             </AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>

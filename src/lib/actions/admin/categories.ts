@@ -6,7 +6,6 @@ import type { Category } from "@/types/database/tables";
 
 export type CategoryFormData = {
   name: string;
-  name_mn: string | null;
   description: string | null;
   category_type: "exam" | "subject";
   parent_id: string | null;
@@ -88,7 +87,6 @@ export async function createCategory(
     .from("categories")
     .insert({
       name: formData.name,
-      name_mn: formData.name_mn,
       slug,
       description: formData.description,
       category_type: formData.category_type,
@@ -119,7 +117,6 @@ export async function updateCategory(
     .from("categories")
     .update({
       name: formData.name,
-      name_mn: formData.name_mn,
       slug,
       description: formData.description,
       category_type: formData.category_type,
@@ -178,4 +175,25 @@ export async function deleteCategory(
 
   revalidatePath("/admin/categories");
   return { success: true, message: "Category deleted successfully" };
+}
+
+export async function updateCategoryOrder(
+  updates: { id: string; order_index: number }[]
+): Promise<{ success: boolean; message: string }> {
+  const supabase = await createClient();
+
+  // Update each category's order_index
+  for (const update of updates) {
+    const { error } = await supabase
+      .from("categories")
+      .update({ order_index: update.order_index })
+      .eq("id", update.id);
+
+    if (error) {
+      return { success: false, message: error.message };
+    }
+  }
+
+  revalidatePath("/admin/categories");
+  return { success: true, message: "Order updated successfully" };
 }
