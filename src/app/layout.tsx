@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { Nunito } from "next/font/google";
 import "../styles/globals.css";
+import "lenis/dist/lenis.css";
 import { Header, Footer } from "@/components/layout";
 import { Toaster } from "sonner";
 
