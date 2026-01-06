@@ -59,20 +59,20 @@ export const CourseTable = ({ courses }: CourseTableProps) => {
         <Table>
           <TableHeader>
             <TableRow className="bg-gray-50">
-              <TableHead className="font-medium w-[300px]">Course</TableHead>
-              <TableHead className="font-medium">Category</TableHead>
-              <TableHead className="font-medium">Level</TableHead>
-              <TableHead className="font-medium">Status</TableHead>
-              <TableHead className="font-medium">Content</TableHead>
-              <TableHead className="font-medium">Price</TableHead>
-              <TableHead className="font-medium text-right">Actions</TableHead>
+              <TableHead className="font-medium w-[300px]">Хичээл</TableHead>
+              <TableHead className="font-medium">Ангилал</TableHead>
+              <TableHead className="font-medium">Төлөв</TableHead>
+              <TableHead className="font-medium">Бүлэг/Хичээл</TableHead>
+              <TableHead className="font-medium">Үнэ</TableHead>
+              <TableHead className="font-medium">Огноо</TableHead>
+              <TableHead className="font-medium text-right">Үйлдэл</TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
             {courses.length === 0 ? (
               <TableRow>
                 <TableCell colSpan={7} className="text-center text-gray-500 py-8">
-                  No courses found. Create your first course.
+                  Хичээл олдсонгүй. Эхний хичээлээ үүсгэнэ үү.
                 </TableCell>
               </TableRow>
             ) : (
@@ -93,20 +93,19 @@ export const CourseTable = ({ courses }: CourseTableProps) => {
       <AlertDialog open={!!deleteId} onOpenChange={() => setDeleteId(null)}>
         <AlertDialogContent>
           <AlertDialogHeader>
-            <AlertDialogTitle>Delete Course</AlertDialogTitle>
+            <AlertDialogTitle>Хичээл устгах</AlertDialogTitle>
             <AlertDialogDescription>
-              Are you sure you want to delete this course? This will also delete all units,
-              lessons, and quizzes. This action cannot be undone.
+              Та энэ хичээлийг устгахдаа итгэлтэй байна уу? Бүх бүлэг, хичээл, шалгалтууд устах болно. Энэ үйлдлийг буцаах боломжгүй.
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
-            <AlertDialogCancel disabled={isDeleting}>Cancel</AlertDialogCancel>
+            <AlertDialogCancel disabled={isDeleting}>Болих</AlertDialogCancel>
             <AlertDialogAction
               onClick={handleDelete}
               disabled={isDeleting}
               className="bg-red-600 hover:bg-red-700"
             >
-              {isDeleting ? "Deleting..." : "Delete"}
+              {isDeleting ? "Устгаж байна..." : "Устгах"}
             </AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>

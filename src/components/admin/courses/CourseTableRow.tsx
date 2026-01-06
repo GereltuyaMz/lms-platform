@@ -2,17 +2,18 @@
 
 import Link from "next/link";
 import Image from "next/image";
-import { Edit, Trash2, Eye, EyeOff, Layers, FileText, MoreHorizontal } from "lucide-react";
+import { useRouter } from "next/navigation";
+import { Edit, Trash2, Layers, FileText } from "lucide-react";
 import { TableCell, TableRow } from "@/components/ui/table";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuSeparator,
-  DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import type { CourseWithRelations } from "@/lib/actions/admin/courses";
 
 type CourseTableRowProps = {
@@ -22,23 +23,39 @@ type CourseTableRowProps = {
   isToggling: boolean;
 };
 
+const formatDate = (dateString: string) => {
+  const date = new Date(dateString);
+  return date.toLocaleDateString("mn-MN", {
+    year: "numeric",
+    month: "2-digit",
+    day: "2-digit",
+  });
+};
+
 export const CourseTableRow = ({
   course,
   onTogglePublish,
   onDelete,
   isToggling,
 }: CourseTableRowProps) => {
-  const getLevelBadgeVariant = (level: string) => {
-    switch (level) {
-      case "Beginner": return "secondary";
-      case "Intermediate": return "default";
-      case "Advanced": return "destructive";
-      default: return "secondary";
+  const router = useRouter();
+
+  const handleRowClick = () => {
+    router.push(`/admin/courses/${course.id}`);
+  };
+
+  const handleStatusChange = (value: string) => {
+    const shouldPublish = value === "published";
+    if (shouldPublish !== course.is_published) {
+      onTogglePublish(course.id);
     }
   };
 
   return (
-    <TableRow className="hover:bg-gray-50">
+    <TableRow
+      className={`hover:bg-gray-50 cursor-pointer ${!course.is_published ? "opacity-60" : ""}`}
+      onClick={handleRowClick}
+    >
       <TableCell>
         <div className="flex items-center gap-3">
           {course.thumbnail_url ? (
@@ -57,19 +74,16 @@ export const CourseTableRow = ({
             </div>
           )}
           <div>
-            <Link
-              href={`/admin/courses/${course.id}`}
-              className="font-medium text-gray-900 hover:text-primary"
-            >
+            <span className="font-medium text-gray-900 hover:text-primary">
               {course.title}
-            </Link>
+            </span>
             {course.teacher && (
               <p className="text-xs text-gray-500">{course.teacher.full_name_mn}</p>
             )}
           </div>
         </div>
       </TableCell>
-      <TableCell>
+      <TableCell onClick={(e) => e.stopPropagation()}>
         <div className="flex flex-wrap gap-1">
           {course.categories.slice(0, 2).map((cat) => (
             <Badge key={cat.id} variant="outline" className="text-xs">
@@ -81,23 +95,30 @@ export const CourseTableRow = ({
           )}
         </div>
       </TableCell>
-      <TableCell>
-        <Badge variant={getLevelBadgeVariant(course.level)}>{course.level}</Badge>
-      </TableCell>
-      <TableCell>
-        <Badge
-          variant={course.is_published ? "default" : "secondary"}
-          className={course.is_published ? "bg-green-100 text-green-700 hover:bg-green-100" : ""}
+      <TableCell onClick={(e) => e.stopPropagation()}>
+        <Select
+          value={course.is_published ? "published" : "draft"}
+          onValueChange={handleStatusChange}
+          disabled={isToggling}
         >
-          {course.is_published ? "Published" : "Draft"}
-        </Badge>
+          <SelectTrigger className="w-[130px] h-8">
+            <SelectValue />
+          </SelectTrigger>
+          <SelectContent>
+            <SelectItem value="draft">Ноорог</SelectItem>
+            <SelectItem value="published">Нийтлэгдсэн</SelectItem>
+          </SelectContent>
+        </Select>
       </TableCell>
-      <TableCell>
+      <TableCell onClick={(e) => e.stopPropagation()}>
         <div className="flex items-center gap-3 text-sm text-gray-600">
-          <span className="flex items-center gap-1">
+          <Link
+            href={`/admin/courses/${course.id}#units`}
+            className="flex items-center gap-1 hover:text-primary transition-colors"
+          >
             <Layers className="h-3.5 w-3.5" />
             {course.units_count}
-          </span>
+          </Link>
           <span className="flex items-center gap-1">
             <FileText className="h-3.5 w-3.5" />
             {course.lessons_count}
@@ -106,48 +127,33 @@ export const CourseTableRow = ({
       </TableCell>
       <TableCell className="text-gray-900 font-medium">
         {course.price === 0 ? (
-          <span className="text-green-600">Free</span>
+          <span className="text-green-600">Үнэгүй</span>
         ) : (
           `₮${course.price.toLocaleString()}`
         )}
       </TableCell>
-      <TableCell className="text-right">
-        <DropdownMenu>
-          <DropdownMenuTrigger asChild>
-            <Button variant="ghost" size="sm">
-              <MoreHorizontal className="h-4 w-4" />
-            </Button>
-          </DropdownMenuTrigger>
-          <DropdownMenuContent align="end">
-            <DropdownMenuItem asChild>
-              <Link href={`/admin/courses/${course.id}`}>
-                <Edit className="h-4 w-4 mr-2" />
-                Edit
-              </Link>
-            </DropdownMenuItem>
-            <DropdownMenuItem onClick={() => onTogglePublish(course.id)} disabled={isToggling}>
-              {course.is_published ? (
-                <>
-                  <EyeOff className="h-4 w-4 mr-2" />
-                  Unpublish
-                </>
-              ) : (
-                <>
-                  <Eye className="h-4 w-4 mr-2" />
-                  Publish
-                </>
-              )}
-            </DropdownMenuItem>
-            <DropdownMenuSeparator />
-            <DropdownMenuItem
-              onClick={() => onDelete(course.id)}
-              className="text-red-600 focus:text-red-600"
-            >
-              <Trash2 className="h-4 w-4 mr-2" />
-              Delete
-            </DropdownMenuItem>
-          </DropdownMenuContent>
-        </DropdownMenu>
+      <TableCell>
+        <div className="text-xs text-gray-500 space-y-0.5">
+          <p>Үүсгэсэн: {formatDate(course.created_at)}</p>
+          <p>Засварласан: {formatDate(course.updated_at)}</p>
+        </div>
+      </TableCell>
+      <TableCell className="text-right" onClick={(e) => e.stopPropagation()}>
+        <div className="flex items-center justify-end gap-1">
+          <Button variant="ghost" size="sm" asChild>
+            <Link href={`/admin/courses/${course.id}`}>
+              <Edit className="h-4 w-4" />
+            </Link>
+          </Button>
+          <Button
+            variant="ghost"
+            size="sm"
+            onClick={() => onDelete(course.id)}
+            className="text-red-600 hover:text-red-700 hover:bg-red-50"
+          >
+            <Trash2 className="h-4 w-4" />
+          </Button>
+        </div>
       </TableCell>
     </TableRow>
   );

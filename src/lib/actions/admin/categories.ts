@@ -102,7 +102,7 @@ export async function createCategory(
   }
 
   revalidatePath("/admin/categories");
-  return { success: true, message: "Category created successfully", data };
+  return { success: true, message: "Ангилал амжилттай үүсгэгдлээ", data };
 }
 
 export async function updateCategory(
@@ -133,7 +133,7 @@ export async function updateCategory(
   }
 
   revalidatePath("/admin/categories");
-  return { success: true, message: "Category updated successfully", data };
+  return { success: true, message: "Ангилал амжилттай шинэчлэгдлээ", data };
 }
 
 export async function deleteCategory(
@@ -150,7 +150,7 @@ export async function deleteCategory(
   if (courseCount && courseCount > 0) {
     return {
       success: false,
-      message: `Cannot delete: ${courseCount} course(s) are using this category`,
+      message: `Устгах боломжгүй: ${courseCount} хичээл энэ ангилалыг ашиглаж байна`,
     };
   }
 
@@ -163,7 +163,7 @@ export async function deleteCategory(
   if (childCount && childCount > 0) {
     return {
       success: false,
-      message: `Cannot delete: ${childCount} child category(s) exist`,
+      message: `Устгах боломжгүй: ${childCount} дэд ангилал байна`,
     };
   }
 
@@ -174,7 +174,7 @@ export async function deleteCategory(
   }
 
   revalidatePath("/admin/categories");
-  return { success: true, message: "Category deleted successfully" };
+  return { success: true, message: "Ангилал амжилттай устгагдлаа" };
 }
 
 export async function updateCategoryOrder(
@@ -195,5 +195,5 @@ export async function updateCategoryOrder(
   }
 
   revalidatePath("/admin/categories");
-  return { success: true, message: "Order updated successfully" };
+  return { success: true, message: "Эрэмбэ амжилттай шинэчлэгдлээ" };
 }

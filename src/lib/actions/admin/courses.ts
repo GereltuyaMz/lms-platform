@@ -15,7 +15,6 @@ export type CourseFormData = {
   title: string;
   description: string | null;
   thumbnail_url: string | null;
-  level: "Beginner" | "Intermediate" | "Advanced";
   price: number;
   original_price: number | null;
   instructor_id: string | null;
@@ -164,7 +163,6 @@ export async function createCourse(
       slug,
       description: formData.description,
       thumbnail_url: formData.thumbnail_url,
-      level: formData.level,
       price: formData.price,
       original_price: formData.original_price,
       instructor_id: formData.instructor_id,
@@ -206,7 +204,6 @@ export async function updateCourse(
       slug,
       description: formData.description,
       thumbnail_url: formData.thumbnail_url,
-      level: formData.level,
       price: formData.price,
       original_price: formData.original_price,
       instructor_id: formData.instructor_id,

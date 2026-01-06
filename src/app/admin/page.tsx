@@ -116,8 +116,8 @@ export default async function AdminDashboard() {
                 <BookOpen className="h-4 w-4 text-blue-600" />
               </div>
               <div>
-                <p className="font-medium text-gray-900">Create New Course</p>
-                <p className="text-sm text-gray-500">Add a new course to your catalog</p>
+                <p className="font-medium text-gray-900">Шинэ хичээл үүсгэх</p>
+                <p className="text-sm text-gray-500">Каталогт шинэ хичээл нэмэх</p>
               </div>
             </Link>
             <Link

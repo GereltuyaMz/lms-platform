@@ -85,7 +85,7 @@ export const CategoryForm = ({ category, parentCategories }: CategoryFormProps) 
               id="name"
               value={formData.name}
               onChange={(e) => handleChange("name", e.target.value)}
-              placeholder="жишээ нь: Mathematics"
+              placeholder="жишээ нь: Математик"
               required
             />
           </div>

@@ -11,9 +11,9 @@ export default async function NewCoursePage() {
   return (
     <div className="max-w-3xl space-y-6">
       <div>
-        <h1 className="text-2xl font-semibold text-gray-900">New Course</h1>
+        <h1 className="text-2xl font-semibold text-gray-900">Шинэ хичээл</h1>
         <p className="text-gray-500 mt-1">
-          Create a new course. It will be saved as draft.
+          Шинэ хичээл үүсгэнэ. Ноорог хэлбэрээр хадгалагдана.
         </p>
       </div>
 
