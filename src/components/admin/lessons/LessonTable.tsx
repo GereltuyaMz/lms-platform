@@ -3,7 +3,7 @@
 import { useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { Edit, Trash2, MoreHorizontal, Eye, EyeOff } from "lucide-react";
+import { Edit, Trash2, MoreHorizontal, FileText, Video } from "lucide-react";
 import {
   Table,
   TableBody,
@@ -33,7 +33,6 @@ import {
 } from "@/components/ui/alert-dialog";
 import { toast } from "sonner";
 import { deleteLesson, type LessonWithRelations } from "@/lib/actions/admin/lessons";
-import { LessonTypeIcon } from "@/components/admin/shared/LessonTypeIcon";
 
 type LessonTableProps = {
   lessons: LessonWithRelations[];
@@ -61,10 +60,14 @@ export const LessonTable = ({ lessons }: LessonTableProps) => {
     setDeleteId(null);
   };
 
-  const formatDuration = (seconds: number | null) => {
-    if (!seconds) return "—";
-    const mins = Math.floor(seconds / 60);
-    const secs = seconds % 60;
+  const getTotalDuration = (lesson: LessonWithRelations) => {
+    const totalSeconds = lesson.content_blocks.reduce(
+      (acc, block) => acc + (block.duration_seconds || 0),
+      0
+    );
+    if (!totalSeconds) return "—";
+    const mins = Math.floor(totalSeconds / 60);
+    const secs = totalSeconds % 60;
     return `${mins}:${secs.toString().padStart(2, "0")}`;
   };
 
@@ -74,22 +77,21 @@ export const LessonTable = ({ lessons }: LessonTableProps) => {
         <Table>
           <TableHeader>
             <TableRow className="bg-gray-50">
-              <TableHead className="font-medium w-[300px]">Lesson</TableHead>
-              <TableHead className="font-medium">Course / Unit</TableHead>
-              <TableHead className="font-medium">Type</TableHead>
-              <TableHead className="font-medium">Duration</TableHead>
-              <TableHead className="font-medium">Preview</TableHead>
-              <TableHead className="font-medium text-right">Actions</TableHead>
+              <TableHead className="font-medium w-[300px]">Хичээл</TableHead>
+              <TableHead className="font-medium">Хичээл / Бүлэг</TableHead>
+              <TableHead className="font-medium">Контент</TableHead>
+              <TableHead className="font-medium">Үргэлжлэх хугацаа</TableHead>
+              <TableHead className="font-medium text-right">Үйлдэл</TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
             {lessons.length === 0 ? (
               <TableRow>
                 <TableCell
-                  colSpan={6}
+                  colSpan={5}
                   className="text-center text-gray-500 py-8"
                 >
-                  No lessons found. Create your first lesson.
+                  Хичээл олдсонгүй. Эхний хичээлээ үүсгэнэ үү.
                 </TableCell>
               </TableRow>
             ) : (
@@ -111,47 +113,37 @@ export const LessonTable = ({ lessons }: LessonTableProps) => {
                   <TableCell>
                     <div className="text-sm">
                       <p className="text-gray-900">
-                        {lesson.unit?.course?.title || "No course"}
+                        {lesson.unit?.course?.title || "Хичээл байхгүй"}
                       </p>
                       <p className="text-gray-500 text-xs">
-                        {lesson.unit?.title_mn || lesson.unit?.title || "No unit"}
+                        {lesson.unit?.title_mn || lesson.unit?.title || "Бүлэг байхгүй"}
                       </p>
                     </div>
                   </TableCell>
                   <TableCell>
                     <div className="flex items-center gap-2">
-                      <LessonTypeIcon
-                        type={lesson.lesson_type}
-                        className="h-4 w-4 text-gray-500"
-                      />
-                      <span className="capitalize text-sm">
-                        {lesson.lesson_type}
-                      </span>
-                      {lesson.lesson_type === "quiz" && lesson.quiz_count > 0 && (
+                      {lesson.content_blocks.length > 0 ? (
+                        <>
+                          <Video className="h-4 w-4 text-gray-500" />
+                          <span className="text-sm">
+                            {lesson.content_blocks.length} контент
+                          </span>
+                        </>
+                      ) : (
+                        <>
+                          <FileText className="h-4 w-4 text-gray-400" />
+                          <span className="text-sm text-gray-400">Хоосон</span>
+                        </>
+                      )}
+                      {lesson.quiz_count > 0 && (
                         <Badge variant="secondary" className="text-xs">
-                          {lesson.quiz_count} Q
+                          {lesson.quiz_count} асуулт
                         </Badge>
                       )}
                     </div>
                   </TableCell>
                   <TableCell className="text-gray-600">
-                    {formatDuration(lesson.duration_seconds)}
-                  </TableCell>
-                  <TableCell>
-                    {lesson.is_preview ? (
-                      <Badge
-                        variant="outline"
-                        className="text-green-600 border-green-200 bg-green-50"
-                      >
-                        <Eye className="h-3 w-3 mr-1" />
-                        Free
-                      </Badge>
-                    ) : (
-                      <Badge variant="outline" className="text-gray-500">
-                        <EyeOff className="h-3 w-3 mr-1" />
-                        Locked
-                      </Badge>
-                    )}
+                    {getTotalDuration(lesson)}
                   </TableCell>
                   <TableCell className="text-right">
                     <DropdownMenu>
@@ -164,23 +156,16 @@ export const LessonTable = ({ lessons }: LessonTableProps) => {
                         <DropdownMenuItem asChild>
                           <Link href={`/admin/lessons/${lesson.id}`}>
                             <Edit className="h-4 w-4 mr-2" />
-                            Edit
+                            Засах
                           </Link>
                         </DropdownMenuItem>
-                        {lesson.lesson_type === "quiz" && (
-                          <DropdownMenuItem asChild>
-                            <Link href={`/admin/lessons/${lesson.id}/quiz`}>
-                              Quiz Builder
-                            </Link>
-                          </DropdownMenuItem>
-                        )}
                         <DropdownMenuSeparator />
                         <DropdownMenuItem
                           onClick={() => setDeleteId(lesson.id)}
                           className="text-red-600 focus:text-red-600"
                         >
                           <Trash2 className="h-4 w-4 mr-2" />
-                          Delete
+                          Устгах
                         </DropdownMenuItem>
                       </DropdownMenuContent>
                     </DropdownMenu>
@@ -195,21 +180,20 @@ export const LessonTable = ({ lessons }: LessonTableProps) => {
       <AlertDialog open={!!deleteId} onOpenChange={() => setDeleteId(null)}>
         <AlertDialogContent>
           <AlertDialogHeader>
-            <AlertDialogTitle>Delete Lesson</AlertDialogTitle>
+            <AlertDialogTitle>Хичээл устгах</AlertDialogTitle>
             <AlertDialogDescription>
-              Are you sure you want to delete this lesson? This will also delete
-              all content blocks and quiz questions. This action cannot be
-              undone.
+              Та энэ хичээлийг устгахдаа итгэлтэй байна уу? Энэ нь бүх контент
+              блок болон асуултуудыг устгах болно. Энэ үйлдлийг буцаах боломжгүй.
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
-            <AlertDialogCancel disabled={isDeleting}>Cancel</AlertDialogCancel>
+            <AlertDialogCancel disabled={isDeleting}>Цуцлах</AlertDialogCancel>
             <AlertDialogAction
               onClick={handleDelete}
               disabled={isDeleting}
               className="bg-red-600 hover:bg-red-700"
             >
-              {isDeleting ? "Deleting..." : "Delete"}
+              {isDeleting ? "Устгаж байна..." : "Устгах"}
             </AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>

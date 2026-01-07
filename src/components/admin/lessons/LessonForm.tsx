@@ -4,6 +4,16 @@ import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Textarea } from "@/components/ui/textarea";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import { toast } from "sonner";
 import {
   createLesson,
@@ -11,7 +21,6 @@ import {
   type LessonFormData,
   type LessonWithRelations,
 } from "@/lib/actions/admin/lessons";
-import { UnitSelector, BasicFields, VideoFields, TextFields, PreviewToggle } from "./LessonFormFields";
 
 type UnitOption = {
   id: string;
@@ -42,11 +51,6 @@ export const LessonForm = ({ lesson, units, defaultUnitId }: LessonFormProps) =>
     unit_id: lesson?.unit_id || defaultUnitId || null,
     title: lesson?.title || "",
     description: lesson?.description || "",
-    lesson_type: lesson?.lesson_type || "video",
-    video_url: lesson?.video_url || "",
-    content: lesson?.content || "",
-    duration_seconds: lesson?.duration_seconds || null,
-    is_preview: lesson?.is_preview || false,
     order_in_unit: lesson?.order_in_unit || 0,
   });
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -73,10 +77,6 @@ export const LessonForm = ({ lesson, units, defaultUnitId }: LessonFormProps) =>
     setIsSubmitting(false);
   };
 
-  const handleChange = (field: keyof LessonFormData, value: string | number | boolean | null) => {
-    setFormData((prev) => ({ ...prev, [field]: value }));
-  };
-
   const handleUnitChange = (unitId: string) => {
     const unit = units.find((u) => u.id === unitId);
     if (unit) {
@@ -84,42 +84,91 @@ export const LessonForm = ({ lesson, units, defaultUnitId }: LessonFormProps) =>
     }
   };
 
+  const groupedUnits = units.reduce(
+    (acc, unit) => {
+      const courseName = unit.course_title || "No Course";
+      if (!acc[courseName]) acc[courseName] = [];
+      acc[courseName].push(unit);
+      return acc;
+    },
+    {} as Record<string, UnitOption[]>
+  );
+
   return (
     <form onSubmit={handleSubmit} className="space-y-6">
       <Card className="border-gray-200">
         <CardHeader>
-          <CardTitle className="text-lg">Lesson Details</CardTitle>
+          <CardTitle className="text-lg">Хичээлийн мэдээлэл</CardTitle>
         </CardHeader>
         <CardContent className="space-y-6">
-          <UnitSelector unitId={formData.unit_id} units={units} onUnitChange={handleUnitChange} />
-          <BasicFields formData={formData} onChange={handleChange} />
-          {formData.lesson_type === "video" && (
-            <VideoFields
-              videoUrl={formData.video_url}
-              durationSeconds={formData.duration_seconds}
-              onChange={handleChange}
+          <div className="space-y-2">
+            <Label htmlFor="unit_id">Бүлэг</Label>
+            <Select value={formData.unit_id || ""} onValueChange={handleUnitChange}>
+              <SelectTrigger>
+                <SelectValue placeholder="Бүлэг сонгох" />
+              </SelectTrigger>
+              <SelectContent>
+                {Object.entries(groupedUnits).map(([courseName, courseUnits]) => (
+                  <div key={courseName}>
+                    <div className="px-2 py-1.5 text-xs font-medium text-gray-500">{courseName}</div>
+                    {courseUnits.map((unit) => (
+                      <SelectItem key={unit.id} value={unit.id}>
+                        {unit.title_mn || unit.title}
+                      </SelectItem>
+                    ))}
+                  </div>
+                ))}
+              </SelectContent>
+            </Select>
+          </div>
+
+          <div className="space-y-2">
+            <Label htmlFor="title">Гарчиг</Label>
+            <Input
+              id="title"
+              value={formData.title}
+              onChange={(e) => setFormData((prev) => ({ ...prev, title: e.target.value }))}
+              placeholder="Хичээлийн нэр"
+              required
             />
-          )}
-          {formData.lesson_type === "text" && (
-            <TextFields content={formData.content} onChange={handleChange} />
-          )}
-          <PreviewToggle
-            isPreview={formData.is_preview}
-            onChange={(checked) => handleChange("is_preview", checked)}
-          />
+          </div>
+
+          <div className="space-y-2">
+            <Label htmlFor="description">Тайлбар</Label>
+            <Textarea
+              id="description"
+              value={formData.description || ""}
+              onChange={(e) => setFormData((prev) => ({ ...prev, description: e.target.value || null }))}
+              placeholder="Хичээлийн товч тайлбар..."
+              rows={3}
+            />
+          </div>
+
+          <div className="space-y-2">
+            <Label htmlFor="order_in_unit">Эрэмбэ</Label>
+            <Input
+              id="order_in_unit"
+              type="number"
+              min={0}
+              value={formData.order_in_unit}
+              onChange={(e) => setFormData((prev) => ({ ...prev, order_in_unit: parseInt(e.target.value) || 0 }))}
+              className="w-32"
+            />
+            <p className="text-xs text-gray-500">Бүлэг доторх дараалал</p>
+          </div>
         </CardContent>
       </Card>
 
       <div className="flex items-center gap-4">
         <Button type="submit" disabled={isSubmitting}>
-          {isSubmitting ? "Saving..." : isEditing ? "Update Lesson" : "Create Lesson"}
+          {isSubmitting ? "Хадгалж байна..." : isEditing ? "Шинэчлэх" : "Үүсгэх"}
         </Button>
         <Button
           type="button"
           variant="outline"
           onClick={() => router.push(formData.unit_id ? `/admin/units/${formData.unit_id}` : "/admin/lessons")}
         >
-          Cancel
+          Цуцлах
         </Button>
       </div>
     </form>

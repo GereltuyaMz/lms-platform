@@ -1,12 +1,11 @@
 import { notFound } from "next/navigation";
 import Link from "next/link";
-import { ArrowLeft, HelpCircle } from "lucide-react";
+import { ArrowLeft, Video, FileText } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { getLesson, getUnitsForSelect } from "@/lib/actions/admin/lessons";
 import { LessonForm } from "@/components/admin/lessons/LessonForm";
-import { LessonTypeIcon } from "@/components/admin/shared/LessonTypeIcon";
 
 type LessonDetailPageProps = {
   params: Promise<{ id: string }>;
@@ -23,8 +22,8 @@ export default async function LessonDetailPage({
     return (
       <div className="max-w-3xl space-y-6">
         <div>
-          <h1 className="text-2xl font-semibold text-gray-900">New Lesson</h1>
-          <p className="text-gray-500 mt-1">Create a new lesson</p>
+          <h1 className="text-2xl font-semibold text-gray-900">Шинэ хичээл</h1>
+          <p className="text-gray-500 mt-1">Шинэ хичээл үүсгэх</p>
         </div>
         <LessonForm units={units} />
       </div>
@@ -40,10 +39,14 @@ export default async function LessonDetailPage({
     notFound();
   }
 
-  const formatDuration = (seconds: number | null) => {
-    if (!seconds) return "Not set";
-    const mins = Math.floor(seconds / 60);
-    const secs = seconds % 60;
+  const getTotalDuration = () => {
+    const totalSeconds = lesson.content_blocks.reduce(
+      (acc, block) => acc + (block.duration_seconds || 0),
+      0
+    );
+    if (!totalSeconds) return "Тодорхойгүй";
+    const mins = Math.floor(totalSeconds / 60);
+    const secs = totalSeconds % 60;
     return `${mins}:${secs.toString().padStart(2, "0")}`;
   };
 
@@ -59,7 +62,7 @@ export default async function LessonDetailPage({
             }
           >
             <ArrowLeft className="h-4 w-4 mr-2" />
-            Back
+            Буцах
           </Link>
         </Button>
       </div>
@@ -74,76 +77,58 @@ export default async function LessonDetailPage({
         <div className="space-y-6">
           <Card className="border-gray-200">
             <CardHeader>
-              <CardTitle className="text-lg">Lesson Info</CardTitle>
+              <CardTitle className="text-lg">Хичээлийн мэдээлэл</CardTitle>
             </CardHeader>
             <CardContent className="space-y-3">
               <div className="flex items-center justify-between">
-                <span className="text-sm text-gray-600">Type</span>
+                <span className="text-sm text-gray-600">Контент</span>
                 <div className="flex items-center gap-2">
-                  <LessonTypeIcon type={lesson.lesson_type} />
-                  <span className="font-medium capitalize">
-                    {lesson.lesson_type}
-                  </span>
+                  {lesson.content_blocks.length > 0 ? (
+                    <>
+                      <Video className="h-4 w-4 text-gray-500" />
+                      <span className="font-medium">
+                        {lesson.content_blocks.length} блок
+                      </span>
+                    </>
+                  ) : (
+                    <>
+                      <FileText className="h-4 w-4 text-gray-400" />
+                      <span className="text-gray-400">Хоосон</span>
+                    </>
+                  )}
                 </div>
               </div>
               <div className="flex items-center justify-between">
-                <span className="text-sm text-gray-600">Duration</span>
-                <span className="font-medium">
-                  {formatDuration(lesson.duration_seconds)}
-                </span>
+                <span className="text-sm text-gray-600">Үргэлжлэх хугацаа</span>
+                <span className="font-medium">{getTotalDuration()}</span>
               </div>
               <div className="flex items-center justify-between">
-                <span className="text-sm text-gray-600">Preview</span>
-                <Badge variant={lesson.is_preview ? "default" : "secondary"}>
-                  {lesson.is_preview ? "Free" : "Locked"}
-                </Badge>
+                <span className="text-sm text-gray-600">Эрэмбэ</span>
+                <span className="font-medium">{lesson.order_in_unit ?? 0}</span>
               </div>
-              <div className="flex items-center justify-between">
-                <span className="text-sm text-gray-600">Order</span>
-                <span className="font-medium">{lesson.order_in_unit}</span>
-              </div>
+              {lesson.quiz_count > 0 && (
+                <div className="flex items-center justify-between">
+                  <span className="text-sm text-gray-600">Асуултууд</span>
+                  <Badge variant="secondary">{lesson.quiz_count} асуулт</Badge>
+                </div>
+              )}
             </CardContent>
           </Card>
-
-          {lesson.lesson_type === "quiz" && (
-            <Card className="border-gray-200">
-              <CardHeader className="flex flex-row items-center justify-between pb-2">
-                <CardTitle className="text-lg">Quiz</CardTitle>
-                <Button size="sm" asChild>
-                  <Link href={`/admin/lessons/${id}/quiz`}>
-                    <HelpCircle className="h-4 w-4 mr-1" />
-                    Edit Quiz
-                  </Link>
-                </Button>
-              </CardHeader>
-              <CardContent>
-                <div className="flex items-center justify-between">
-                  <span className="text-sm text-gray-600">Questions</span>
-                  <span className="font-medium">{lesson.quiz_count}</span>
-                </div>
-                {lesson.quiz_count === 0 && (
-                  <p className="text-sm text-gray-500 mt-3">
-                    No questions yet. Click Edit Quiz to add questions.
-                  </p>
-                )}
-              </CardContent>
-            </Card>
-          )}
 
           {lesson.unit && (
             <Card className="border-gray-200">
               <CardHeader>
-                <CardTitle className="text-lg">Location</CardTitle>
+                <CardTitle className="text-lg">Байршил</CardTitle>
               </CardHeader>
               <CardContent className="space-y-2 text-sm">
                 <div>
-                  <span className="text-gray-500">Course:</span>
+                  <span className="text-gray-500">Хичээл:</span>
                   <p className="font-medium">
-                    {lesson.unit.course?.title || "Unknown"}
+                    {lesson.unit.course?.title || "Тодорхойгүй"}
                   </p>
                 </div>
                 <div>
-                  <span className="text-gray-500">Unit:</span>
+                  <span className="text-gray-500">Бүлэг:</span>
                   <p className="font-medium">
                     {lesson.unit.title_mn || lesson.unit.title}
                   </p>
