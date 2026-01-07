@@ -1,9 +1,8 @@
 "use client";
 
-import { useState } from "react";
-import Link from "next/link";
+import { useState, useMemo } from "react";
 import { useRouter } from "next/navigation";
-import { Edit, Trash2, MoreHorizontal, FileText, Video } from "lucide-react";
+import { ArrowUpDown } from "lucide-react";
 import {
   Table,
   TableBody,
@@ -13,14 +12,6 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { Button } from "@/components/ui/button";
-import { Badge } from "@/components/ui/badge";
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuSeparator,
-  DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -33,6 +24,7 @@ import {
 } from "@/components/ui/alert-dialog";
 import { toast } from "sonner";
 import { deleteLesson, type LessonWithRelations } from "@/lib/actions/admin/lessons";
+import { LessonTableRow } from "./LessonTableRow";
 
 type LessonTableProps = {
   lessons: LessonWithRelations[];
@@ -42,33 +34,56 @@ export const LessonTable = ({ lessons }: LessonTableProps) => {
   const router = useRouter();
   const [deleteId, setDeleteId] = useState<string | null>(null);
   const [isDeleting, setIsDeleting] = useState(false);
+  const [sortField, setSortField] = useState<"course" | "unit" | null>(null);
+  const [sortDirection, setSortDirection] = useState<"asc" | "desc">("asc");
+  const [currentPage, setCurrentPage] = useState(1);
+  const pageSize = 10;
+
+  const handleSort = (field: "course" | "unit") => {
+    if (sortField === field) {
+      setSortDirection((d) => (d === "asc" ? "desc" : "asc"));
+    } else {
+      setSortField(field);
+      setSortDirection("asc");
+    }
+    setCurrentPage(1);
+  };
+
+  const sortedLessons = useMemo(() => {
+    if (!sortField) return lessons;
+    return [...lessons].sort((a, b) => {
+      const aVal =
+        sortField === "course"
+          ? a.unit?.course?.title || ""
+          : a.unit?.title_mn || a.unit?.title || "";
+      const bVal =
+        sortField === "course"
+          ? b.unit?.course?.title || ""
+          : b.unit?.title_mn || b.unit?.title || "";
+      return sortDirection === "asc"
+        ? aVal.localeCompare(bVal)
+        : bVal.localeCompare(aVal);
+    });
+  }, [lessons, sortField, sortDirection]);
+
+  const totalPages = Math.ceil(sortedLessons.length / pageSize);
+  const paginatedLessons = useMemo(() => {
+    const start = (currentPage - 1) * pageSize;
+    return sortedLessons.slice(start, start + pageSize);
+  }, [sortedLessons, currentPage]);
 
   const handleDelete = async () => {
     if (!deleteId) return;
-
     setIsDeleting(true);
     const result = await deleteLesson(deleteId);
-
     if (result.success) {
       toast.success(result.message);
       router.refresh();
     } else {
       toast.error(result.message);
     }
-
     setIsDeleting(false);
     setDeleteId(null);
-  };
-
-  const getTotalDuration = (lesson: LessonWithRelations) => {
-    const totalSeconds = lesson.content_blocks.reduce(
-      (acc, block) => acc + (block.duration_seconds || 0),
-      0
-    );
-    if (!totalSeconds) return "—";
-    const mins = Math.floor(totalSeconds / 60);
-    const secs = totalSeconds % 60;
-    return `${mins}:${secs.toString().padStart(2, "0")}`;
   };
 
   return (
@@ -78,104 +93,67 @@ export const LessonTable = ({ lessons }: LessonTableProps) => {
           <TableHeader>
             <TableRow className="bg-gray-50">
               <TableHead className="font-medium w-[300px]">Хичээл</TableHead>
-              <TableHead className="font-medium">Хичээл / Бүлэг</TableHead>
-              <TableHead className="font-medium">Контент</TableHead>
-              <TableHead className="font-medium">Үргэлжлэх хугацаа</TableHead>
+              <TableHead className="font-medium">
+                <div className="flex items-center gap-2">
+                  <span>Хичээл / Бүлэг</span>
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    className="h-6 w-6 p-0"
+                    onClick={() => handleSort("course")}
+                  >
+                    <ArrowUpDown className="h-3 w-3" />
+                  </Button>
+                </div>
+              </TableHead>
+              <TableHead className="font-medium">Нийт хугацаа</TableHead>
               <TableHead className="font-medium text-right">Үйлдэл</TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
-            {lessons.length === 0 ? (
+            {paginatedLessons.length === 0 ? (
               <TableRow>
-                <TableCell
-                  colSpan={5}
-                  className="text-center text-gray-500 py-8"
-                >
+                <TableCell colSpan={4} className="text-center text-gray-500 py-8">
                   Хичээл олдсонгүй. Эхний хичээлээ үүсгэнэ үү.
                 </TableCell>
               </TableRow>
             ) : (
-              lessons.map((lesson) => (
-                <TableRow key={lesson.id} className="hover:bg-gray-50">
-                  <TableCell>
-                    <Link
-                      href={`/admin/lessons/${lesson.id}`}
-                      className="font-medium text-gray-900 hover:text-primary"
-                    >
-                      {lesson.title}
-                    </Link>
-                    {lesson.description && (
-                      <p className="text-xs text-gray-500 truncate max-w-[250px]">
-                        {lesson.description}
-                      </p>
-                    )}
-                  </TableCell>
-                  <TableCell>
-                    <div className="text-sm">
-                      <p className="text-gray-900">
-                        {lesson.unit?.course?.title || "Хичээл байхгүй"}
-                      </p>
-                      <p className="text-gray-500 text-xs">
-                        {lesson.unit?.title_mn || lesson.unit?.title || "Бүлэг байхгүй"}
-                      </p>
-                    </div>
-                  </TableCell>
-                  <TableCell>
-                    <div className="flex items-center gap-2">
-                      {lesson.content_blocks.length > 0 ? (
-                        <>
-                          <Video className="h-4 w-4 text-gray-500" />
-                          <span className="text-sm">
-                            {lesson.content_blocks.length} контент
-                          </span>
-                        </>
-                      ) : (
-                        <>
-                          <FileText className="h-4 w-4 text-gray-400" />
-                          <span className="text-sm text-gray-400">Хоосон</span>
-                        </>
-                      )}
-                      {lesson.quiz_count > 0 && (
-                        <Badge variant="secondary" className="text-xs">
-                          {lesson.quiz_count} асуулт
-                        </Badge>
-                      )}
-                    </div>
-                  </TableCell>
-                  <TableCell className="text-gray-600">
-                    {getTotalDuration(lesson)}
-                  </TableCell>
-                  <TableCell className="text-right">
-                    <DropdownMenu>
-                      <DropdownMenuTrigger asChild>
-                        <Button variant="ghost" size="sm">
-                          <MoreHorizontal className="h-4 w-4" />
-                        </Button>
-                      </DropdownMenuTrigger>
-                      <DropdownMenuContent align="end">
-                        <DropdownMenuItem asChild>
-                          <Link href={`/admin/lessons/${lesson.id}`}>
-                            <Edit className="h-4 w-4 mr-2" />
-                            Засах
-                          </Link>
-                        </DropdownMenuItem>
-                        <DropdownMenuSeparator />
-                        <DropdownMenuItem
-                          onClick={() => setDeleteId(lesson.id)}
-                          className="text-red-600 focus:text-red-600"
-                        >
-                          <Trash2 className="h-4 w-4 mr-2" />
-                          Устгах
-                        </DropdownMenuItem>
-                      </DropdownMenuContent>
-                    </DropdownMenu>
-                  </TableCell>
-                </TableRow>
+              paginatedLessons.map((lesson) => (
+                <LessonTableRow
+                  key={lesson.id}
+                  lesson={lesson}
+                  onRowClick={(id) => router.push(`/admin/lessons/${id}`)}
+                  onDelete={setDeleteId}
+                />
               ))
             )}
           </TableBody>
         </Table>
       </div>
+
+      {totalPages > 1 && (
+        <div className="flex items-center justify-center gap-2 py-4">
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={() => setCurrentPage((p) => p - 1)}
+            disabled={currentPage <= 1}
+          >
+            Өмнөх
+          </Button>
+          <span className="text-sm text-gray-600">
+            {currentPage} / {totalPages}
+          </span>
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={() => setCurrentPage((p) => p + 1)}
+            disabled={currentPage >= totalPages}
+          >
+            Дараах
+          </Button>
+        </div>
+      )}
 
       <AlertDialog open={!!deleteId} onOpenChange={() => setDeleteId(null)}>
         <AlertDialogContent>

@@ -5,7 +5,6 @@ import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Textarea } from "@/components/ui/textarea";
 import {
   Select,
   SelectContent,
@@ -36,9 +35,10 @@ export const UnitForm = ({ unit, courses, defaultCourseId }: UnitFormProps) => {
   const [formData, setFormData] = useState<UnitFormData>({
     course_id: unit?.course_id || defaultCourseId || "",
     title: unit?.title || "",
-    title_mn: unit?.title_mn || "",
-    description: unit?.description || "",
+    title_mn: unit?.title_mn || null,
+    description: unit?.description || null,
     order_index: unit?.order_index || 0,
+    unit_content: unit?.unit_content || null,
   });
 
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -47,12 +47,12 @@ export const UnitForm = ({ unit, courses, defaultCourseId }: UnitFormProps) => {
     e.preventDefault();
 
     if (!formData.course_id) {
-      toast.error("Please select a course");
+      toast.error("Хичээл сонгоно уу");
       return;
     }
 
     if (!formData.title.trim()) {
-      toast.error("Title is required");
+      toast.error("Гарчиг оруулна уу");
       return;
     }
 
@@ -84,19 +84,19 @@ export const UnitForm = ({ unit, courses, defaultCourseId }: UnitFormProps) => {
       <Card className="border-gray-200">
         <CardHeader>
           <CardTitle className="text-lg">
-            {isEditing ? "Edit Unit" : "New Unit"}
+            {isEditing ? "Бүлэг засах" : "Шинэ бүлэг"}
           </CardTitle>
         </CardHeader>
         <CardContent className="space-y-6">
           <div className="space-y-2">
-            <Label htmlFor="course_id">Course</Label>
+            <Label htmlFor="course_id">Хичээл</Label>
             <Select
               value={formData.course_id}
               onValueChange={(value) => handleChange("course_id", value)}
               disabled={isEditing}
             >
               <SelectTrigger>
-                <SelectValue placeholder="Select course" />
+                <SelectValue placeholder="Хичээл сонгох" />
               </SelectTrigger>
               <SelectContent>
                 {courses.map((course) => (
@@ -108,46 +108,34 @@ export const UnitForm = ({ unit, courses, defaultCourseId }: UnitFormProps) => {
             </Select>
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-            <div className="space-y-2">
-              <Label htmlFor="title">Title (English)</Label>
-              <Input
-                id="title"
-                value={formData.title}
-                onChange={(e) => handleChange("title", e.target.value)}
-                placeholder="e.g., Introduction to Algebra"
-                required
-              />
-            </div>
-
-            <div className="space-y-2">
-              <Label htmlFor="title_mn">Title (Mongolian)</Label>
-              <Input
-                id="title_mn"
-                value={formData.title_mn || ""}
-                onChange={(e) =>
-                  handleChange("title_mn", e.target.value || null)
-                }
-                placeholder="e.g., Алгебрын үндэс"
-              />
-            </div>
-          </div>
-
           <div className="space-y-2">
-            <Label htmlFor="description">Description</Label>
-            <Textarea
-              id="description"
-              value={formData.description || ""}
-              onChange={(e) =>
-                handleChange("description", e.target.value || null)
-              }
-              placeholder="Brief description of this unit..."
-              rows={3}
+            <Label htmlFor="title">Гарчиг</Label>
+            <Input
+              id="title"
+              value={formData.title}
+              onChange={(e) => handleChange("title", e.target.value)}
+              placeholder="Бүлгийн нэр"
+              required
             />
           </div>
 
           <div className="space-y-2">
-            <Label htmlFor="order_index">Sort Order</Label>
+            <Label htmlFor="unit_content">Агуулга</Label>
+            <Input
+              id="unit_content"
+              value={formData.unit_content || ""}
+              onChange={(e) =>
+                handleChange("unit_content", e.target.value || null)
+              }
+              placeholder="жишээ нь: ТОО ТООЛОЛ, АЛГЕБР"
+            />
+            <p className="text-xs text-gray-500">
+              Бүлгийг агуулгын хэсэгт бүлэглэх
+            </p>
+          </div>
+
+          <div className="space-y-2">
+            <Label htmlFor="order_index">Эрэмбэ</Label>
             <Input
               id="order_index"
               type="number"
@@ -158,16 +146,16 @@ export const UnitForm = ({ unit, courses, defaultCourseId }: UnitFormProps) => {
               }
               className="w-32"
             />
-            <p className="text-xs text-gray-500">Lower numbers appear first</p>
+            <p className="text-xs text-gray-500">Бага тоо эхэнд харагдана</p>
           </div>
 
           <div className="flex items-center gap-4 pt-4 border-t">
             <Button type="submit" disabled={isSubmitting}>
               {isSubmitting
-                ? "Saving..."
+                ? "Хадгалж байна..."
                 : isEditing
-                ? "Update Unit"
-                : "Create Unit"}
+                ? "Шинэчлэх"
+                : "Үүсгэх"}
             </Button>
             <Button
               type="button"
@@ -180,7 +168,7 @@ export const UnitForm = ({ unit, courses, defaultCourseId }: UnitFormProps) => {
                 )
               }
             >
-              Cancel
+              Цуцлах
             </Button>
           </div>
         </CardContent>

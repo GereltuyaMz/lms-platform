@@ -14,6 +14,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import { formatDateSimple } from "@/lib/utils/formatters";
 import type { CourseWithRelations } from "@/lib/actions/admin/courses";
 
 type CourseTableRowProps = {
@@ -21,15 +22,6 @@ type CourseTableRowProps = {
   onTogglePublish: (id: string) => void;
   onDelete: (id: string) => void;
   isToggling: boolean;
-};
-
-const formatDate = (dateString: string) => {
-  const date = new Date(dateString);
-  return date.toLocaleDateString("mn-MN", {
-    year: "numeric",
-    month: "2-digit",
-    day: "2-digit",
-  });
 };
 
 export const CourseTableRow = ({
@@ -134,8 +126,8 @@ export const CourseTableRow = ({
       </TableCell>
       <TableCell>
         <div className="text-xs text-gray-500 space-y-0.5">
-          <p>Үүсгэсэн: {formatDate(course.created_at)}</p>
-          <p>Засварласан: {formatDate(course.updated_at)}</p>
+          <p>Үүсгэсэн: {formatDateSimple(course.created_at)}</p>
+          <p>Засварласан: {formatDateSimple(course.updated_at)}</p>
         </div>
       </TableCell>
       <TableCell className="text-right" onClick={(e) => e.stopPropagation()}>

@@ -39,7 +39,6 @@ export interface Unit {
   description: string | null;
   slug: string;
   order_index: number;
-  difficulty_level: string | null;
   unit_content: string | null;
   created_at: string;
   updated_at: string;

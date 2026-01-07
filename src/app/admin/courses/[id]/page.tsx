@@ -3,6 +3,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { getCourse, getTeachers } from "@/lib/actions/admin/courses";
 import { getCategories } from "@/lib/actions/admin/categories";
+import { getUnitContentSuggestions } from "@/lib/actions/admin/units";
 import { CourseForm } from "@/components/admin/courses/CourseForm";
 import { UnitList } from "@/components/admin/units";
 import { createClient } from "@/lib/supabase/server";
@@ -53,11 +54,12 @@ export default async function CourseDetailPage({
     );
   }
 
-  const [course, categories, teachers, units] = await Promise.all([
+  const [course, categories, teachers, units, suggestions] = await Promise.all([
     getCourse(id),
     getCategories(),
     getTeachers(),
     getCourseUnits(id),
+    getUnitContentSuggestions(id),
   ]);
 
   if (!course) {
@@ -87,7 +89,9 @@ export default async function CourseDetailPage({
               description: u.description,
               order_index: u.order_index,
               lessons_count: u.lessons?.[0]?.count || 0,
+              unit_content: u.unit_content,
             }))}
+            suggestions={suggestions}
           />
 
           <Card className="border-gray-200">

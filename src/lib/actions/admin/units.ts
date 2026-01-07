@@ -16,6 +16,7 @@ export type UnitFormData = {
   title_mn: string | null;
   description: string | null;
   order_index: number;
+  unit_content: string | null;
 };
 
 export async function getUnits(): Promise<UnitWithRelations[]> {
@@ -138,6 +139,7 @@ export async function createUnit(
       description: formData.description,
       slug,
       order_index: formData.order_index,
+      unit_content: formData.unit_content,
     })
     .select()
     .single();
@@ -168,6 +170,7 @@ export async function updateUnit(
       description: formData.description,
       slug,
       order_index: formData.order_index,
+      unit_content: formData.unit_content,
     })
     .eq("id", id)
     .select()
@@ -237,4 +240,109 @@ export async function reorderUnits(
   revalidatePath("/admin/units");
   revalidatePath(`/admin/courses/${courseId}`);
   return { success: true, message: "Units reordered successfully" };
+}
+
+export async function getUnitContentSuggestions(
+  courseId: string
+): Promise<string[]> {
+  const supabase = await createClient();
+
+  const { data, error } = await supabase
+    .from("units")
+    .select("unit_content")
+    .eq("course_id", courseId)
+    .not("unit_content", "is", null)
+    .order("order_index", { ascending: true });
+
+  if (error) return [];
+
+  const seen = new Set<string>();
+  return (data || [])
+    .map((u) => u.unit_content)
+    .filter((content): content is string => {
+      if (content && !seen.has(content)) {
+        seen.add(content);
+        return true;
+      }
+      return false;
+    });
+}
+
+// Types for accordion table view
+export type CourseWithUnitSummary = {
+  id: string;
+  title: string;
+  units_count: number;
+  lessons_count: number;
+  units: Array<{
+    id: string;
+    order_index: number;
+    title: string;
+    title_mn: string | null;
+    unit_content: string | null;
+    lessons_count: number;
+  }>;
+};
+
+export async function getCoursesWithUnitSummary(): Promise<{
+  courses: CourseWithUnitSummary[];
+}> {
+  const supabase = await createClient();
+
+  const { data: courses, error } = await supabase
+    .from("courses")
+    .select(
+      `
+      id,
+      title,
+      units (
+        id,
+        title,
+        title_mn,
+        order_index,
+        unit_content,
+        lessons (id)
+      )
+    `
+    )
+    .order("title", { ascending: true });
+
+  if (error) throw new Error(error.message);
+
+  const transformedCourses: CourseWithUnitSummary[] = (courses || []).map(
+    (course) => {
+      const units = (course.units || []) as Array<{
+        id: string;
+        title: string;
+        title_mn: string | null;
+        order_index: number;
+        unit_content: string | null;
+        lessons: Array<{ id: string }>;
+      }>;
+
+      const sortedUnits = [...units].sort(
+        (a, b) => a.order_index - b.order_index
+      );
+
+      return {
+        id: course.id,
+        title: course.title,
+        units_count: units.length,
+        lessons_count: units.reduce(
+          (acc, unit) => acc + (unit.lessons?.length || 0),
+          0
+        ),
+        units: sortedUnits.map((unit) => ({
+          id: unit.id,
+          order_index: unit.order_index,
+          title: unit.title,
+          title_mn: unit.title_mn,
+          unit_content: unit.unit_content,
+          lessons_count: unit.lessons?.length || 0,
+        })),
+      };
+    }
+  );
+
+  return { courses: transformedCourses };
 }

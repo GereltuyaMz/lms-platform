@@ -4,7 +4,7 @@
  */
 
 /**
- * Format date in Mongolian format
+ * Format date in Mongolian format (locale-safe to avoid SSR hydration issues)
  * @param date - Date string or Date object
  * @param format - Format type: 'short' | 'medium' | 'long' | 'relative'
  * @returns Formatted date string in Mongolian
@@ -23,13 +23,44 @@ export function formatDateMongolian(
     return formatRelativeTime(dateObj);
   }
 
-  const options: Intl.DateTimeFormatOptions = {
-    year: "numeric",
-    month: format === "short" ? "numeric" : format === "medium" ? "short" : "long",
-    day: "numeric",
-  };
+  const year = dateObj.getFullYear();
+  const month = dateObj.getMonth();
+  const day = dateObj.getDate();
 
-  return dateObj.toLocaleDateString("mn-MN", options);
+  const monthNames = [
+    "1-р сар", "2-р сар", "3-р сар", "4-р сар", "5-р сар", "6-р сар",
+    "7-р сар", "8-р сар", "9-р сар", "10-р сар", "11-р сар", "12-р сар"
+  ];
+
+  const monthNamesLong = [
+    "Нэгдүгээр сар", "Хоёрдугаар сар", "Гуравдугаар сар", "Дөрөвдүгээр сар",
+    "Тавдугаар сар", "Зургадугаар сар", "Долдугаар сар", "Наймдугаар сар",
+    "Есдүгээр сар", "Аравдугаар сар", "Арван нэгдүгээр сар", "Арван хоёрдугаар сар"
+  ];
+
+  if (format === "short") {
+    return `${year}.${String(month + 1).padStart(2, "0")}.${String(day).padStart(2, "0")}`;
+  } else if (format === "medium") {
+    return `${year} оны ${monthNames[month]} ${day}`;
+  } else {
+    return `${year} оны ${monthNamesLong[month]}ын ${day}`;
+  }
+}
+
+/**
+ * Format date in simple YYYY.MM.DD format (safe for SSR)
+ */
+export function formatDateSimple(date: string | Date): string {
+  const dateObj = typeof date === "string" ? new Date(date) : date;
+
+  if (isNaN(dateObj.getTime())) {
+    return "";
+  }
+
+  const year = dateObj.getFullYear();
+  const month = String(dateObj.getMonth() + 1).padStart(2, "0");
+  const day = String(dateObj.getDate()).padStart(2, "0");
+  return `${year}.${month}.${day}`;
 }
 
 /**

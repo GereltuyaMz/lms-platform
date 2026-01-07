@@ -4,14 +4,21 @@ import { useState, useEffect, useRef } from "react";
 import { Check, X, Loader2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Textarea } from "@/components/ui/textarea";
 import { toast } from "sonner";
 import { createUnit, updateUnit, type UnitFormData } from "@/lib/actions/admin/units";
+import { UnitContentInput } from "./UnitContentInput";
 
 type UnitInlineFormProps = {
   courseId: string;
-  unit?: { id: string; title: string; description: string | null; order_index: number } | null;
+  unit?: {
+    id: string;
+    title: string;
+    description: string | null;
+    order_index: number;
+    unit_content: string | null;
+  } | null;
   nextOrderIndex: number;
+  suggestions: string[];
   onSuccess: () => void;
   onCancel: () => void;
 };
@@ -20,6 +27,7 @@ export const UnitInlineForm = ({
   courseId,
   unit,
   nextOrderIndex,
+  suggestions,
   onSuccess,
   onCancel,
 }: UnitInlineFormProps) => {
@@ -28,7 +36,7 @@ export const UnitInlineForm = ({
 
   const [formData, setFormData] = useState({
     title: unit?.title || "",
-    description: unit?.description || "",
+    unit_content: unit?.unit_content || "",
   });
   const [isSubmitting, setIsSubmitting] = useState(false);
 
@@ -60,8 +68,9 @@ export const UnitInlineForm = ({
       course_id: courseId,
       title: formData.title.trim(),
       title_mn: null,
-      description: formData.description.trim() || null,
+      description: null,
       order_index: isEditing ? unit.order_index : nextOrderIndex,
+      unit_content: formData.unit_content.trim() || null,
     };
 
     const result = isEditing
@@ -89,12 +98,10 @@ export const UnitInlineForm = ({
           className="h-9"
           disabled={isSubmitting}
         />
-        <Textarea
-          value={formData.description}
-          onChange={(e) => setFormData((prev) => ({ ...prev, description: e.target.value }))}
-          placeholder="Тайлбар (заавал биш)"
-          className="min-h-[60px] resize-none text-sm"
-          rows={2}
+        <UnitContentInput
+          value={formData.unit_content}
+          onChange={(value) => setFormData((prev) => ({ ...prev, unit_content: value }))}
+          suggestions={suggestions}
           disabled={isSubmitting}
         />
         <div className="flex items-center gap-2">
