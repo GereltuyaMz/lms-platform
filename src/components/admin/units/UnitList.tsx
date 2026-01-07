@@ -41,14 +41,36 @@ type UnitData = {
   description: string | null;
   order_index: number;
   lessons_count: number;
+  unit_content: string | null;
 };
 
 type UnitListProps = {
   courseId: string;
   initialUnits: UnitData[];
+  suggestions: string[];
 };
 
-export const UnitList = ({ courseId, initialUnits }: UnitListProps) => {
+type UnitGroup = {
+  content: string | null;
+  units: UnitData[];
+};
+
+const groupUnitsByContent = (units: UnitData[]): UnitGroup[] => {
+  const groups: UnitGroup[] = [];
+  let currentGroup: UnitGroup | null = null;
+
+  for (const unit of units) {
+    if (!currentGroup || currentGroup.content !== unit.unit_content) {
+      currentGroup = { content: unit.unit_content, units: [] };
+      groups.push(currentGroup);
+    }
+    currentGroup.units.push(unit);
+  }
+
+  return groups;
+};
+
+export const UnitList = ({ courseId, initialUnits, suggestions }: UnitListProps) => {
   const dndId = useId();
   const [localUnits, setLocalUnits] = useState<UnitData[]>(initialUnits);
   const [editingId, setEditingId] = useState<string | null>(null);
@@ -127,6 +149,7 @@ export const UnitList = ({ courseId, initialUnits }: UnitListProps) => {
             <UnitInlineForm
               courseId={courseId}
               nextOrderIndex={nextOrderIndex}
+              suggestions={suggestions}
               onSuccess={handleCreateSuccess}
               onCancel={() => setEditingId(null)}
             />
@@ -137,24 +160,43 @@ export const UnitList = ({ courseId, initialUnits }: UnitListProps) => {
               Бүлэг байхгүй байна. Эхний бүлгээ нэмнэ үү.
             </p>
           ) : (
-            <div className="p-4 space-y-2">
-              <DndContext id={dndId} sensors={sensors} collisionDetection={closestCenter} onDragEnd={handleDragEnd}>
-                <SortableContext items={localUnits.map((u) => u.id)} strategy={verticalListSortingStrategy}>
-                  {localUnits.map((unit, index) => (
-                    <SortableUnitRow
-                      key={unit.id}
-                      unit={unit}
-                      index={index}
-                      isEditing={editingId === unit.id}
-                      onEdit={() => setEditingId(unit.id)}
-                      onDelete={() => setDeleteId(unit.id)}
-                      onEditCancel={() => setEditingId(null)}
-                      onEditSuccess={handleEditSuccess}
-                      courseId={courseId}
-                    />
-                  ))}
-                </SortableContext>
-              </DndContext>
+            <div className="max-h-[500px] overflow-y-auto">
+              <div className="p-4 space-y-4">
+                <DndContext id={dndId} sensors={sensors} collisionDetection={closestCenter} onDragEnd={handleDragEnd}>
+                  <SortableContext items={localUnits.map((u) => u.id)} strategy={verticalListSortingStrategy}>
+                    {groupUnitsByContent(localUnits).map((group, groupIndex) => (
+                      <div key={`group-${groupIndex}`} className="space-y-2">
+                        {group.content && (
+                          <div className="flex items-center gap-2 py-2 px-1">
+                            <div className="h-px flex-1 bg-gray-200" />
+                            <span className="text-xs font-medium text-gray-500 uppercase tracking-wide whitespace-nowrap">
+                              {group.content}
+                            </span>
+                            <div className="h-px flex-1 bg-gray-200" />
+                          </div>
+                        )}
+                        {group.units.map((unit) => {
+                          const globalIndex = localUnits.findIndex((u) => u.id === unit.id);
+                          return (
+                            <SortableUnitRow
+                              key={unit.id}
+                              unit={unit}
+                              index={globalIndex}
+                              isEditing={editingId === unit.id}
+                              onEdit={() => setEditingId(unit.id)}
+                              onDelete={() => setDeleteId(unit.id)}
+                              onEditCancel={() => setEditingId(null)}
+                              onEditSuccess={handleEditSuccess}
+                              courseId={courseId}
+                              suggestions={suggestions}
+                            />
+                          );
+                        })}
+                      </div>
+                    ))}
+                  </SortableContext>
+                </DndContext>
+              </div>
             </div>
           )}
         </CardContent>

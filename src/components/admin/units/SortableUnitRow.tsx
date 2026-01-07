@@ -14,6 +14,7 @@ type UnitData = {
   description: string | null;
   lessons_count: number;
   order_index: number;
+  unit_content: string | null;
 };
 
 type SortableUnitRowProps = {
@@ -25,6 +26,7 @@ type SortableUnitRowProps = {
   onEditCancel: () => void;
   onEditSuccess: () => void;
   courseId: string;
+  suggestions: string[];
 };
 
 export const SortableUnitRow = ({
@@ -36,6 +38,7 @@ export const SortableUnitRow = ({
   onEditCancel,
   onEditSuccess,
   courseId,
+  suggestions,
 }: SortableUnitRowProps) => {
   const { attributes, listeners, setNodeRef, transform, transition, isDragging } = useSortable({
     id: unit.id,
@@ -53,6 +56,7 @@ export const SortableUnitRow = ({
           courseId={courseId}
           unit={unit}
           nextOrderIndex={unit.order_index}
+          suggestions={suggestions}
           onSuccess={onEditSuccess}
           onCancel={onEditCancel}
         />
