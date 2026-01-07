@@ -1,11 +1,10 @@
 import { notFound } from "next/navigation";
 import Link from "next/link";
-import { ArrowLeft, Plus } from "lucide-react";
+import { ArrowLeft, Plus, FileText } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { getUnit, getCoursesForSelect } from "@/lib/actions/admin/units";
 import { UnitForm } from "@/components/admin/units/UnitForm";
-import { LessonTypeIcon } from "@/components/admin/shared/LessonTypeIcon";
 
 type UnitDetailPageProps = {
   params: Promise<{ id: string }>;
@@ -19,8 +18,8 @@ export default async function UnitDetailPage({ params }: UnitDetailPageProps) {
     return (
       <div className="max-w-2xl space-y-6">
         <div>
-          <h1 className="text-2xl font-semibold text-gray-900">New Unit</h1>
-          <p className="text-gray-500 mt-1">Create a new unit for a course</p>
+          <h1 className="text-2xl font-semibold text-gray-900">Шинэ бүлэг</h1>
+          <p className="text-gray-500 mt-1">Хичээлд шинэ бүлэг үүсгэх</p>
         </div>
         <UnitForm courses={courses} />
       </div>
@@ -47,7 +46,7 @@ export default async function UnitDetailPage({ params }: UnitDetailPageProps) {
         <Button variant="ghost" size="sm" asChild>
           <Link href={`/admin/courses/${unit.course_id}`}>
             <ArrowLeft className="h-4 w-4 mr-2" />
-            Back to Course
+            Хичээл рүү буцах
           </Link>
         </Button>
       </div>
@@ -62,18 +61,18 @@ export default async function UnitDetailPage({ params }: UnitDetailPageProps) {
         <div className="space-y-6">
           <Card className="border-gray-200">
             <CardHeader className="flex flex-row items-center justify-between pb-2">
-              <CardTitle className="text-lg">Lessons</CardTitle>
+              <CardTitle className="text-lg">Хичээлүүд</CardTitle>
               <Button size="sm" asChild>
                 <Link href={`/admin/lessons/new?unit=${id}`}>
                   <Plus className="h-4 w-4 mr-1" />
-                  Add
+                  Нэмэх
                 </Link>
               </Button>
             </CardHeader>
             <CardContent>
               {sortedLessons.length === 0 ? (
                 <p className="text-sm text-gray-500 py-4 text-center">
-                  No lessons yet. Add your first lesson.
+                  Хичээл байхгүй. Эхний хичээлээ нэмнэ үү.
                 </p>
               ) : (
                 <div className="space-y-2">
@@ -92,10 +91,8 @@ export default async function UnitDetailPage({ params }: UnitDetailPageProps) {
                             {lesson.title}
                           </p>
                           <div className="flex items-center gap-2 text-xs text-gray-500">
-                            <LessonTypeIcon type={lesson.lesson_type} />
-                            <span className="capitalize">
-                              {lesson.lesson_type}
-                            </span>
+                            <FileText className="h-3 w-3" />
+                            <span>Хичээл</span>
                           </div>
                         </div>
                       </div>
@@ -108,21 +105,21 @@ export default async function UnitDetailPage({ params }: UnitDetailPageProps) {
 
           <Card className="border-gray-200">
             <CardHeader>
-              <CardTitle className="text-lg">Unit Info</CardTitle>
+              <CardTitle className="text-lg">Бүлгийн мэдээлэл</CardTitle>
             </CardHeader>
             <CardContent className="space-y-3">
               <div className="flex items-center justify-between">
-                <span className="text-sm text-gray-600">Course</span>
+                <span className="text-sm text-gray-600">Хичээл</span>
                 <span className="font-medium text-sm">
-                  {unit.course?.title || "Unknown"}
+                  {unit.course?.title || "Тодорхойгүй"}
                 </span>
               </div>
               <div className="flex items-center justify-between">
-                <span className="text-sm text-gray-600">Lessons</span>
+                <span className="text-sm text-gray-600">Хичээлүүд</span>
                 <span className="font-medium">{unit.lessons_count}</span>
               </div>
               <div className="flex items-center justify-between">
-                <span className="text-sm text-gray-600">Order</span>
+                <span className="text-sm text-gray-600">Эрэмбэ</span>
                 <span className="font-medium">{unit.order_index}</span>
               </div>
             </CardContent>

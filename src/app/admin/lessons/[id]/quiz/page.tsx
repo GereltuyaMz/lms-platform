@@ -24,27 +24,6 @@ export default async function QuizBuilderPage({
     notFound();
   }
 
-  if (lesson.lesson_type !== "quiz") {
-    return (
-      <div className="space-y-6">
-        <div className="flex items-center gap-4">
-          <Button variant="ghost" size="sm" asChild>
-            <Link href={`/admin/lessons/${lessonId}`}>
-              <ArrowLeft className="h-4 w-4 mr-2" />
-              Back to Lesson
-            </Link>
-          </Button>
-        </div>
-        <div className="rounded-lg border border-gray-200 bg-white p-8 text-center">
-          <p className="text-gray-500">
-            This lesson is not a quiz type. Change the lesson type to quiz to
-            add questions.
-          </p>
-        </div>
-      </div>
-    );
-  }
-
   return (
     <div className="space-y-6">
       <div className="flex items-center justify-between">
@@ -52,12 +31,12 @@ export default async function QuizBuilderPage({
           <Button variant="ghost" size="sm" asChild>
             <Link href={`/admin/lessons/${lessonId}`}>
               <ArrowLeft className="h-4 w-4 mr-2" />
-              Back
+              Буцах
             </Link>
           </Button>
           <div>
             <h1 className="text-2xl font-semibold text-gray-900">
-              Quiz Builder
+              Асуулт бүтээгч
             </h1>
             <p className="text-gray-500 mt-1">{lesson.title}</p>
           </div>
