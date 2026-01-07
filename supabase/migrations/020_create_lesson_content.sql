@@ -8,7 +8,7 @@
 -- =====================================================
 -- CREATE CONTENT_TYPE ENUM
 -- =====================================================
-CREATE TYPE content_type AS ENUM ('theory', 'easy_example', 'hard_example', 'text', 'attachment');
+CREATE TYPE content_type AS ENUM ('theory', 'example', 'text', 'attachment');
 
 -- =====================================================
 -- LESSON CONTENT TABLE
@@ -22,7 +22,7 @@ CREATE TABLE lesson_content (
   id UUID DEFAULT uuid_generate_v4() PRIMARY KEY,
   lesson_id UUID REFERENCES lessons(id) ON DELETE CASCADE NOT NULL,
   title TEXT NOT NULL,                -- Content title (e.g., "Теори", "Хялбар жишээ")
-  content_type content_type NOT NULL, -- theory, easy_example, hard_example, text, attachment
+  content_type content_type NOT NULL, -- theory, example, text, attachment
   video_url TEXT,                     -- For video content
   content TEXT,                       -- For text/markdown content
   duration_seconds INTEGER,           -- Video duration

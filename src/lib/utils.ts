@@ -203,3 +203,35 @@ export const formatDifficultyLevel = (level: string | null): string => {
   };
   return level ? mapping[level] || level : "";
 };
+
+/**
+ * Validate if a URL is a valid YouTube or Vimeo video URL
+ */
+export const isValidVideoUrl = (url: string): boolean => {
+  if (!url || url.trim() === "") return false;
+
+  // YouTube patterns: youtube.com/watch?v=... or youtu.be/...
+  const youtubePattern = /^(https?:\/\/)?(www\.)?(youtube\.com\/watch\?v=|youtu\.be\/).+$/;
+
+  // Vimeo pattern: vimeo.com/...
+  const vimeoPattern = /^(https?:\/\/)?(www\.)?vimeo\.com\/.+$/;
+
+  return youtubePattern.test(url) || vimeoPattern.test(url);
+};
+
+/**
+ * Extract video ID from YouTube or Vimeo URL for future thumbnail fetching
+ */
+export const extractVideoId = (url: string): string | null => {
+  if (!url) return null;
+
+  // Extract YouTube ID from youtube.com/watch?v=... or youtu.be/...
+  const youtubeMatch = url.match(/(?:youtube\.com\/watch\?v=|youtu\.be\/)([^&?]+)/);
+  if (youtubeMatch) return youtubeMatch[1];
+
+  // Extract Vimeo ID from vimeo.com/...
+  const vimeoMatch = url.match(/vimeo\.com\/(\d+)/);
+  if (vimeoMatch) return vimeoMatch[1];
+
+  return null;
+};
