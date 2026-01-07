@@ -284,26 +284,11 @@ export type CourseWithUnitSummary = {
   }>;
 };
 
-export type PaginatedCoursesWithUnits = {
+export async function getCoursesWithUnitSummary(): Promise<{
   courses: CourseWithUnitSummary[];
-  totalCount: number;
-  totalPages: number;
-  currentPage: number;
-};
-
-export async function getCoursesWithUnitSummary(
-  page: number = 1,
-  pageSize: number = 8
-): Promise<PaginatedCoursesWithUnits> {
+}> {
   const supabase = await createClient();
-  const offset = (page - 1) * pageSize;
 
-  // Get total course count
-  const { count } = await supabase
-    .from("courses")
-    .select("*", { count: "exact", head: true });
-
-  // Get paginated courses with units and lessons
   const { data: courses, error } = await supabase
     .from("courses")
     .select(
@@ -320,12 +305,10 @@ export async function getCoursesWithUnitSummary(
       )
     `
     )
-    .order("title", { ascending: true })
-    .range(offset, offset + pageSize - 1);
+    .order("title", { ascending: true });
 
   if (error) throw new Error(error.message);
 
-  // Transform to include counts
   const transformedCourses: CourseWithUnitSummary[] = (courses || []).map(
     (course) => {
       const units = (course.units || []) as Array<{
@@ -361,10 +344,5 @@ export async function getCoursesWithUnitSummary(
     }
   );
 
-  return {
-    courses: transformedCourses,
-    totalCount: count || 0,
-    totalPages: Math.ceil((count || 0) / pageSize),
-    currentPage: page,
-  };
+  return { courses: transformedCourses };
 }

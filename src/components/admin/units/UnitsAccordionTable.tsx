@@ -2,9 +2,8 @@
 
 import Link from "next/link";
 import { useState } from "react";
-import { useRouter, useSearchParams } from "next/navigation";
+import { useRouter } from "next/navigation";
 import { ChevronRight, ChevronDown, BookOpen, Layers } from "lucide-react";
-import { Button } from "@/components/ui/button";
 import {
   Accordion,
   AccordionContent,
@@ -16,13 +15,10 @@ import {
   CollapsibleContent,
   CollapsibleTrigger,
 } from "@/components/ui/collapsible";
-import { cn } from "@/lib/utils";
 import type { CourseWithUnitSummary } from "@/lib/actions/admin/units";
 
 type UnitsAccordionTableProps = {
   courses: CourseWithUnitSummary[];
-  currentPage: number;
-  totalPages: number;
 };
 
 type UnitItem = CourseWithUnitSummary["units"][number];
@@ -108,17 +104,8 @@ const UnitContentGroup = ({
 
 export const UnitsAccordionTable = ({
   courses,
-  currentPage,
-  totalPages,
 }: UnitsAccordionTableProps) => {
   const router = useRouter();
-  const searchParams = useSearchParams();
-
-  const handlePageChange = (page: number) => {
-    const params = new URLSearchParams(searchParams.toString());
-    params.set("page", page.toString());
-    router.push(`/admin/units?${params.toString()}`);
-  };
 
   const handleUnitClick = (unitId: string) => {
     router.push(`/admin/units/${unitId}`);
@@ -141,9 +128,8 @@ export const UnitsAccordionTable = ({
   }
 
   return (
-    <div className="space-y-4">
-      <div className="rounded-lg border border-gray-200 bg-white overflow-hidden">
-        {/* Table Header */}
+    <div className="rounded-lg border border-gray-200 bg-white overflow-hidden">
+      {/* Table Header */}
         <div className="grid grid-cols-12 gap-4 px-4 py-3 bg-gray-50 border-b border-gray-200 text-sm font-medium text-gray-600">
           <div className="col-span-5">Хичээл</div>
           <div className="col-span-2 text-center">Бүлэг</div>
@@ -257,49 +243,6 @@ export const UnitsAccordionTable = ({
             );
           })}
         </Accordion>
-      </div>
-
-      {/* Pagination */}
-      {totalPages > 1 && (
-        <div className="flex items-center justify-center gap-2">
-          <Button
-            variant="outline"
-            size="sm"
-            onClick={() => handlePageChange(currentPage - 1)}
-            disabled={currentPage <= 1}
-            className="text-xs"
-          >
-            Өмнөх
-          </Button>
-
-          <div className="flex items-center gap-1">
-            {Array.from({ length: totalPages }, (_, i) => i + 1).map((page) => (
-              <Button
-                key={page}
-                variant={page === currentPage ? "default" : "ghost"}
-                size="sm"
-                onClick={() => handlePageChange(page)}
-                className={cn(
-                  "h-8 w-8 p-0 text-xs",
-                  page === currentPage && "pointer-events-none"
-                )}
-              >
-                {page}
-              </Button>
-            ))}
-          </div>
-
-          <Button
-            variant="outline"
-            size="sm"
-            onClick={() => handlePageChange(currentPage + 1)}
-            disabled={currentPage >= totalPages}
-            className="text-xs"
-          >
-            Дараах
-          </Button>
-        </div>
-      )}
     </div>
   );
 };

@@ -1,16 +1,8 @@
 import { getCoursesWithUnitSummary } from "@/lib/actions/admin/units";
 import { UnitsAccordionTable } from "@/components/admin/units/UnitsAccordionTable";
 
-type UnitsPageProps = {
-  searchParams: Promise<{ page?: string }>;
-};
-
-export default async function UnitsPage({ searchParams }: UnitsPageProps) {
-  const params = await searchParams;
-  const page = parseInt(params.page || "1", 10);
-
-  const { courses, currentPage, totalPages } =
-    await getCoursesWithUnitSummary(page);
+export default async function UnitsPage() {
+  const { courses } = await getCoursesWithUnitSummary();
 
   return (
     <div className="space-y-6">
@@ -21,11 +13,7 @@ export default async function UnitsPage({ searchParams }: UnitsPageProps) {
         </p>
       </div>
 
-      <UnitsAccordionTable
-        courses={courses}
-        currentPage={currentPage}
-        totalPages={totalPages}
-      />
+      <UnitsAccordionTable courses={courses} />
     </div>
   );
 }
