@@ -1,4 +1,3 @@
-import { VideoPlayer } from "./VideoPlayer";
 import { ContentItemRenderer } from "./ContentItemRenderer";
 import { QuizPlayer } from "./quiz/QuizPlayer";
 import type { Lesson, LessonContent } from "@/types/database/tables";
@@ -44,51 +43,29 @@ export const LessonRenderer = ({
     );
   }
 
-  // Legacy: fallback to old rendering for courses without lesson_content
-  switch (lesson.lesson_type) {
-    case "video":
-      return (
-        <VideoPlayer
-          videoUrl={lesson.video_url || ""}
-          lessonId={lesson.id}
-          courseId={courseId}
-        />
-      );
-
-    case "text":
-      return (
-        <div className="bg-white rounded-lg border p-6 mb-6">
-          <div className="prose max-w-none">
-            {lesson.content || lesson.description || ""}
-          </div>
-        </div>
-      );
-
-    case "quiz":
-      return (
-        <QuizPlayer
-          title={lesson.title}
-          quizData={quizData ?? null}
-          lessonId={lesson.id}
-          courseId={courseId}
-        />
-      );
-
-    case "assignment":
-      return (
-        <div className="bg-white rounded-lg border p-6 mb-6">
-          <div className="text-center py-12">
-            <p className="text-lg text-muted-foreground mb-4">
-              📄 Assignment Component
-            </p>
-            <p className="text-sm text-muted-foreground">
-              Assignment functionality coming soon
-            </p>
-          </div>
-        </div>
-      );
-
-    default:
-      return null;
+  // No lesson content - show empty state or quiz if available
+  if (quizData) {
+    return (
+      <QuizPlayer
+        title={lesson.title}
+        quizData={quizData}
+        lessonId={lesson.id}
+        courseId={courseId}
+      />
+    );
   }
+
+  // Empty lesson - no content blocks
+  return (
+    <div className="bg-white rounded-lg border p-6 mb-6">
+      <div className="text-center py-12">
+        <p className="text-lg text-muted-foreground mb-4">
+          No content available
+        </p>
+        <p className="text-sm text-muted-foreground">
+          This lesson has no content blocks yet.
+        </p>
+      </div>
+    </div>
+  );
 };

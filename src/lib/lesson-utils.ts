@@ -55,65 +55,30 @@ export const calculateLessonDuration = (
 
 /**
  * Get formatted duration string for a lesson
- * Uses lesson_content if available, falls back to legacy duration_seconds
+ * Uses lesson_content to calculate duration
  */
 export const getLessonDurationDisplay = (
   lesson: Lesson & { lesson_content?: LessonContent[] }
 ): string => {
-  // If lesson has content items, calculate from them
+  // Calculate duration from lesson_content items
   if (lesson.lesson_content && lesson.lesson_content.length > 0) {
     const totalSeconds = calculateLessonDuration(lesson.lesson_content);
     return totalSeconds > 0 ? formatTime(totalSeconds) : "";
   }
 
-  // Legacy: use direct lesson fields
-  if (lesson.lesson_type === "video" && lesson.duration_seconds) {
-    return formatTime(lesson.duration_seconds);
-  }
-
-  if (lesson.lesson_type === "quiz") return "Quiz";
-  if (lesson.lesson_type === "assignment") return "Assignment";
-
   return "";
 };
 
-// Transform lessons for sidebar display
+// DEPRECATED: Legacy section-based sidebar - use transformUnitsForSidebar instead
+// This function is kept for backwards compatibility but should not be used
 export const transformLessonsForSidebar = (
   allLessons: Lesson[],
   currentLessonId: string,
   completedLessonIds: string[] = []
 ) => {
-  // Group lessons by section
-  const lessonsBySection = allLessons.reduce(
-    (acc, lesson) => {
-      const sectionTitle = lesson.section_title || "Uncategorized";
-      if (!acc[sectionTitle]) {
-        acc[sectionTitle] = [];
-      }
-      acc[sectionTitle].push(lesson);
-      return acc;
-    },
-    {} as Record<string, Lesson[]>
-  );
-
-  // Transform for sidebar
-  return Object.entries(lessonsBySection).map(([section, lessons]) => ({
-    section,
-    items: lessons.map((lesson) => ({
-      id: lesson.id,
-      title: lesson.title,
-      duration:
-        lesson.lesson_type === "video" && lesson.duration_seconds
-          ? formatTime(lesson.duration_seconds)
-          : lesson.lesson_type === "quiz"
-            ? "Quiz"
-            : "Assignment",
-      type: lesson.lesson_type,
-      completed: completedLessonIds.includes(lesson.id),
-      current: lesson.id === currentLessonId,
-      locked: false, // TODO: implement lock logic based on enrollment
-    })),
-  }));
+  // All courses now use units - this function should not be called
+  console.warn("transformLessonsForSidebar is deprecated. Use transformUnitsForSidebar instead.");
+  return [];
 };
 
 // =====================================================
@@ -142,7 +107,7 @@ export const transformUnitsForSidebar = (
       id: lesson.id,
       title: lesson.title,
       duration: getLessonDurationDisplay(lesson),
-      type: lesson.lesson_type,
+      type: "video" as LessonType, // Default type - actual type determined by lesson_content
       completed: completedLessonIds.includes(lesson.id),
       current: lesson.id === currentLessonId,
       locked: false,

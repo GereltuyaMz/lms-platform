@@ -3,7 +3,6 @@
 import { createClient } from "@/lib/supabase/server";
 import { revalidatePath } from "next/cache";
 import type { Lesson, Unit, Course, LessonContent } from "@/types/database/tables";
-import type { LessonType } from "@/types/database/enums";
 
 export type LessonWithRelations = Lesson & {
   unit: (Unit & { course: Course | null }) | null;
@@ -16,11 +15,6 @@ export type LessonFormData = {
   unit_id: string | null;
   title: string;
   description: string | null;
-  lesson_type: LessonType;
-  video_url: string | null;
-  content: string | null;
-  duration_seconds: number | null;
-  is_preview: boolean;
   order_in_unit: number;
 };
 
@@ -41,7 +35,7 @@ export async function getLessons(): Promise<LessonWithRelations[]> {
     `
     )
     .order("course_id", { ascending: true })
-    .order("order_index", { ascending: true });
+    .order("order_in_unit", { ascending: true });
 
   if (error) throw new Error(error.message);
 
@@ -179,7 +173,7 @@ export async function createLesson(
 
   const slug = generateSlug(formData.title);
 
-  const { data, error } = await supabase
+  const { data, error} = await supabase
     .from("lessons")
     .insert({
       course_id: formData.course_id,
@@ -187,13 +181,7 @@ export async function createLesson(
       title: formData.title,
       slug,
       description: formData.description,
-      lesson_type: formData.lesson_type,
-      video_url: formData.video_url,
-      content: formData.content,
-      duration_seconds: formData.duration_seconds,
-      is_preview: formData.is_preview,
       order_in_unit: formData.order_in_unit,
-      order_index: formData.order_in_unit, // Keep in sync
     })
     .select()
     .single();
@@ -225,13 +213,7 @@ export async function updateLesson(
       title: formData.title,
       slug,
       description: formData.description,
-      lesson_type: formData.lesson_type,
-      video_url: formData.video_url,
-      content: formData.content,
-      duration_seconds: formData.duration_seconds,
-      is_preview: formData.is_preview,
       order_in_unit: formData.order_in_unit,
-      order_index: formData.order_in_unit,
     })
     .eq("id", id)
     .select()
@@ -312,7 +294,7 @@ export async function reorderLessons(
   const updates = orderedIds.map((id, index) =>
     supabase
       .from("lessons")
-      .update({ order_in_unit: index, order_index: index })
+      .update({ order_in_unit: index })
       .eq("id", id)
   );
 

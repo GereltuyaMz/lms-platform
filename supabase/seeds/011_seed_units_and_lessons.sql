@@ -44,8 +44,8 @@ BEGIN
     RETURNING id INTO unit_id_var;
 
     -- Lesson 1.1: Бутархай тоо
-    INSERT INTO lessons (course_id, unit_id, title, description, order_index, order_in_unit, lesson_type, is_preview)
-    VALUES (course_id_var, unit_id_var, 'Бутархай тоо', 'Бутархай тоон дээрх үндсэн үйлдлүүд', 1, 1, 'video', true)
+    INSERT INTO lessons (course_id, unit_id, title, description, order_in_unit)
+    VALUES (course_id_var, unit_id_var, 'Бутархай тоо', 'Бутархай тоон дээрх үндсэн үйлдлүүд', 1)
     RETURNING id INTO lesson_id_var;
 
     -- Lesson 1.1 Content with descriptions
@@ -92,8 +92,8 @@ BEGIN
     (question_id_var, '1/3', false, 3);
 
     -- Lesson 1.2: Хувь
-    INSERT INTO lessons (course_id, unit_id, title, description, order_index, order_in_unit, lesson_type, is_preview)
-    VALUES (course_id_var, unit_id_var, 'Хувь', 'Хувь тооцоолох, хувийн өөрчлөлт', 2, 2, 'video', false)
+    INSERT INTO lessons (course_id, unit_id, title, description, order_in_unit)
+    VALUES (course_id_var, unit_id_var, 'Хувь', 'Хувь тооцоолох, хувийн өөрчлөлт', 2)
     RETURNING id INTO lesson_id_var;
 
     INSERT INTO lesson_content (lesson_id, title, content_type, video_url, description, duration_seconds, order_index) VALUES
@@ -138,8 +138,8 @@ BEGIN
     (question_id_var, '80%', false, 3);
 
     -- Lesson 1.3: Пропорц
-    INSERT INTO lessons (course_id, unit_id, title, description, order_index, order_in_unit, lesson_type, is_preview)
-    VALUES (course_id_var, unit_id_var, 'Пропорц', 'Пропорц ба харьцаа', 3, 3, 'video', false)
+    INSERT INTO lessons (course_id, unit_id, title, description, order_in_unit)
+    VALUES (course_id_var, unit_id_var, 'Пропорц', 'Пропорц ба харьцаа', 3)
     RETURNING id INTO lesson_id_var;
 
     INSERT INTO lesson_content (lesson_id, title, content_type, video_url, description, duration_seconds, order_index) VALUES
@@ -239,8 +239,8 @@ BEGIN
     RETURNING id INTO unit_id_var;
 
     -- Lesson 2.1: Шугаман тэгшитгэл
-    INSERT INTO lessons (course_id, unit_id, title, description, order_index, order_in_unit, lesson_type, is_preview)
-    VALUES (course_id_var, unit_id_var, 'Шугаман тэгшитгэл', 'ax + b = c хэлбэрийн тэгшитгэл бодох', 4, 1, 'video', false)
+    INSERT INTO lessons (course_id, unit_id, title, description, order_in_unit)
+    VALUES (course_id_var, unit_id_var, 'Шугаман тэгшитгэл', 'ax + b = c хэлбэрийн тэгшитгэл бодох', 1)
     RETURNING id INTO lesson_id_var;
 
     INSERT INTO lesson_content (lesson_id, title, content_type, video_url, description, duration_seconds, order_index) VALUES
@@ -285,8 +285,8 @@ BEGIN
     (question_id_var, '28', false, 3);
 
     -- Lesson 2.2: Хоёр талд хувьсагчтай тэгшитгэл
-    INSERT INTO lessons (course_id, unit_id, title, description, order_index, order_in_unit, lesson_type, is_preview)
-    VALUES (course_id_var, unit_id_var, 'Хоёр талд хувьсагчтай тэгшитгэл', '4x + 2 = 2x + 10 хэлбэрийн тэгшитгэл', 5, 2, 'video', false)
+    INSERT INTO lessons (course_id, unit_id, title, description, order_in_unit)
+    VALUES (course_id_var, unit_id_var, 'Хоёр талд хувьсагчтай тэгшитгэл', '4x + 2 = 2x + 10 хэлбэрийн тэгшитгэл', 2)
     RETURNING id INTO lesson_id_var;
 
     INSERT INTO lesson_content (lesson_id, title, content_type, video_url, description, duration_seconds, order_index) VALUES
@@ -389,8 +389,8 @@ BEGIN
     RETURNING id INTO unit_id_var;
 
     -- Lesson 3.1: Тэгш өнцөгт ба квадрат
-    INSERT INTO lessons (course_id, unit_id, title, description, order_index, order_in_unit, lesson_type, is_preview)
-    VALUES (course_id_var, unit_id_var, 'Тэгш өнцөгт ба квадрат', 'Талбай, периметр тооцоолол', 6, 1, 'video', false)
+    INSERT INTO lessons (course_id, unit_id, title, description, order_in_unit)
+    VALUES (course_id_var, unit_id_var, 'Тэгш өнцөгт ба квадрат', 'Талбай, периметр тооцоолол', 1)
     RETURNING id INTO lesson_id_var;
 
     INSERT INTO lesson_content (lesson_id, title, content_type, video_url, description, duration_seconds, order_index) VALUES
@@ -435,8 +435,8 @@ BEGIN
     (question_id_var, '32 см²', false, 3);
 
     -- Lesson 3.2: Тойрог
-    INSERT INTO lessons (course_id, unit_id, title, description, order_index, order_in_unit, lesson_type, is_preview)
-    VALUES (course_id_var, unit_id_var, 'Тойрог', 'Тойргийн талбай, тойрог', 7, 2, 'video', false)
+    INSERT INTO lessons (course_id, unit_id, title, description, order_in_unit)
+    VALUES (course_id_var, unit_id_var, 'Тойрог', 'Тойргийн талбай, тойрог', 2)
     RETURNING id INTO lesson_id_var;
 
     INSERT INTO lesson_content (lesson_id, title, content_type, video_url, description, duration_seconds, order_index) VALUES
@@ -552,8 +552,8 @@ BEGIN
     RETURNING id INTO unit_id_var;
 
     -- Lesson 1.1: Функцийн тодорхойлолт
-    INSERT INTO lessons (course_id, unit_id, title, description, order_index, order_in_unit, lesson_type, is_preview)
-    VALUES (course_id_var, unit_id_var, 'Функцийн тодорхойлолт', 'Функц, түүний график, домэйн, рэнж', 1, 1, 'video', true)
+    INSERT INTO lessons (course_id, unit_id, title, description, order_in_unit)
+    VALUES (course_id_var, unit_id_var, 'Функцийн тодорхойлолт', 'Функц, түүний график, домэйн, рэнж', 1)
     RETURNING id INTO lesson_id_var;
 
     INSERT INTO lesson_content (lesson_id, title, content_type, video_url, description, duration_seconds, order_index) VALUES
@@ -598,8 +598,8 @@ BEGIN
     (question_id_var, '-5', false, 3);
 
     -- Lesson 1.2: Шугаман функц
-    INSERT INTO lessons (course_id, unit_id, title, description, order_index, order_in_unit, lesson_type, is_preview)
-    VALUES (course_id_var, unit_id_var, 'Шугаман функц', 'y = mx + b хэлбэрийн функц', 2, 2, 'video', false)
+    INSERT INTO lessons (course_id, unit_id, title, description, order_in_unit)
+    VALUES (course_id_var, unit_id_var, 'Шугаман функц', 'y = mx + b хэлбэрийн функц', 2)
     RETURNING id INTO lesson_id_var;
 
     INSERT INTO lesson_content (lesson_id, title, content_type, video_url, description, duration_seconds, order_index) VALUES
@@ -697,8 +697,8 @@ BEGIN
     RETURNING id INTO unit_id_var;
 
     -- Lesson 2.1: Квадрат тэгшитгэл бодох
-    INSERT INTO lessons (course_id, unit_id, title, description, order_index, order_in_unit, lesson_type, is_preview)
-    VALUES (course_id_var, unit_id_var, 'Квадрат тэгшитгэл бодох', 'Дискриминант, Виетийн теорем', 3, 1, 'video', false)
+    INSERT INTO lessons (course_id, unit_id, title, description, order_in_unit)
+    VALUES (course_id_var, unit_id_var, 'Квадрат тэгшитгэл бодох', 'Дискриминант, Виетийн теорем', 1)
     RETURNING id INTO lesson_id_var;
 
     INSERT INTO lesson_content (lesson_id, title, content_type, video_url, description, duration_seconds, order_index) VALUES

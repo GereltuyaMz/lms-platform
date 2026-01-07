@@ -23,7 +23,7 @@ export const FilterCourses = ({
   initialFilters,
 }: FilterCoursesProps) => {
   const [selectedExam, setSelectedExam] = useState<string | null>(
-    initialFilters?.examType || (examTypes[0]?.id ?? null)
+    initialFilters?.examType ?? null
   );
   const [selectedSubjects, setSelectedSubjects] = useState<string[]>(
     initialFilters?.subjects || []
@@ -43,10 +43,13 @@ export const FilterCourses = ({
   }, [initialFilters]);
 
   const handleExamChange = (examId: string) => {
-    setSelectedExam(examId);
+    // Toggle: if clicking the same exam, deselect it
+    const newExamId = selectedExam === examId ? null : examId;
+
+    setSelectedExam(newExamId);
     setSelectedSubjects([]);
     onFilterChange?.({
-      examType: examId,
+      examType: newExamId,
       subjects: [],
     });
   };
@@ -119,7 +122,7 @@ export const FilterCourses = ({
                 >
                   {isSelected && <Check className="w-4 h-4 text-[#1a1a1a]" />}
                   <span className="text-sm font-medium text-[#1a1a1a]">
-                    {subject.name_mn || subject.name}
+                    {subject.name}
                   </span>
                 </button>
               );

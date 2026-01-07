@@ -86,14 +86,7 @@ export interface Lesson {
   title: string;
   slug: string;
   description: string | null;
-  section_title: string | null; // Legacy field for backward compat
-  content: string | null; // Legacy - use lesson_content table
-  video_url: string | null; // Legacy - use lesson_content table
-  duration_seconds: number | null; // Legacy - use lesson_content table
-  order_index: number;
-  order_in_unit: number | null; // Order within unit
-  lesson_type: LessonType;
-  is_preview: boolean;
+  order_in_unit: number | null; // PRIMARY: Order within unit (1, 2, 3...)
   created_at: string;
   updated_at: string;
 }

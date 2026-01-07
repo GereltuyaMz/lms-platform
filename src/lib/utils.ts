@@ -95,3 +95,111 @@ export const findNextUncompletedLesson = (
     ? { type: "lesson", id: units[0].lessons[0].id }
     : null;
 };
+
+/**
+ * Calculate unit completion progress percentage
+ */
+export const calculateUnitProgress = (
+  unitLessons: { id: string }[],
+  completedLessonIds: string[]
+): number => {
+  if (unitLessons.length === 0) return 0;
+  const completed = unitLessons.filter((l) =>
+    completedLessonIds.includes(l.id)
+  ).length;
+  return (completed / unitLessons.length) * 100;
+};
+
+/**
+ * Get timeline icon state based on progress percentage
+ */
+export const getTimelineIconState = (progress: number) => {
+  if (progress === 0) {
+    return {
+      bg: "#d8d8d8",
+      border: "#d8d8d8",
+      icon: "lock" as const,
+      iconColor: "#666666",
+    };
+  }
+  if (progress === 100) {
+    return {
+      bg: "#9fa8da",
+      border: "#415ff4",
+      icon: "check" as const,
+      iconColor: "#415ff4",
+    };
+  }
+  return {
+    bg: "#9fa8da",
+    border: "#415ff4",
+    icon: "lock" as const,
+    iconColor: "#415ff4",
+  };
+};
+
+/**
+ * Get unit completion state including quiz status
+ * Returns 4 possible states based on lesson progress and quiz completion
+ */
+export const getUnitCompletionState = (
+  progress: number,
+  unitId: string,
+  completedUnitQuizIds: string[],
+  hasUnitQuiz: boolean
+) => {
+  // Not started (0%)
+  if (progress === 0) {
+    return {
+      bg: "#d8d8d8",
+      border: "#d8d8d8",
+      icon: "lock" as const,
+      iconColor: "#666666",
+    };
+  }
+
+  // Lessons complete (100%)
+  if (progress === 100) {
+    // Check if unit has quiz and if it's passed
+    if (hasUnitQuiz && completedUnitQuizIds.includes(unitId)) {
+      // Fully complete - gold/yellow with star
+      return {
+        bg: "#fef3c7", // Light gold background (Tailwind yellow-100)
+        border: "#f59e0b", // Amber-500 border
+        icon: "star" as const,
+        iconColor: "#f59e0b",
+      };
+    }
+    // Lessons complete but quiz not passed (or no quiz exists)
+    return {
+      bg: "#9fa8da",
+      border: "#415ff4",
+      icon: "check" as const,
+      iconColor: "#415ff4",
+    };
+  }
+
+  // In progress (1-99%)
+  return {
+    bg: "#9fa8da",
+    border: "#415ff4",
+    icon: "lock" as const,
+    iconColor: "#415ff4",
+  };
+};
+
+/**
+ * Format difficulty level to display text
+ */
+export const formatDifficultyLevel = (level: string | null): string => {
+  const mapping: Record<string, string> = {
+    "beginner-100": "Анхлал 100+",
+    "mid-level": "Дунд түвшин",
+    advanced: "Төгсөлт",
+    "top-500": "Топ төрөөд 500+",
+    preparation: "Бэлтгэх",
+    "algebra-500": "Алгебр 500+",
+    "counting-500": "Тоо тоолол 500+",
+  };
+  return level ? mapping[level] || level : "";
+};

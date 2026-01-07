@@ -31,7 +31,7 @@ export const CourseSidebar = ({
   const discountAmount = Math.round((price * discountPercentage) / 100);
   const finalPrice = price - discountAmount;
   return (
-    <div className="sticky top-4">
+    <div className="sticky top-26 mt-16">
       <div className="border rounded-lg overflow-hidden bg-white">
         {/* Video Thumbnail */}
         <div className="relative aspect-video bg-gray-700 flex items-center justify-center">
@@ -86,7 +86,10 @@ export const CourseSidebar = ({
           <div className="mb-6">
             <div className="flex items-baseline gap-2">
               <span className="text-3xl font-bold">
-                {applicableCoupon ? finalPrice.toLocaleString() : price.toLocaleString()}₮
+                {applicableCoupon
+                  ? finalPrice.toLocaleString()
+                  : price.toLocaleString()}
+                ₮
               </span>
               {(applicableCoupon || originalPrice) && (
                 <span className="text-lg text-muted-foreground line-through">

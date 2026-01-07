@@ -4,6 +4,7 @@
 -- This migration updates calculate_course_stats to include:
 -- 1. Total exercise/quiz question count
 -- 2. Estimated total XP for completing the course
+-- Updated to use lesson_content table instead of deleted lesson fields
 
 DROP FUNCTION IF EXISTS calculate_course_stats(UUID);
 
@@ -14,53 +15,27 @@ RETURNS TABLE (
   exercise_count BIGINT,
   total_xp INTEGER
 ) AS $$
-DECLARE
-  video_xp INTEGER := 0;
-  quiz_xp INTEGER := 0;
-  text_xp INTEGER := 0;
-  milestone_xp INTEGER := 1400; -- 25% + 50% + 75% + 100% milestones
 BEGIN
-  -- Calculate video lesson XP
-  -- Base 50 XP + 5 XP per 5 minutes (duration_seconds / 300 * 5)
-  SELECT
-    COALESCE(SUM(
-      50 + (COALESCE(duration_seconds, 0) / 300 * 5)
-    ), 0)::INTEGER
-  INTO video_xp
-  FROM lessons
-  WHERE course_id = course_uuid
-    AND lesson_type = 'video';
-
-  -- Calculate quiz XP (average 125 XP per quiz)
-  SELECT
-    COALESCE(COUNT(*) * 125, 0)::INTEGER
-  INTO quiz_xp
-  FROM lessons
-  WHERE course_id = course_uuid
-    AND lesson_type = 'quiz';
-
-  -- Calculate text lesson XP (30 XP each)
-  SELECT
-    COALESCE(COUNT(*) * 30, 0)::INTEGER
-  INTO text_xp
-  FROM lessons
-  WHERE course_id = course_uuid
-    AND lesson_type = 'text';
-
   RETURN QUERY
   SELECT
-    COUNT(l.id) as lesson_count,
-    COALESCE(SUM(l.duration_seconds), 0)::INTEGER as total_duration_seconds,
-    COALESCE(
-      (SELECT COUNT(*)
-       FROM lessons
-       WHERE course_id = course_uuid
-         AND lesson_type IN ('quiz', 'assignment')),
-      0
-    ) as exercise_count,
-    (video_xp + quiz_xp + text_xp + milestone_xp)::INTEGER as total_xp
+    COUNT(DISTINCT l.id) as lesson_count,
+    COALESCE(SUM(lc.duration_seconds), 0)::INTEGER as total_duration_seconds,
+    COUNT(DISTINCT qq.id) as exercise_count,
+    (
+      -- XP from lesson_content duration: 50 base + 5 per 5 minutes
+      COALESCE(SUM(50 + (lc.duration_seconds / 300 * 5)), 0)
+      +
+      -- XP from quizzes: 100 per quiz question
+      (COUNT(DISTINCT qq.id) * 100)
+      +
+      -- Milestone XP: 25% + 50% + 75% + 100% completion bonuses
+      1400
+    )::INTEGER as total_xp
   FROM lessons l
-  WHERE l.course_id = course_uuid;
+  LEFT JOIN lesson_content lc ON l.id = lc.lesson_id
+  LEFT JOIN quiz_questions qq ON l.id = qq.lesson_id
+  WHERE l.course_id = course_uuid
+  GROUP BY l.course_id;
 END;
 $$ LANGUAGE plpgsql;
 

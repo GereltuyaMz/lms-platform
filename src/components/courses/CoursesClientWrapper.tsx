@@ -39,9 +39,7 @@ export const CoursesClientWrapper = ({
 
     // Convert slugs to IDs for internal state
     const examId =
-      examTypes.find((e) => e.slug === examSlug)?.id ||
-      examTypes[0]?.id ||
-      null;
+      examTypes.find((e) => e.slug === examSlug)?.id || null;
     const subjectIds = subjectSlugs
       ? subjectCategories
           .filter((s) => subjectSlugs.split(",").includes(s.slug))

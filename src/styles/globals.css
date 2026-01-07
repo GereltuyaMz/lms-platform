@@ -288,6 +288,17 @@
   }
 }
 
+/* Hide scrollbar utility */
+@layer utilities {
+  .scrollbar-hide {
+    -ms-overflow-style: none; /* IE and Edge */
+    scrollbar-width: none; /* Firefox */
+  }
+  .scrollbar-hide::-webkit-scrollbar {
+    display: none; /* Chrome, Safari, Opera */
+  }
+}
+
 /* KaTeX math rendering in chat bubbles */
 .katex-display {
   margin: 0.5em 0;
