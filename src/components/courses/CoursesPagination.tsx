@@ -21,6 +21,7 @@ export const CoursesPagination = ({
         size="icon"
         onClick={() => onPageChange(currentPage - 1)}
         disabled={currentPage === 1}
+        className="hover:bg-[#DCDAF5] disabled:opacity-50 disabled:hover:bg-transparent"
       >
         <ChevronLeft className="h-4 w-4" />
       </Button>
@@ -29,8 +30,9 @@ export const CoursesPagination = ({
         size="sm"
         onClick={() => onPageChange(currentPage - 1)}
         disabled={currentPage === 1}
+        className="bg-[#F8F1F6] hover:bg-[#DCDAF5] disabled:opacity-50 disabled:hover:bg-[#F8F1F6]"
       >
-        Previous
+        Өмнөх
       </Button>
 
       {Array.from({ length: totalPages }, (_, i) => i + 1).map((page) => {
@@ -45,7 +47,7 @@ export const CoursesPagination = ({
 
         if (showEllipsis) {
           return (
-            <span key={page} className="px-2">
+            <span key={page} className="px-2 text-[#1a1a1a]">
               ...
             </span>
           );
@@ -56,9 +58,14 @@ export const CoursesPagination = ({
         return (
           <Button
             key={page}
-            variant={currentPage === page ? "default" : "ghost"}
+            variant="ghost"
             size="sm"
             onClick={() => onPageChange(page)}
+            className={
+              currentPage === page
+                ? "bg-[#DCDAF5] hover:bg-[#DCDAF5] text-[#1a1a1a] font-semibold"
+                : "bg-[#F8F1F6] hover:bg-[#DCDAF5] text-[#1a1a1a]"
+            }
           >
             {page}
           </Button>
@@ -70,14 +77,16 @@ export const CoursesPagination = ({
         size="sm"
         onClick={() => onPageChange(currentPage + 1)}
         disabled={currentPage === totalPages}
+        className="bg-[#F8F1F6] hover:bg-[#DCDAF5] disabled:opacity-50 disabled:hover:bg-[#F8F1F6]"
       >
-        Next
+        Дараах
       </Button>
       <Button
         variant="ghost"
         size="icon"
         onClick={() => onPageChange(currentPage + 1)}
         disabled={currentPage === totalPages}
+        className="hover:bg-[#DCDAF5] disabled:opacity-50 disabled:hover:bg-transparent"
       >
         <ChevronRight className="h-4 w-4" />
       </Button>

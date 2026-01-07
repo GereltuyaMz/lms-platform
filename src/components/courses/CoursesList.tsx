@@ -17,24 +17,15 @@ export const CoursesList = ({ courses, userCoupons }: CoursesListProps) => {
     );
   }
   return (
-    <div className="flex flex-col gap-6">
+    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
       {courses.map((course) => {
         const courseProps = {
           slug: course.slug,
           title: course.title,
           description: course.description || "",
-          instructor: {
-            name:
-              course.teacher?.full_name_mn ||
-              course.teacher?.full_name ||
-              "Багш",
-            avatar: course.teacher?.avatar_url || undefined,
-          },
           duration: `${course.duration_hours || 0} цаг`,
           lessons: course.lesson_count || 0,
           level: course.level,
-          price: course.price,
-          originalPrice: course.original_price || undefined,
           thumbnail: course.thumbnail_url || undefined,
         };
 
@@ -42,7 +33,6 @@ export const CoursesList = ({ courses, userCoupons }: CoursesListProps) => {
           <CourseCard
             key={course.id}
             {...courseProps}
-            applicableCoupon={userCoupons?.[course.id]}
           />
         );
       })}

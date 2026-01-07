@@ -3,26 +3,26 @@ import { CourseCardSkeleton } from "@/components/courses/CourseCardSkeleton";
 
 const FiltersSkeleton = () => {
   return (
-    <div className="space-y-6">
-      {/* Topics filter */}
-      <div className="space-y-3">
-        <Skeleton className="h-5 w-20" />
-        <div className="space-y-2">
-          {[1, 2, 3, 4, 5].map((i) => (
-            <div key={i} className="flex items-center gap-2">
-              <Skeleton className="h-4 w-4 rounded" />
-              <Skeleton className="h-4 w-full" />
-            </div>
+    <div className="w-full bg-white rounded-3xl px-3 py-6 space-y-6">
+      {/* Exam Type Filter */}
+      <div className="space-y-4">
+        <Skeleton className="h-5 w-32" />
+        <div className="flex flex-wrap gap-3">
+          {[1, 2, 3].map((i) => (
+            <Skeleton key={i} className="h-8 w-20 rounded" />
           ))}
         </div>
       </div>
 
-      {/* Level filter */}
-      <div className="space-y-3">
-        <Skeleton className="h-5 w-16" />
-        <div className="space-y-2">
+      {/* Divider */}
+      <div className="h-px bg-gray-200" />
+
+      {/* Subject Categories */}
+      <div className="space-y-4">
+        <Skeleton className="h-5 w-28" />
+        <div className="flex flex-wrap gap-3">
           {[1, 2, 3, 4].map((i) => (
-            <Skeleton key={i} className="h-4 w-full" />
+            <Skeleton key={i} className="h-8 w-24 rounded" />
           ))}
         </div>
       </div>
@@ -32,49 +32,48 @@ const FiltersSkeleton = () => {
 
 export default function CoursesLoading() {
   return (
-    <div className="container mx-auto px-4 py-20">
-      {/* Hero section skeleton */}
-      <section className="py-5 md:py-10">
-        <div className="container mx-auto px-4 max-w-[1400px]">
-          <div className="grid md:grid-cols-2 gap-6 md:gap-8 items-center">
-            <Skeleton className="w-full h-[300px] md:h-[460px] rounded-lg" />
-            <div>
-              <Skeleton className="h-12 w-3/4 mb-6" />
-            </div>
-          </div>
+    <>
+      {/* Hero Section */}
+      <section className="bg-[#efefef] py-12">
+        <div className="max-w-[1512px] mx-auto flex justify-between items-center px-8 lg:px-[120px] py-3">
+          <Skeleton className="h-12 w-64" />
         </div>
       </section>
 
-      {/* Title skeleton */}
-      <Skeleton className="h-10 w-48 mb-8" />
+      {/* Main Content */}
+      <div className="flex flex-col gap-[120px] items-center">
+        <div className="container mx-auto px-4 max-w-[1512px] py-12 lg:px-[120px]">
+          <div className="flex gap-6 items-start">
+            {/* Filters Sidebar */}
+            <aside className="w-64 shrink-0 sticky top-24">
+              <FiltersSkeleton />
+            </aside>
 
-      {/* Main content */}
-      <div className="flex gap-8">
-        {/* Filters Sidebar skeleton */}
-        <aside className="w-[250px] flex-shrink-0">
-          <FiltersSkeleton />
-        </aside>
+            {/* Course List */}
+            <main className="flex-1">
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                {[1, 2, 3, 4, 5, 6].map((i) => (
+                  <CourseCardSkeleton key={i} />
+                ))}
+              </div>
 
-        {/* Course List skeleton */}
-        <main className="flex-1">
-          <div className="mb-6">
-            <Skeleton className="h-8 w-32" />
+              {/* Pagination skeleton */}
+              <div className="mt-8 flex justify-center gap-2">
+                <Skeleton className="h-10 w-10 rounded" />
+                {[1, 2, 3].map((i) => (
+                  <Skeleton key={i} className="h-10 w-10 rounded" />
+                ))}
+                <Skeleton className="h-10 w-10 rounded" />
+              </div>
+            </main>
           </div>
+        </div>
 
-          <div className="flex flex-col gap-6">
-            {[1, 2, 3, 4, 5].map((i) => (
-              <CourseCardSkeleton key={i} />
-            ))}
-          </div>
-
-          {/* Pagination skeleton */}
-          <div className="mt-8 flex justify-center gap-2">
-            <Skeleton className="h-10 w-10 rounded" />
-            <Skeleton className="h-10 w-10 rounded" />
-            <Skeleton className="h-10 w-10 rounded" />
-          </div>
-        </main>
+        {/* Call to Action Skeleton */}
+        <div className="w-full">
+          <Skeleton className="h-64 w-full" />
+        </div>
       </div>
-    </div>
+    </>
   );
 }

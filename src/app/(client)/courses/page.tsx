@@ -1,6 +1,6 @@
-import Image from "next/image";
 import { createClient } from "@/lib/supabase/server";
 import { CoursesClientWrapper } from "@/components/courses";
+import { CallToAction } from "@/components/home";
 
 // Revalidate page every 5 minutes (300 seconds) to cache course data
 export const revalidate = 300;
@@ -85,9 +85,10 @@ const CoursesPage = async ({ searchParams }: PageProps) => {
     }
   } else if (selectedExam) {
     // Filter by exam - get courses in subjects under this exam
-    const relevantSubjectIds = subjectCategories
-      ?.filter((s) => s.parent_id === selectedExam.id)
-      .map((s) => s.id) || [];
+    const relevantSubjectIds =
+      subjectCategories
+        ?.filter((s) => s.parent_id === selectedExam.id)
+        .map((s) => s.id) || [];
 
     if (relevantSubjectIds.length > 0) {
       const { data: courseCategories } = await supabase
@@ -99,10 +100,12 @@ const CoursesPage = async ({ searchParams }: PageProps) => {
       if (courseIds.length > 0) {
         query = query.in("id", courseIds);
       } else {
+        // No courses match, return empty
         query = query.eq("id", "00000000-0000-0000-0000-000000000000");
       }
     }
   }
+  ``;
 
   // Apply pagination
   const startIndex = (page - 1) * pageSize;
@@ -145,39 +148,32 @@ const CoursesPage = async ({ searchParams }: PageProps) => {
   }
 
   return (
-    <div className="container mx-auto px-4 py-20">
-      <section>
-        <div className="container mx-auto px-4 max-w-[1400px]">
-          <div className="grid md:grid-cols-2 gap-6 md:gap-8 items-center">
-            <div>
-              <Image
-                src="/assets/courses/courses-frame.png"
-                alt="Potential"
-                width={548}
-                height={460}
-                className="w-full max-w-[640px]"
-              />
-            </div>
-            <div>
-              <h1 className="text-h1 mb-6">
-                Боломжоо бүрэн <span className="text-primary">нээе</span>
-              </h1>
-            </div>
-          </div>
+    <>
+      {/* Hero Section */}
+      <section className="bg-[#efefef] py-12 ">
+        <div className="max-w-[1512px] mx-auto flex justify-between items-center px-8 lg:px-[120px] py-3">
+          <h1 className="text-[40px] font-semibold tracking-tight text-black ">
+            Боломжоо бүрэн нээе
+          </h1>
         </div>
       </section>
 
-      {/* Pass hierarchical data to client wrapper */}
-      <CoursesClientWrapper
-        examTypes={examTypes || []}
-        subjectCategories={subjectCategories || []}
-        initialCourses={courses || []}
-        currentPage={page}
-        totalPages={totalPages}
-        totalCount={count || 0}
-        userCoupons={Object.fromEntries(userCoupons)}
-      />
-    </div>
+      {/* Main Content */}
+      <div className="flex flex-col gap-[120px] items-center">
+        <div className="container mx-auto px-4 max-w-[1512px] py-12 lg:px-[120px]">
+          <CoursesClientWrapper
+            examTypes={examTypes || []}
+            subjectCategories={subjectCategories || []}
+            initialCourses={courses || []}
+            currentPage={page}
+            totalPages={totalPages}
+            totalCount={count || 0}
+            userCoupons={Object.fromEntries(userCoupons)}
+          />
+        </div>
+        <CallToAction />
+      </div>
+    </>
   );
 };
 
