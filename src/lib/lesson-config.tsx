@@ -24,15 +24,12 @@ export const LESSON_XP = {
   HARD_EXAMPLE: 60,
 } as const;
 
+// NOTE: calculateXP functions now receive duration_seconds as parameter
+// Duration should be calculated from lesson_content blocks
 export const LESSON_CONFIG: Record<LessonType, LessonConfig> = {
   video: {
     icon: <PlayIcon width={20} height={20} fill="#3B82F6" />,
-    calculateXP: (lesson) => {
-      const durationBonus =
-        Math.floor((lesson.duration_seconds || 0) / 300) *
-        LESSON_XP.VIDEO_DURATION_BONUS_PER_5MIN;
-      return LESSON_XP.VIDEO_BASE + durationBonus;
-    },
+    calculateXP: () => LESSON_XP.VIDEO_BASE,
     displayXP: (xp) => `${xp} XP`,
   },
   text: {
@@ -53,32 +50,17 @@ export const LESSON_CONFIG: Record<LessonType, LessonConfig> = {
   // Unit-based lesson types
   theory: {
     icon: <BookOpenIcon className="h-4 w-4 text-blue-600" />,
-    calculateXP: (lesson) => {
-      const durationBonus =
-        Math.floor((lesson.duration_seconds || 0) / 300) *
-        LESSON_XP.VIDEO_DURATION_BONUS_PER_5MIN;
-      return LESSON_XP.THEORY + durationBonus;
-    },
+    calculateXP: () => LESSON_XP.THEORY,
     displayXP: (xp) => `${xp} XP`,
   },
   easy_example: {
     icon: <LightbulbIcon className="h-4 w-4 text-green-500" />,
-    calculateXP: (lesson) => {
-      const durationBonus =
-        Math.floor((lesson.duration_seconds || 0) / 300) *
-        LESSON_XP.VIDEO_DURATION_BONUS_PER_5MIN;
-      return LESSON_XP.EASY_EXAMPLE + durationBonus;
-    },
+    calculateXP: () => LESSON_XP.EASY_EXAMPLE,
     displayXP: (xp) => `${xp} XP`,
   },
   hard_example: {
     icon: <BrainIcon className="h-4 w-4 text-orange-500" />,
-    calculateXP: (lesson) => {
-      const durationBonus =
-        Math.floor((lesson.duration_seconds || 0) / 300) *
-        LESSON_XP.VIDEO_DURATION_BONUS_PER_5MIN;
-      return LESSON_XP.HARD_EXAMPLE + durationBonus;
-    },
+    calculateXP: () => LESSON_XP.HARD_EXAMPLE,
     displayXP: (xp) => `${xp} XP`,
   },
 };
@@ -89,10 +71,9 @@ export const getLessonIcon = (lessonType: string): ReactElement => {
   );
 };
 
+// DEPRECATED: This function assumed lesson.lesson_type exists
+// XP should now be calculated from lesson_content blocks
 export const getLessonXP = (lesson: Lesson): string | null => {
-  const config = LESSON_CONFIG[lesson.lesson_type as LessonType];
-  if (!config) return null;
-
-  const xp = config.calculateXP(lesson);
-  return config.displayXP(xp);
+  console.warn("getLessonXP is deprecated. Calculate XP from lesson_content blocks instead.");
+  return null;
 };

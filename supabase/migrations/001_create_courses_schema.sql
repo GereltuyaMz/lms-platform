@@ -4,7 +4,7 @@ CREATE EXTENSION IF NOT EXISTS "uuid-ossp";
 -- Create enum types
 -- CREATE TYPE user_role AS ENUM ('student', 'instructor', 'admin');
 CREATE TYPE course_level AS ENUM ('Beginner', 'Intermediate', 'Advanced');
-CREATE TYPE lesson_type AS ENUM ('video', 'text', 'quiz', 'assignment');
+-- lesson_type ENUM removed - lesson types now determined by lesson_content table
 
 -- =====================================================
 -- USER_PROFILES TABLE
@@ -69,25 +69,19 @@ CREATE TABLE course_categories (
 -- =====================================================
 -- LESSONS TABLE
 -- =====================================================
+-- Lessons are now part of units and have content in lesson_content table
 CREATE TABLE lessons (
   id UUID DEFAULT uuid_generate_v4() PRIMARY KEY,
   course_id UUID REFERENCES courses(id) ON DELETE CASCADE NOT NULL,
+  unit_id UUID, -- Will reference units table (added in migration 018)
   title TEXT NOT NULL,
   slug TEXT NOT NULL,
   description TEXT,
-  section_title TEXT, -- Virtual grouping: "Getting started", "Learning approach", etc.
-  content TEXT, -- Rich text content for text lessons
-  video_url TEXT, -- URL to video (could be Supabase Storage)
-  duration_seconds INTEGER, -- Duration in seconds for precise timestamps (e.g., 490 = 8:10)
-  order_index INTEGER NOT NULL, -- Order within the course
-  lesson_type lesson_type DEFAULT 'video' NOT NULL,
-  is_preview BOOLEAN DEFAULT false NOT NULL, -- Free preview lessons
+  order_in_unit INTEGER, -- Order within unit (added in migration 018)
   created_at TIMESTAMPTZ DEFAULT NOW() NOT NULL,
   updated_at TIMESTAMPTZ DEFAULT NOW() NOT NULL,
 
-  UNIQUE(course_id, slug),
-  UNIQUE(course_id, order_index),
-  CONSTRAINT duration_positive CHECK (duration_seconds IS NULL OR duration_seconds > 0)
+  UNIQUE(course_id, slug)
 );
 
 -- =====================================================
@@ -173,10 +167,11 @@ RETURNS TABLE (
 BEGIN
   RETURN QUERY
   SELECT
-    COUNT(*) as lesson_count,
-    COALESCE(SUM(duration_seconds), 0)::INTEGER as total_duration_seconds
-  FROM lessons
-  WHERE course_id = course_uuid;
+    COUNT(DISTINCT l.id) as lesson_count,
+    COALESCE(SUM(lc.duration_seconds), 0)::INTEGER as total_duration_seconds
+  FROM lessons l
+  LEFT JOIN lesson_content lc ON l.id = lc.lesson_id
+  WHERE l.course_id = course_uuid;
 END;
 $$ LANGUAGE plpgsql;
 

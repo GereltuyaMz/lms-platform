@@ -1,18 +1,13 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { Button } from "@/components/ui/button";
-import { Checkbox } from "@/components/ui/checkbox";
-import { Label } from "@/components/ui/label";
-import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Check } from "lucide-react";
 import type { Category } from "@/types/database";
 
 type FilterCoursesProps = {
   examTypes: Category[];
   subjectCategories: Category[];
   onFilterChange?: (filters: FilterState) => void;
-  totalCourses?: number;
-  filteredCount?: number;
   initialFilters?: FilterState;
 };
 
@@ -25,12 +20,10 @@ export const FilterCourses = ({
   examTypes,
   subjectCategories,
   onFilterChange,
-  totalCourses = 0,
-  filteredCount = 0,
   initialFilters,
 }: FilterCoursesProps) => {
   const [selectedExam, setSelectedExam] = useState<string | null>(
-    initialFilters?.examType || (examTypes[0]?.id ?? null)
+    initialFilters?.examType ?? null
   );
   const [selectedSubjects, setSelectedSubjects] = useState<string[]>(
     initialFilters?.subjects || []
@@ -50,19 +43,21 @@ export const FilterCourses = ({
   }, [initialFilters]);
 
   const handleExamChange = (examId: string) => {
-    setSelectedExam(examId);
-    // Reset subjects when exam changes
+    // Toggle: if clicking the same exam, deselect it
+    const newExamId = selectedExam === examId ? null : examId;
+
+    setSelectedExam(newExamId);
     setSelectedSubjects([]);
     onFilterChange?.({
-      examType: examId,
+      examType: newExamId,
       subjects: [],
     });
   };
 
-  const handleSubjectChange = (subjectId: string, checked: boolean) => {
-    const newSubjects = checked
-      ? [...selectedSubjects, subjectId]
-      : selectedSubjects.filter((id) => id !== subjectId);
+  const handleSubjectToggle = (subjectId: string) => {
+    const newSubjects = selectedSubjects.includes(subjectId)
+      ? selectedSubjects.filter((id) => id !== subjectId)
+      : [...selectedSubjects, subjectId];
 
     setSelectedSubjects(newSubjects);
     onFilterChange?.({
@@ -71,81 +66,67 @@ export const FilterCourses = ({
     });
   };
 
-  const handleClearSubjects = () => {
-    setSelectedSubjects([]);
-    onFilterChange?.({
-      examType: selectedExam,
-      subjects: [],
-    });
-  };
-
   return (
-    <div className="w-full space-y-4 md:space-y-6">
-      <div className="text-sm text-muted-foreground">
-        Нийт {filteredCount}-с {totalCourses} хичээл харагдаж байна
-      </div>
-
-      {/* Exam Type Tabs */}
+    <div className="w-full bg-white rounded-3xl px-3 py-6 space-y-6">
+      {/* Exam Type Filter */}
       {examTypes.length > 0 && (
-        <div className="space-y-3 border-t pt-4">
-          <h3 className="text-sm font-semibold md:text-base">Шалгалтын төрөл</h3>
-          <Tabs
-            value={selectedExam || undefined}
-            onValueChange={handleExamChange}
-            className="w-full"
-          >
-            <TabsList className="w-full flex-wrap h-auto gap-1">
-              {examTypes.map((exam) => (
-                <TabsTrigger
+        <div className="space-y-4">
+          <h3 className="text-base font-medium tracking-tight text-black">
+            Шалгалтын төрөл
+          </h3>
+          <div className="flex flex-wrap gap-3">
+            {examTypes.map((exam) => {
+              const isSelected = selectedExam === exam.id;
+              return (
+                <button
                   key={exam.id}
-                  value={exam.id}
-                  className="cursor-pointer text-xs md:text-sm flex-1 min-w-[60px]"
+                  onClick={() => handleExamChange(exam.id)}
+                  className={`flex items-center gap-2 px-4 h-8 rounded border transition-colors cursor-pointer ${
+                    isSelected
+                      ? "bg-[#f7f2fa] border-[#cac4d0]"
+                      : "bg-white border-[#cac4d0]"
+                  }`}
                 >
-                  {exam.icon && <span className="mr-1">{exam.icon}</span>}
-                  {exam.name}
-                </TabsTrigger>
-              ))}
-            </TabsList>
-          </Tabs>
+                  {isSelected && <Check className="w-4 h-4 text-[#1a1a1a]" />}
+                  <span className="text-sm font-medium text-[#1a1a1a]">
+                    {exam.name}
+                  </span>
+                </button>
+              );
+            })}
+          </div>
         </div>
       )}
 
-      {/* Subject Categories */}
-      <div className="space-y-3 border-t pt-4 md:space-y-4">
-        <div className="flex items-center justify-between">
-          <h3 className="text-sm font-semibold md:text-base">Хичээл</h3>
-          {selectedSubjects.length > 0 && (
-            <Button
-              variant="ghost"
-              onClick={handleClearSubjects}
-              className="cursor-pointer text-xs hover:bg-transparent hover:underline p-0 h-auto"
-            >
-              Цэвэрлэх
-            </Button>
-          )}
-        </div>
+      {/* Divider */}
+      <div className="h-px bg-gray-200" />
 
-        <div className="space-y-2.5 md:space-y-3">
+      {/* Subject Categories */}
+      <div className="space-y-4">
+        <h3 className="text-base font-medium tracking-tight text-black">
+          Хичээлийн төрөл
+        </h3>
+        <div className="flex flex-wrap gap-3">
           {filteredSubjects.length > 0 ? (
-            filteredSubjects.map((subject) => (
-              <div key={subject.id} className="flex items-center space-x-2">
-                <Checkbox
-                  id={subject.slug}
-                  checked={selectedSubjects.includes(subject.id)}
-                  onCheckedChange={(checked) =>
-                    handleSubjectChange(subject.id, checked as boolean)
-                  }
-                  className="cursor-pointer"
-                />
-                <Label
-                  htmlFor={subject.slug}
-                  className="cursor-pointer text-regular peer-disabled:cursor-not-allowed peer-disabled:opacity-70 flex items-center gap-1.5"
+            filteredSubjects.map((subject) => {
+              const isSelected = selectedSubjects.includes(subject.id);
+              return (
+                <button
+                  key={subject.id}
+                  onClick={() => handleSubjectToggle(subject.id)}
+                  className={`flex items-center gap-2 px-4 h-8 rounded border transition-colors cursor-pointer ${
+                    isSelected
+                      ? "bg-[#f7f2fa] border-[#cac4d0]"
+                      : "bg-white border-[#cac4d0]"
+                  }`}
                 >
-                  {subject.icon && <span>{subject.icon}</span>}
-                  {subject.name_mn || subject.name}
-                </Label>
-              </div>
-            ))
+                  {isSelected && <Check className="w-4 h-4 text-[#1a1a1a]" />}
+                  <span className="text-sm font-medium text-[#1a1a1a]">
+                    {subject.name}
+                  </span>
+                </button>
+              );
+            })
           ) : (
             <p className="text-sm text-muted-foreground">
               Шалгалтын төрөл сонгоно уу

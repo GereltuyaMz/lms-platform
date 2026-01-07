@@ -25,7 +25,7 @@ export const CourseHero = ({
   const totalDurationMinutes = Math.floor(totalDurationSeconds / 60);
   return (
     <div className="bg-gray-50 border-b">
-      <div className="container mx-auto   px-4 py-14 max-w-[1400px]">
+      <div className="container mx-auto py-14 px-8 lg:px-[120px] max-w-[1510px]">
         <CourseBreadcrumb courseTitle={course.title} />
 
         {/* Course Info Card */}
@@ -75,14 +75,15 @@ export const CourseHero = ({
                   <span className="text-base">
                     <strong className="font-bold">
                       {formatDuration(totalDurationMinutes)}
-                    </strong>
-                    {" "}видео
+                    </strong>{" "}
+                    видео
                   </span>
                 </div>
                 <div className="flex items-center gap-3">
                   <DumbbellIcon width={24} height={24} fill="#10B981" />
                   <span className="text-base">
-                    <strong className="font-bold">{exerciseCount}</strong> дасгал
+                    <strong className="font-bold">{exerciseCount}</strong>{" "}
+                    дасгал
                   </span>
                 </div>
                 <div className="flex items-center gap-3">

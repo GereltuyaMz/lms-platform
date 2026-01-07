@@ -26,12 +26,7 @@ export const getCourseUnits = async (
         title,
         slug,
         description,
-        video_url,
-        duration_seconds,
-        order_index,
-        order_in_unit,
-        lesson_type,
-        is_preview
+        order_in_unit
       )
     `
     )
@@ -71,11 +66,7 @@ export const getUnitWithQuiz = async (
         title,
         slug,
         description,
-        video_url,
-        duration_seconds,
-        order_in_unit,
-        lesson_type,
-        is_preview
+        order_in_unit
       )
     `
     )

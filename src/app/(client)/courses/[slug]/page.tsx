@@ -68,7 +68,7 @@ const CourseDetailPage = async ({ params }: PageProps) => {
       .from("lessons")
       .select("*")
       .eq("course_id", course.id)
-      .order("order_index"),
+      .order("order_in_unit"),
   ]);
 
   const courseStats = stats?.[0] || {
@@ -78,20 +78,8 @@ const CourseDetailPage = async ({ params }: PageProps) => {
     total_xp: 0,
   };
 
-  // Group lessons by section (legacy fallback)
-  const lessonsBySection = hasUnits
-    ? undefined
-    : (lessons || []).reduce(
-        (acc, lesson) => {
-          const sectionTitle = lesson.section_title || "Uncategorized";
-          if (!acc[sectionTitle]) {
-            acc[sectionTitle] = [];
-          }
-          acc[sectionTitle].push(lesson);
-          return acc;
-        },
-        {} as Record<string, typeof lessons>
-      );
+  // Legacy section-based grouping removed - all courses now use units
+  const lessonsBySection = undefined;
 
   // Get first lesson ID for enrollment link
   const firstLessonId = hasUnits
@@ -161,8 +149,7 @@ const CourseDetailPage = async ({ params }: PageProps) => {
         ]);
 
       completedLessonIds = lessonProgressData?.map((p) => p.lesson_id) || [];
-      completedUnitQuizIds =
-        unitQuizAttemptsData?.map((q) => q.unit_id!) || [];
+      completedUnitQuizIds = unitQuizAttemptsData?.map((q) => q.unit_id!) || [];
     }
   }
 
@@ -193,8 +180,8 @@ const CourseDetailPage = async ({ params }: PageProps) => {
       ? `/courses/${slug}/learn/lesson/${nextLessonData.id}/theory`
       : `/courses/${slug}/learn/lesson/${nextLessonData.id}/unit-quiz`
     : firstLessonId
-      ? `/courses/${slug}/learn/lesson/${firstLessonId}/theory`
-      : null;
+    ? `/courses/${slug}/learn/lesson/${firstLessonId}/theory`
+    : null;
 
   return (
     <div className="min-h-screen bg-white">
@@ -208,8 +195,8 @@ const CourseDetailPage = async ({ params }: PageProps) => {
       />
 
       {/* Main Content */}
-      <div className="container mx-auto py-14 max-w-[1400px]">
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-14">
+      <div className="container mx-auto py-14 max-w-[1510px] px-8 lg:px-[120px]">
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-14 mt-10">
           {/* Left Content - Course Content & Instructor */}
           <div className="lg:col-span-2 space-y-20">
             <CourseContent
