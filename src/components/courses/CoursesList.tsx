@@ -29,12 +29,7 @@ export const CoursesList = ({ courses, userCoupons }: CoursesListProps) => {
           thumbnail: course.thumbnail_url || undefined,
         };
 
-        return (
-          <CourseCard
-            key={course.id}
-            {...courseProps}
-          />
-        );
+        return <CourseCard key={course.id} {...courseProps} />;
       })}
     </div>
   );

@@ -1,8 +1,9 @@
 "use client";
 
-import { Star, ChevronLeft, ChevronRight } from "lucide-react";
+import { ChevronLeft, ChevronRight } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useRef } from "react";
+import { Checkbox } from "@/components/ui/checkbox";
 import { TimelineNode } from "./TimelineNode";
 import { LessonCard } from "./LessonCard";
 import type { Lesson } from "@/types/database";
@@ -25,6 +26,7 @@ type UnitSectionProps = {
   completedUnitQuizIds: string[];
   showBadge?: boolean;
   connectorColor: string;
+  badgeBorderColor: string;
   isLastSection: boolean;
 };
 
@@ -36,6 +38,7 @@ export const UnitSection = ({
   completedUnitQuizIds,
   showBadge = true,
   connectorColor,
+  badgeBorderColor,
   isLastSection,
 }: UnitSectionProps) => {
   const router = useRouter();
@@ -58,7 +61,9 @@ export const UnitSection = ({
 
   return (
     <div
-      className="relative mb-12 flex items-start"
+      className={`relative mb-8 sm:mb-10 md:mb-12 flex items-start ${
+        showBadge ? "mt-16 sm:mt-16 md:mt-34" : ""
+      }`}
       id={`unit-section-${section.id}`}
     >
       {/* Timeline Node with Connector */}
@@ -71,13 +76,14 @@ export const UnitSection = ({
         showBadge={showBadge}
         isLastSection={isLastSection}
         verticalConnectorColor={connectorColor}
+        badgeBorderColor={badgeBorderColor}
       />
 
       {/* Unit Content Container */}
-      <div className="bg-[#eee] rounded-lg py-3 px-4 flex-1 overflow-hidden min-w-0">
+      <div className="bg-[#eee] rounded-lg py-2 sm:py-2.5 md:py-3 px-2 sm:px-3 md:px-4 flex-1 overflow-hidden min-w-0 ">
         {/* Unit Header */}
         <div className="flex items-center justify-between mb-4">
-          <h3 className="text-base font-semibold line-clamp-2 flex-1 pr-4">
+          <h3 className="text-sm sm:text-sm md:text-base font-semibold line-clamp-2 flex-1 pr-2 sm:pr-3 md:pr-4">
             {section.title}
           </h3>
 
@@ -85,17 +91,17 @@ export const UnitSection = ({
           <div className="flex gap-1 flex-shrink-0">
             <button
               onClick={() => handleScroll("left")}
-              className="w-8 h-8 rounded-full border border-black/20 bg-white/50 flex items-center justify-center hover:bg-white transition-all active:scale-95"
+              className="w-7 h-7 sm:w-8 sm:h-8 rounded-full border border-black/20 bg-white/50 flex items-center justify-center hover:bg-white transition-all active:scale-95"
               aria-label="Өмнөх хичээл"
             >
-              <ChevronLeft className="w-4 h-4" />
+              <ChevronLeft className="w-3 h-3 sm:w-4 sm:h-4" />
             </button>
             <button
               onClick={() => handleScroll("right")}
-              className="w-8 h-8 rounded-full border border-black/20 bg-white flex items-center justify-center hover:bg-gray-50 transition-all active:scale-95"
+              className="w-7 h-7 sm:w-8 sm:h-8 rounded-full border border-black/20 bg-white flex items-center justify-center hover:bg-gray-50 transition-all active:scale-95"
               aria-label="Дараах хичээл"
             >
-              <ChevronRight className="w-4 h-4" />
+              <ChevronRight className="w-3 h-3 sm:w-4 sm:h-4" />
             </button>
           </div>
         </div>
@@ -109,7 +115,7 @@ export const UnitSection = ({
           <div className="w-full overflow-x-auto scrollbar-hide">
             <div
               ref={scrollContainerRef}
-              className="flex gap-3  overflow-x-auto scrollbar-hide"
+              className="flex gap-2 sm:gap-2.5 md:gap-3 overflow-x-auto scrollbar-hide"
             >
               {section.lessons.map((lesson) => (
                 <LessonCard
@@ -130,16 +136,19 @@ export const UnitSection = ({
                       }/unit-quiz`
                     )
                   }
-                  className="bg-white rounded-lg border-2 border-yellow-200 px-4 py-3 hover:shadow-md transition-all duration-200 cursor-pointer w-[292px] shrink-0 flex items-center gap-3"
+                  className="bg-white rounded-lg border border-gray-200 p-3 sm:p-3.5 md:p-4 hover:shadow-md transition-all duration-200 cursor-pointer min-w-[160px] w-[160px] sm:min-w-[240px] sm:w-[240px] md:min-w-[260px] md:w-[260px] lg:min-w-[280px] lg:w-[292px] shrink-0 group"
                 >
-                  {completedUnitQuizIds.includes(section.unit!.id) ? (
-                    <Star className="w-5 h-5 fill-yellow-400 text-yellow-400 shrink-0" />
-                  ) : (
-                    <Star className="w-5 h-5 text-gray-400 shrink-0" />
-                  )}
-                  <span className="text-sm font-medium">
-                    {section.unit!.title} - Бүлгийн тест
-                  </span>
+                  <div className="bg-[#faf9f7] rounded p-2 sm:p-2.5 md:p-3 flex gap-1.5 sm:gap-2 items-start">
+                    {completedUnitQuizIds.includes(section.unit!.id) && (
+                      <Checkbox
+                        checked
+                        className="w-3 h-3 sm:w-4 sm:h-4 border-[#415ff4] data-[state=checked]:bg-[#415ff4] data-[state=checked]:border-[#415ff4] pointer-events-none"
+                      />
+                    )}
+                    <span className="text-[11px] sm:text-xs text-gray-700 truncate group-hover:whitespace-normal group-hover:break-words flex-1 transition-all duration-200">
+                      {section.unit!.title} - Бүлгийн тест
+                    </span>
+                  </div>
                 </div>
               )}
             </div>

@@ -80,17 +80,27 @@ export const CourseContent = ({
               completedUnitQuizIds.includes(section.id);
 
             // Check if next unit is fully complete
-            const nextSection = index < sections.length - 1 ? sections[index + 1] : null;
-            const nextProgress = nextSection ? sectionProgress.get(nextSection.id) || 0 : 0;
+            const nextSection =
+              index < sections.length - 1 ? sections[index + 1] : null;
+            const nextProgress = nextSection
+              ? sectionProgress.get(nextSection.id) || 0
+              : 0;
             const isNextFullyComplete =
               nextSection &&
               nextProgress === 100 &&
               nextSection.hasUnitQuiz &&
               completedUnitQuizIds.includes(nextSection.id);
 
-            // Connector color: gold if both current and next are fully complete
+            // Connector color: blue if both current and next are fully complete
             const connectorColor =
-              isCurrentFullyComplete && isNextFullyComplete ? "#f59e0b" : "#e2e2e2";
+              isCurrentFullyComplete && isNextFullyComplete
+                ? "#415ff4"
+                : "#e2e2e2";
+
+            // Badge border color: blue if current unit (first in badge group) is complete
+            const badgeBorderColor = isCurrentFullyComplete
+              ? "#415ff4"
+              : "#e2e2e2";
 
             return (
               <UnitSection
@@ -102,6 +112,7 @@ export const CourseContent = ({
                 completedUnitQuizIds={completedUnitQuizIds}
                 showBadge={showBadge}
                 connectorColor={connectorColor}
+                badgeBorderColor={badgeBorderColor}
                 isLastSection={index === sections.length - 1}
               />
             );

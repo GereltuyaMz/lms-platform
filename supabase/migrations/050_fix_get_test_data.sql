@@ -71,3 +71,64 @@ $$ LANGUAGE sql STABLE;
 
 COMMENT ON FUNCTION get_mock_test_data IS
   'Fetches full test data structure for client. Excludes correct answers (security) and removed legacy scoring fields.';
+
+
+-- Fix calculate_course_stats to work correctly with lesson_content table
+-- The lessons table does NOT have duration_seconds - only lesson_content has it
+-- Each lesson can have multiple lesson_content items, we need to sum them all
+
+CREATE OR REPLACE FUNCTION calculate_course_stats(course_uuid UUID)
+RETURNS TABLE (
+  lesson_count BIGINT,
+  total_duration_seconds INTEGER,
+  exercise_count BIGINT,
+  total_xp INTEGER
+) AS $$
+DECLARE
+  v_lesson_count BIGINT;
+  v_total_duration INTEGER;
+  v_exercise_count BIGINT;
+  v_total_xp INTEGER;
+BEGIN
+  -- Count lessons
+  SELECT COUNT(DISTINCT l.id)
+  INTO v_lesson_count
+  FROM lessons l
+  WHERE l.course_id = course_uuid;
+
+  -- Calculate total duration from lesson_content (sum ALL content items)
+  SELECT COALESCE(SUM(lc.duration_seconds), 0)::INTEGER
+  INTO v_total_duration
+  FROM lessons l
+  LEFT JOIN lesson_content lc ON l.id = lc.lesson_id
+  WHERE l.course_id = course_uuid;
+
+  -- Count exercises (quiz questions)
+  SELECT COUNT(DISTINCT qq.id)
+  INTO v_exercise_count
+  FROM lessons l
+  LEFT JOIN quiz_questions qq ON l.id = qq.lesson_id
+  WHERE l.course_id = course_uuid;
+
+  -- Calculate total XP
+  -- Video XP: 50 base + (duration_seconds / 300 * 5) per content item
+  -- Quiz XP: 100 per question
+  -- Milestone bonus: 1400 (if course has lessons)
+  SELECT (
+    COALESCE(SUM(50 + (COALESCE(lc.duration_seconds, 0) / 300 * 5)), 0) +
+    (v_exercise_count * 100) +
+    CASE WHEN v_lesson_count > 0 THEN 1400 ELSE 0 END
+  )::INTEGER
+  INTO v_total_xp
+  FROM lessons l
+  LEFT JOIN lesson_content lc ON l.id = lc.lesson_id
+  WHERE l.course_id = course_uuid;
+
+  RETURN QUERY
+  SELECT
+    COALESCE(v_lesson_count, 0),
+    COALESCE(v_total_duration, 0),
+    COALESCE(v_exercise_count, 0),
+    COALESCE(v_total_xp, 0);
+END;
+$$ LANGUAGE plpgsql;
