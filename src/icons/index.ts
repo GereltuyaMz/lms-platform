@@ -15,3 +15,5 @@ export { BrainIcon } from "./Brain";
 export { BadgeCheck } from "./BadgeCheck";
 export { NaturalSciencesIcon } from "./NaturalSciencesIcon";
 export { PlaceholderImage } from "./PlaceholderImage";
+export { CourseBackground } from "./CourseBackground";
+export { TooToolol } from "./TooToolol";

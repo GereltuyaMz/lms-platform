@@ -1,7 +1,6 @@
 "use client";
 
-import { Lock, Check, Star } from "lucide-react";
-import { getUnitCompletionState } from "@/lib/utils";
+import { getUnitCompletionState, getSubjectIcon } from "@/lib/utils";
 
 type TimelineNodeProps = {
   progress: number;
@@ -12,17 +11,11 @@ type TimelineNodeProps = {
   showBadge?: boolean;
   isLastSection: boolean;
   verticalConnectorColor: string;
+  badgeBorderColor: string;
 };
 
 const MEASUREMENTS = {
-  CIRCLE_SIZE: 32,
-  CIRCLE_RADIUS: 16,
-  BADGE_TOP_OFFSET: -72,
-  BADGE_TO_CIRCLE_HEIGHT: 56,
-  BADGE_TO_CIRCLE_TOP: -32,
-  HORIZONTAL_WIDTH: 35,
   VERTICAL_TOP_OFFSET: 16,
-  UNIT_BOTTOM_MARGIN: 48,
 } as const;
 
 export const TimelineNode = ({
@@ -34,6 +27,7 @@ export const TimelineNode = ({
   showBadge = false,
   isLastSection,
   verticalConnectorColor,
+  badgeBorderColor,
 }: TimelineNodeProps) => {
   const state = getUnitCompletionState(
     progress,
@@ -42,23 +36,26 @@ export const TimelineNode = ({
     hasUnitQuiz
   );
 
+  // Get subject-specific icon
+  const { Icon: SubjectIcon, name: subjectName } = getSubjectIcon(unitContent);
+
   const isFullyComplete =
     progress === 100 && hasUnitQuiz && completedUnitQuizIds.includes(unitId);
 
-  const horizontalColor = isFullyComplete ? "#f59e0b" : "#e2e2e2";
-  const badgeConnectorColor = isFullyComplete ? "#f59e0b" : "#415ff4";
-  const verticalHeight = "280px";
+  const horizontalColor = isFullyComplete ? "#415ff4" : "#e2e2e2";
+
+  // Icon color: white if completed, use state color if not
+  const iconColor = isFullyComplete ? "#ffffff" : state.iconColor;
 
   return (
-    <div className="relative flex items-center shrink-0">
+    <div className="relative flex items-center shrink-0 ">
       {/* Vertical connector to next unit */}
       {!isLastSection && (
         <div
-          className="absolute left-4 w-0.5"
+          className="absolute left-3 sm:left-3.5 md:left-4 w-0.5 h-[200px] sm:h-[240px] md:h-[280px]"
           style={{
             backgroundColor: verticalConnectorColor,
             top: `${MEASUREMENTS.VERTICAL_TOP_OFFSET}px`,
-            height: verticalHeight,
           }}
           aria-hidden="true"
         />
@@ -68,17 +65,15 @@ export const TimelineNode = ({
       {showBadge && unitContent && (
         <>
           <div
-            className="absolute -left-0 bg-white border px-6 py-3 rounded-sm text-xs font-semibold shadow-sm whitespace-nowrap z-20"
-            style={{ top: `${MEASUREMENTS.BADGE_TOP_OFFSET}px` }}
+            className="absolute -left-0 bg-white border px-3 sm:px-4 py-2 sm:py-2.5 md:py-3 rounded-sm text-xs sm:text-sm md:text-base font-semibold shadow-sm whitespace-nowrap z-20 -top-14 sm:-top-14 md:-top-24 tracking-tight"
+            style={{ borderColor: badgeBorderColor }}
           >
             {unitContent}
           </div>
           <div
-            className="absolute left-4 w-0.5"
+            className="absolute left-3 sm:left-3.5 md:left-4 w-0.5 top-0 -translate-y-full h-8 sm:h-8 md:h-16"
             style={{
-              top: `${MEASUREMENTS.BADGE_TO_CIRCLE_TOP}px`,
-              height: `${MEASUREMENTS.BADGE_TO_CIRCLE_HEIGHT}px`,
-              backgroundColor: badgeConnectorColor,
+              backgroundColor: badgeBorderColor,
             }}
             aria-hidden="true"
           />
@@ -87,7 +82,7 @@ export const TimelineNode = ({
 
       {/* Progress circle */}
       <div
-        className="relative z-10 w-8 h-8 rounded flex items-center justify-center border-2 transition-all duration-300"
+        className="relative z-10 w-6 h-6 sm:w-7 sm:h-7 md:w-8 md:h-8 rounded flex items-center justify-center border-2 transition-all duration-300"
         style={{
           backgroundColor: state.bg,
           borderColor: state.border,
@@ -98,23 +93,17 @@ export const TimelineNode = ({
         aria-valuemax={100}
         aria-label={`${progress.toFixed(0)}% дууссан`}
       >
-        {state.icon === "lock" ? (
-          <Lock className="w-4 h-4" style={{ color: state.iconColor }} />
-        ) : state.icon === "check" ? (
-          <Check className="w-4 h-4" style={{ color: state.iconColor }} />
-        ) : (
-          <Star
-            className="w-4 h-4"
-            style={{ color: state.iconColor, fill: state.iconColor }}
-          />
-        )}
+        <SubjectIcon
+          className="w-3 h-3 sm:w-3.5 sm:h-3.5 md:w-4 md:h-4"
+          style={{ color: iconColor }}
+          aria-label={subjectName}
+        />
       </div>
 
       {/* Horizontal connector to content */}
       <div
-        className="h-0.5"
+        className="h-0.5 w-5 sm:w-7 md:w-[35px]"
         style={{
-          width: `${MEASUREMENTS.HORIZONTAL_WIDTH}px`,
           backgroundColor: horizontalColor,
         }}
         aria-hidden="true"

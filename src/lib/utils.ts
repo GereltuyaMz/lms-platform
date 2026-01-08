@@ -1,5 +1,14 @@
 import { clsx, type ClassValue } from "clsx";
 import { twMerge } from "tailwind-merge";
+import {
+  TrendingUp,
+  Triangle,
+  BarChart3,
+  CircleDot,
+  type LucideIcon,
+  Book,
+  Superscript,
+} from "lucide-react";
 import type { UserProfile, UserStats } from "@/lib/actions";
 import type { UnitWithLessons } from "@/types/database";
 
@@ -140,7 +149,7 @@ export const getTimelineIconState = (progress: number) => {
 
 /**
  * Get unit completion state including quiz status
- * Returns 4 possible states based on lesson progress and quiz completion
+ * Returns color properties based on completion: gray for incomplete, blue for complete (100% + quiz passed)
  */
 export const getUnitCompletionState = (
   progress: number,
@@ -148,44 +157,62 @@ export const getUnitCompletionState = (
   completedUnitQuizIds: string[],
   hasUnitQuiz: boolean
 ) => {
-  // Not started (0%)
-  if (progress === 0) {
-    return {
-      bg: "#d8d8d8",
-      border: "#d8d8d8",
-      icon: "lock" as const,
-      iconColor: "#666666",
-    };
-  }
-
   // Lessons complete (100%)
   if (progress === 100) {
     // Check if unit has quiz and if it's passed
     if (hasUnitQuiz && completedUnitQuizIds.includes(unitId)) {
-      // Fully complete - gold/yellow with star
+      // Fully complete - blue colors
       return {
-        bg: "#fef3c7", // Light gold background (Tailwind yellow-100)
-        border: "#f59e0b", // Amber-500 border
-        icon: "star" as const,
-        iconColor: "#f59e0b",
+        bg: "#9fa8da",
+        border: "#415ff4",
+        iconColor: "#415ff4",
       };
     }
-    // Lessons complete but quiz not passed (or no quiz exists)
+    // Lessons complete but quiz not passed (or no quiz exists) - gray colors
     return {
-      bg: "#9fa8da",
-      border: "#415ff4",
-      icon: "check" as const,
-      iconColor: "#415ff4",
+      bg: "#d8d8d8",
+      border: "#d8d8d8",
+      iconColor: "#666666",
     };
   }
 
-  // In progress (1-99%)
+  // Not complete (0-99%) - gray colors
   return {
-    bg: "#9fa8da",
-    border: "#415ff4",
-    icon: "lock" as const,
-    iconColor: "#415ff4",
+    bg: "#d8d8d8",
+    border: "#d8d8d8",
+    iconColor: "#666666",
   };
+};
+
+type SubjectIconConfig = {
+  Icon: LucideIcon;
+  name: string;
+};
+
+/**
+ * Get subject-specific icon based on unit_content value
+ * Returns appropriate icon component and accessibility name for each subject category
+ */
+export const getSubjectIcon = (
+  unitContent: string | null | undefined
+): SubjectIconConfig => {
+  const iconMap: Record<string, SubjectIconConfig> = {
+    "Тоо Тоолол": { Icon: Book, name: "Тоо тоолол" },
+    Алгебр: { Icon: Superscript, name: "Алгебр" },
+    "Анализын эхлэл": { Icon: TrendingUp, name: "Анализын эхлэл" },
+    "Геометр ба тригонометр": {
+      Icon: Triangle,
+      name: "Геометр ба тригонометр",
+    },
+    "Магадлал, статистик": { Icon: BarChart3, name: "Магадлал, статистик" },
+  };
+
+  return (
+    iconMap[unitContent || ""] || {
+      Icon: CircleDot,
+      name: "Хичээл",
+    }
+  );
 };
 
 /**
@@ -211,7 +238,8 @@ export const isValidVideoUrl = (url: string): boolean => {
   if (!url || url.trim() === "") return false;
 
   // YouTube patterns: youtube.com/watch?v=... or youtu.be/...
-  const youtubePattern = /^(https?:\/\/)?(www\.)?(youtube\.com\/watch\?v=|youtu\.be\/).+$/;
+  const youtubePattern =
+    /^(https?:\/\/)?(www\.)?(youtube\.com\/watch\?v=|youtu\.be\/).+$/;
 
   // Vimeo pattern: vimeo.com/...
   const vimeoPattern = /^(https?:\/\/)?(www\.)?vimeo\.com\/.+$/;
@@ -226,7 +254,9 @@ export const extractVideoId = (url: string): string | null => {
   if (!url) return null;
 
   // Extract YouTube ID from youtube.com/watch?v=... or youtu.be/...
-  const youtubeMatch = url.match(/(?:youtube\.com\/watch\?v=|youtu\.be\/)([^&?]+)/);
+  const youtubeMatch = url.match(
+    /(?:youtube\.com\/watch\?v=|youtu\.be\/)([^&?]+)/
+  );
   if (youtubeMatch) return youtubeMatch[1];
 
   // Extract Vimeo ID from vimeo.com/...

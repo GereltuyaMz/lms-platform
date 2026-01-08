@@ -86,7 +86,7 @@ export const EnrollButton = ({
     <>
       <Button
         onClick={handleClick}
-        className="w-full bg-primary text-white h-12 text-base font-bold cursor-pointer"
+        className="w-full bg-[#29cc57] hover:bg-[#24b34d] text-white h-9 text-[15px] leading-[1.4] tracking-[-0.075px] font-bold rounded-lg shadow-[0px_4px_0px_0px_#1f9941] cursor-pointer px-6 py-0"
         disabled={isLoading || (!continueButtonUrl && isFree && !isEnrolled)}
       >
         {isLoading && <Loader2 className="w-4 h-4 mr-2 animate-spin" />}

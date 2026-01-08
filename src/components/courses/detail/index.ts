@@ -6,3 +6,4 @@ export * from "./EnrollButton";
 export * from "./LessonCard";
 export * from "./TimelineNode";
 export * from "./UnitSection";
+export * from "./ResponsiveSidebar";
