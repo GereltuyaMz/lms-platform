@@ -13,7 +13,6 @@ type MockTestResultsProps = {
   xpAwarded: number;
   detailedResults?: DetailedResultsData;
   onRetry?: () => void;
-  eyshConvertedScore?: number | null;
 };
 
 export const MockTestResults = ({
@@ -23,19 +22,9 @@ export const MockTestResults = ({
   xpAwarded,
   detailedResults,
   onRetry,
-  eyshConvertedScore,
 }: MockTestResultsProps) => {
   const isPassed = percentage >= 60;
   const [showDetails, setShowDetails] = useState(false);
-
-  // Helper function to get EYSH badge color based on score
-  const getEyshBadgeColor = (score: number) => {
-    if (score === 800) return "from-purple-500 to-indigo-600";
-    if (score === 700) return "from-blue-500 to-cyan-600";
-    if (score === 600) return "from-green-500 to-emerald-600";
-    if (score === 500) return "from-yellow-500 to-orange-500";
-    return "from-gray-400 to-gray-500";
-  };
 
   return (
     <div className="bg-white rounded-lg border overflow-hidden">
@@ -66,28 +55,9 @@ export const MockTestResults = ({
 
       {/* Score Details */}
       <div className="p-6 space-y-6">
-        {/* EYSH Converted Score */}
-        {eyshConvertedScore && (
-          <div className="text-center pb-6 border-b">
-            <p className="text-sm text-gray-600 mb-3">ЭЕШ стандарт оноо</p>
-            <div
-              className={`inline-flex items-center gap-3 px-8 py-4 bg-linear-to-r ${getEyshBadgeColor(
-                eyshConvertedScore
-              )} rounded-2xl shadow-lg`}
-            >
-              <Trophy className="w-8 h-8 text-white" />
-              <span className="text-5xl font-bold text-white">
-                {eyshConvertedScore}+
-              </span>
-            </div>
-          </div>
-        )}
-
-        {/* Total Score (Raw) */}
+        {/* Total Score */}
         <div className="text-center flex flex-col gap-4">
-          <p className="text-sm text-gray-600 mb-2">
-            {eyshConvertedScore ? "Суурь оноо" : "Нийт оноо"}
-          </p>
+          <p className="text-sm text-gray-600 mb-2">Нийт оноо</p>
           <div className="text-5xl md:text-6xl font-bold text-gray-900 mb-2">
             {totalScore}/100
           </div>

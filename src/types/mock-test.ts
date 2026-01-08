@@ -1,5 +1,5 @@
 // ================================================
-// EYSH Mock Test Type Definitions
+// Mock Test Type Definitions
 // ================================================
 
 export type MockTestOption = {
@@ -32,7 +32,7 @@ export type MockTestProblem = {
 
 export type MockTestSection = {
   id: string;
-  subject: 'math' | 'physics' | 'chemistry' | 'english';
+  subject: "math" | "physics" | "chemistry" | "english";
   title: string; // "Математик", "Физик", etc.
   order_index: number;
   problems: MockTestProblem[];
@@ -44,10 +44,6 @@ export type MockTest = {
   description: string | null;
   time_limit_minutes: number;
   total_questions: number;
-  eysh_threshold_500: number | null;
-  eysh_threshold_600: number | null;
-  eysh_threshold_700: number | null;
-  eysh_threshold_800: number | null;
   sections: MockTestSection[];
 };
 
@@ -65,7 +61,6 @@ export type MockTestAttempt = {
   percentage: number | null;
   xp_awarded: number;
   subject_scores: SubjectScores | null;
-  eysh_converted_score: number | null;
 };
 
 export type SubjectScore = {
@@ -100,7 +95,6 @@ export type MockTestResults = {
   max_score: number;
   total_questions: number;
   percentage: number;
-  eysh_converted_score: number | null;
 };
 
 // For best attempt display
@@ -112,11 +106,10 @@ export type BestAttemptData = {
   percentage: number;
   xp_awarded: number;
   completed_at: string;
-  eysh_converted_score: number | null;
 } | null;
 
 // Category types for organizing mock tests
-export type MockTestCategory = 'math' | 'physics' | 'chemistry' | 'english';
+export type MockTestCategory = "math" | "physics" | "chemistry" | "english";
 
 export type CategoryInfo = {
   id: MockTestCategory;

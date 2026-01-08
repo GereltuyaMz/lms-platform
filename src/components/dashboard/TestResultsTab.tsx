@@ -16,7 +16,6 @@ type TestAttempt = {
   percentage: number | null;
   xp_awarded: number;
   completed_at: string;
-  eysh_converted_score: number | null;
 };
 
 type TestResultsTabProps = {
@@ -125,8 +124,8 @@ export const TestResultsTab = ({ attempts }: TestResultsTabProps) => {
                             (attempt.percentage ?? 0) >= 80
                               ? "text-green-600"
                               : (attempt.percentage ?? 0) >= 60
-                                ? "text-yellow-600"
-                                : "text-red-600"
+                              ? "text-yellow-600"
+                              : "text-red-600"
                           }`}
                         >
                           {Math.round(attempt.percentage ?? 0)}%

@@ -160,7 +160,7 @@ const CoursesPage = async ({ searchParams }: PageProps) => {
 
       {/* Main Content */}
       <div className="flex flex-col gap-[120px] items-center">
-        <div className="container mx-auto px-4 max-w-[1512px] py-12 lg:px-[120px]">
+        <div className="container mx-auto px-8 max-w-[1516px] py-12 lg:px-[120px] ">
           <CoursesClientWrapper
             examTypes={examTypes || []}
             subjectCategories={subjectCategories || []}
