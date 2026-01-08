@@ -11,6 +11,10 @@ import {
   TestInstructions,
 } from "@/components/mock-test";
 
+// Disable caching to ensure fresh incomplete attempt check
+export const dynamic = "force-dynamic";
+export const revalidate = 0;
+
 type PageProps = {
   params: Promise<{ category: string; testId: string }>;
 };
@@ -51,19 +55,33 @@ export default async function MockTestOverviewPage({ params }: PageProps) {
 
   const { data: incompleteAttempt } = await supabase
     .from("mock_test_attempts")
-    .select("id, time_remaining_seconds")
+    .select("id, end_time")
     .eq("user_id", user.id)
     .eq("mock_test_id", testId)
     .eq("is_completed", false)
+    .gt("end_time", new Date().toISOString())
     .order("started_at", { ascending: false })
     .limit(1)
     .single();
+
+  // Calculate remaining time from end_time
+  const timeRemainingSeconds = incompleteAttempt?.end_time
+    ? Math.max(
+        0,
+        Math.floor(
+          (new Date(incompleteAttempt.end_time).getTime() - Date.now()) / 1000
+        )
+      )
+    : 0;
 
   return (
     <div className="min-h-screen bg-gray-50 py-8">
       <div className="max-w-4xl mx-auto px-4">
         <div className="mb-8">
-          <Link href={`/mock-test/${category}`} className="text-primary hover:underline mb-2 inline-block">
+          <Link
+            href={`/mock-test/${category}`}
+            className="text-primary hover:underline mb-2 inline-block"
+          >
             ← Буцах
           </Link>
           <h1 className="text-3xl md:text-4xl font-bold text-gray-900 mb-2">
@@ -76,7 +94,9 @@ export default async function MockTestOverviewPage({ params }: PageProps) {
 
         {test.sections.length > 1 && (
           <div className="bg-white rounded-lg border shadow-sm p-6 mb-6">
-            <h2 className="text-xl font-bold text-gray-900 mb-4">Хичээл бүрээр</h2>
+            <h2 className="text-xl font-bold text-gray-900 mb-4">
+              Хичээл бүрээр
+            </h2>
             <div className="grid sm:grid-cols-2 gap-4">
               {test.sections.map((section) => {
                 const questionCount = section.problems.reduce(
@@ -86,9 +106,12 @@ export default async function MockTestOverviewPage({ params }: PageProps) {
 
                 return (
                   <div key={section.id} className="p-4 border rounded-lg">
-                    <h3 className="font-bold text-gray-900 mb-1">{section.title}</h3>
+                    <h3 className="font-bold text-gray-900 mb-1">
+                      {section.title}
+                    </h3>
                     <p className="text-sm text-gray-600">
-                      {questionCount} асуулт • {section.problems.length} том асуулт
+                      {questionCount} асуулт • {section.problems.length} том
+                      асуулт
                     </p>
                   </div>
                 );
@@ -99,14 +122,17 @@ export default async function MockTestOverviewPage({ params }: PageProps) {
 
         <BestScoreCard bestAttempt={bestAttempt} />
 
-        {incompleteAttempt && (
+        {incompleteAttempt && timeRemainingSeconds > 0 && (
           <IncompleteAttemptWarning
-            timeRemainingSeconds={incompleteAttempt.time_remaining_seconds || 0}
+            timeRemainingSeconds={timeRemainingSeconds}
           />
         )}
 
         <div className="flex flex-col sm:flex-row gap-4">
-          <Link href={`/mock-test/${category}/${testId}/take`} className="flex-1">
+          <Link
+            href={`/mock-test/${category}/${testId}/take`}
+            className="flex-1"
+          >
             <Button size="lg" className="w-full">
               {incompleteAttempt ? "Үргэлжлүүлэх" : "Тест эхлүүлэх"}
             </Button>

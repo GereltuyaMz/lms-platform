@@ -1,4 +1,4 @@
-// EYSH Mock Test Components
+// Mock Test Components
 export { BestScoreCard } from "./BestScoreCard";
 export { IncompleteAttemptWarning } from "./IncompleteAttemptWarning";
 export { MockTestDetailedResults } from "./MockTestDetailedResults";

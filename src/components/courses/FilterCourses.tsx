@@ -67,7 +67,7 @@ export const FilterCourses = ({
   };
 
   return (
-    <div className="w-full bg-white rounded-3xl px-3 py-6 space-y-6">
+    <div className="w-full bg-white rounded-3xl py-6 space-y-6">
       {/* Exam Type Filter */}
       {examTypes.length > 0 && (
         <div className="space-y-4">

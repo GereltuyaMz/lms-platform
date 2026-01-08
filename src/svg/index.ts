@@ -1,1 +1,0 @@
-export { BadgeCheck } from "./BadgeCheck";

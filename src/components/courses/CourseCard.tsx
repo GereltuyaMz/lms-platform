@@ -5,7 +5,7 @@ import Image from "next/image";
 import { GraduationCap } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import type { CourseLevel } from "@/types/database";
-import { BadgeCheck } from "@/svg";
+import { BadgeCheck } from "@/icons";
 
 type CourseCardProps = {
   slug: string;

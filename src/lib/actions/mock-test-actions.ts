@@ -64,7 +64,7 @@ export async function getMockTestsByCategory(
     const { data: tests, error } = await supabase
       .from("mock_tests")
       .select(
-        "id, title, description, time_limit_minutes, total_questions, passing_score_percentage, created_at, category"
+        "id, title, description, time_limit_minutes, total_questions, created_at, category"
       )
       .eq("category", category)
       .eq("is_published", true)
@@ -339,7 +339,7 @@ export async function submitMockTestWithAnswers(
       };
     }
 
-    // Call new RPC that does batch insert + calculate
+    // Call RPC to submit test and calculate scores
     const { data: results, error } = await supabase.rpc(
       "submit_mock_test_with_answers",
       {
@@ -358,21 +358,29 @@ export async function submitMockTestWithAnswers(
 
     const mockTestResults = results as MockTestResults;
 
-    // Award XP
-    const xpAwarded = await awardMockTestXP(
-      attemptId,
-      mockTestResults.total_score,
-      mockTestResults.total_questions
-    );
+    // Award XP - wrapped to not fail the submission
+    // The submission is already complete in DB at this point
+    let xpAwarded = 0;
+    try {
+      xpAwarded = await awardMockTestXP(
+        attemptId,
+        mockTestResults.total_score,
+        mockTestResults.total_questions
+      );
 
-    // Update XP in attempt
-    await supabase
-      .from("mock_test_attempts")
-      .update({ xp_awarded: xpAwarded })
-      .eq("id", attemptId);
+      // Update XP in attempt
+      await supabase
+        .from("mock_test_attempts")
+        .update({ xp_awarded: xpAwarded })
+        .eq("id", attemptId);
+    } catch (xpError) {
+      console.error("XP award failed (non-critical):", xpError);
+      // Submission still succeeded, XP will be 0
+    }
 
-    revalidatePath("/mock-test");
-    revalidatePath("/dashboard");
+    // Force revalidate to clear any cached incomplete attempt data
+    revalidatePath("/mock-test", "layout");
+    revalidatePath("/dashboard", "layout");
 
     return {
       success: true,
@@ -382,10 +390,11 @@ export async function submitMockTestWithAnswers(
         xpAwarded,
       },
     };
-  } catch {
+  } catch (error) {
+    console.error("Unexpected error in submitMockTestWithAnswers:", error);
     return {
       success: false,
-      message: "Алдаа гарлаа",
+      message: error instanceof Error ? error.message : "Алдаа гарлаа",
     };
   }
 }
@@ -555,9 +564,7 @@ export async function getSavedAnswers(
 export async function validateMockTestAnswers(
   attemptId: string,
   expectedQuestionIds: string[]
-): Promise<
-  ActionResult<{ valid: boolean; missingQuestions: string[] }>
-> {
+): Promise<ActionResult<{ valid: boolean; missingQuestions: string[] }>> {
   try {
     const supabase = await createClient();
 
@@ -600,9 +607,7 @@ export async function validateMockTestAnswers(
  * Get complete attempt results with test structure and all answers
  * Used by: /mock-test/results/[attemptId] page
  */
-export async function getMockTestAttemptResults(
-  attemptId: string
-): Promise<
+export async function getMockTestAttemptResults(attemptId: string): Promise<
   ActionResult<{
     attempt: MockTestAttempt;
     test: MockTest;
@@ -657,6 +662,40 @@ export async function getMockTestAttemptResults(
       return { success: false, message: "Тестийн өгөгдөл олдсонгүй" };
     }
 
+    // 3.1 Fetch correct options to reveal answers (since test is completed)
+    // Collect all question IDs
+    const questionIds: string[] = [];
+    testData.data.sections.forEach((section) => {
+      section.problems.forEach((problem) => {
+        problem.questions.forEach((question) => {
+          questionIds.push(question.id);
+        });
+      });
+    });
+
+    // Fetch correct options for these questions
+    const { data: correctOptions } = await supabase
+      .from("mock_test_options")
+      .select("id, question_id")
+      .eq("is_correct", true)
+      .in("question_id", questionIds);
+
+    // Create a set of correct option IDs for fast lookup
+    const correctOptionIds = new Set(correctOptions?.map((o) => o.id) || []);
+
+    // Inject is_correct flag into the test structure
+    testData.data.sections.forEach((section) => {
+      section.problems.forEach((problem) => {
+        problem.questions.forEach((question) => {
+          question.options.forEach((option) => {
+            if (correctOptionIds.has(option.id)) {
+              option.is_correct = true;
+            }
+          });
+        });
+      });
+    });
+
     // 4. Fetch all answers
     const { data: answers } = await supabase
       .from("mock_test_answers")
@@ -706,7 +745,6 @@ export async function getUserMockTestAttempts(): Promise<
       percentage: number | null;
       xp_awarded: number;
       completed_at: string;
-      eysh_converted_score: number | null;
     }>
   >
 > {
@@ -732,8 +770,7 @@ export async function getUserMockTestAttempts(): Promise<
       percentage,
       xp_awarded,
       completed_at,
-      eysh_converted_score,
-      mock_test:mock_tests (
+      mock_tests (
         title,
         category
       )
@@ -747,7 +784,7 @@ export async function getUserMockTestAttempts(): Promise<
       return { success: false, message: error.message };
     }
 
-    // Define type for raw query result (Supabase foreign key select returns array)
+    // Define type for raw query result (Supabase forward FK returns single object)
     type RawMockTestAttempt = {
       id: string;
       mock_test_id: string;
@@ -756,26 +793,30 @@ export async function getUserMockTestAttempts(): Promise<
       percentage: number | null;
       xp_awarded: number;
       completed_at: string;
-      eysh_converted_score: number | null;
-      mock_test: {
+      mock_tests: {
         title: string;
         category: string | null;
-      }[];
+      } | null;
     };
 
     // Transform data to include test info at top level
-    const attempts = data.map((attempt: RawMockTestAttempt) => ({
-      id: attempt.id,
-      mock_test_id: attempt.mock_test_id,
-      test_title: attempt.mock_test[0]?.title || "Unknown",
-      test_category: attempt.mock_test[0]?.category || null,
-      total_score: attempt.total_score,
-      total_questions: attempt.total_questions,
-      percentage: attempt.percentage,
-      xp_awarded: attempt.xp_awarded,
-      completed_at: attempt.completed_at,
-      eysh_converted_score: attempt.eysh_converted_score,
-    }));
+    // Filter out attempts where the test no longer exists (orphaned data)
+    const attempts = (data as unknown as RawMockTestAttempt[])
+      .filter((attempt) => {
+        // Check if the foreign key join returned test data
+        return attempt.mock_tests !== null;
+      })
+      .map((attempt) => ({
+        id: attempt.id,
+        mock_test_id: attempt.mock_test_id,
+        test_title: attempt.mock_tests!.title,
+        test_category: attempt.mock_tests!.category,
+        total_score: attempt.total_score,
+        total_questions: attempt.total_questions,
+        percentage: attempt.percentage,
+        xp_awarded: attempt.xp_awarded,
+        completed_at: attempt.completed_at,
+      }));
 
     return { success: true, message: "Амжилттай", data: attempts };
   } catch {

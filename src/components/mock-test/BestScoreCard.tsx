@@ -16,24 +16,9 @@ export const BestScoreCard = ({ bestAttempt }: BestScoreCardProps) => {
           <h3 className="font-bold text-green-900 mb-2">
             Таны хамгийн сайн үр дүн
           </h3>
-          <div
-            className={`grid ${
-              bestAttempt?.eysh_converted_score
-                ? "sm:grid-cols-3"
-                : "sm:grid-cols-2"
-            } gap-4`}
-          >
-            {bestAttempt?.eysh_converted_score && (
-              <div>
-                <p className="text-sm text-green-700">ЭЕШ оноо</p>
-                <p className="text-2xl font-bold text-green-900">
-                  {bestAttempt?.eysh_converted_score}+
-                </p>
-              </div>
-            )}
+          <div className="grid sm:grid-cols-2 gap-4">
             <div>
               <p className="text-sm text-green-700">Авсан оноо</p>
-
               <p className="text-2xl font-bold text-green-900">
                 {bestAttempt?.total_score}/100
               </p>

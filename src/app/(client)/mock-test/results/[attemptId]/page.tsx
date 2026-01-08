@@ -5,11 +5,13 @@ import { MockTestResultsPage } from "@/components/mock-test";
 
 type PageProps = {
   params: Promise<{ attemptId: string }>;
+  searchParams: Promise<{ expired?: string }>;
 };
 
-export default async function ResultsPage({ params }: PageProps) {
+export default async function ResultsPage({ params, searchParams }: PageProps) {
   // Unwrap params (Next.js 15)
   const { attemptId } = await params;
+  const { expired } = await searchParams;
 
   // Check authentication
   const supabase = await createClient();
@@ -30,7 +32,14 @@ export default async function ResultsPage({ params }: PageProps) {
 
   const { attempt, test, answers } = result.data;
 
-  return <MockTestResultsPage attempt={attempt} test={test} answers={answers} />;
+  return (
+    <MockTestResultsPage
+      attempt={attempt}
+      test={test}
+      answers={answers}
+      wasExpired={expired === "true"}
+    />
+  );
 }
 
 export async function generateMetadata({ params }: PageProps) {

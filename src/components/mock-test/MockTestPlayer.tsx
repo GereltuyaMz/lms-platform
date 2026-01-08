@@ -9,7 +9,7 @@ import { MockTestSectionNav } from "./MockTestSectionNav";
 import { MockTestProgress } from "./MockTestProgress";
 import { MockTestProblemGroup } from "./MockTestProblemGroup";
 import { Button } from "@/components/ui/button";
-import { submitMockTestWithAnswers } from "@/lib/actions";
+import { submitMockTestWithAnswers, saveMockTestAnswer } from "@/lib/actions";
 import { AlertCircle } from "lucide-react";
 
 type MockTestPlayerProps = {
@@ -70,6 +70,12 @@ export const MockTestPlayer = ({
 
         return newAnswers;
       });
+
+      // Save to database in real-time (don't await to avoid blocking UI)
+      saveMockTestAnswer(attemptId, questionId, optionId).catch((error) => {
+        console.error("Failed to save answer to database:", error);
+        // Don't show error to user - localStorage is backup
+      });
     },
     [attemptId]
   );
@@ -89,9 +95,8 @@ export const MockTestPlayer = ({
         localStorage.removeItem(`mock_test_answers_${attemptId}`);
 
         // Show success toast with XP
-        const xpText = result.data.xpAwarded > 0
-          ? ` • +${result.data.xpAwarded} XP`
-          : "";
+        const xpText =
+          result.data.xpAwarded > 0 ? ` • +${result.data.xpAwarded} XP` : "";
 
         toast.success("Амжилттай илгээлээ!", {
           description: `Та ${result.data.total_score}/100 оноо авлаа${xpText}`,
@@ -100,9 +105,16 @@ export const MockTestPlayer = ({
         // Redirect to results page
         router.push(`/mock-test/results/${attemptId}`);
       } else {
+        console.error("Submission failed:", result.message);
         toast.error(result.message || "Тест илгээж чадсангүй");
+
+        // If already submitted, redirect anyway
+        if (result.message?.includes("already submitted")) {
+          router.push(`/mock-test/results/${attemptId}`);
+        }
       }
-    } catch {
+    } catch (error) {
+      console.error("Submission error:", error);
       toast.error("Тест илгээхэд алдаа гарлаа");
     } finally {
       setIsSubmitting(false);
@@ -177,7 +189,10 @@ export const MockTestPlayer = ({
 
           {/* Timer and Submit Button */}
           <div className="flex items-center justify-between gap-4">
-            <MockTestTimer endTime={endTime} onTimeExpired={handleTimeExpired} />
+            <MockTestTimer
+              endTime={endTime}
+              onTimeExpired={handleTimeExpired}
+            />
             <Button
               onClick={() => setShowSubmitConfirm(true)}
               size="lg"

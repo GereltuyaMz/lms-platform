@@ -12,3 +12,6 @@ export { GoogleIcon } from "./Google";
 export { BookOpenIcon } from "./BookOpen";
 export { LightbulbIcon } from "./Lightbulb";
 export { BrainIcon } from "./Brain";
+export { BadgeCheck } from "./BadgeCheck";
+export { NaturalSciencesIcon } from "./NaturalSciencesIcon";
+export { PlaceholderImage } from "./PlaceholderImage";

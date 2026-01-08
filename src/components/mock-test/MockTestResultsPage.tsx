@@ -2,8 +2,9 @@
 
 import { useRouter } from "next/navigation";
 import { useState, useEffect } from "react";
-import { ArrowLeft, RotateCcw } from "lucide-react";
+import { ArrowLeft, RotateCcw, Clock } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { toast } from "sonner";
 import { MockTestResults } from "./MockTestResults";
 import { MockTestDetailedResults } from "./MockTestDetailedResults";
 import type {
@@ -17,6 +18,7 @@ type MockTestResultsPageProps = {
   attempt: MockTestAttempt;
   test: MockTest;
   answers: Record<string, DetailedAnswer>;
+  wasExpired?: boolean;
 };
 
 const formatMongolianDateTime = (date: Date): string => {
@@ -33,6 +35,7 @@ export const MockTestResultsPage = ({
   attempt,
   test,
   answers,
+  wasExpired = false,
 }: MockTestResultsPageProps) => {
   const router = useRouter();
   const [formattedDate, setFormattedDate] = useState("");
@@ -47,6 +50,17 @@ export const MockTestResultsPage = ({
     setFormattedDate(formatMongolianDateTime(new Date(attempt.completed_at!)));
   }, [attempt.completed_at]);
 
+  // Show expiration notification if test was auto-completed due to time expiry
+  useEffect(() => {
+    if (wasExpired) {
+      toast.warning("Тестийн хугацаа дууссан", {
+        description:
+          "Таны тестийн хугацаа дууссан тул таны хариулсан асуултууд автоматаар илгээгдсэн байна.",
+        duration: 5000,
+      });
+    }
+  }, [wasExpired]);
+
   const handleBackToDashboard = () => {
     router.push("/dashboard?tab=test-results");
   };
@@ -58,6 +72,21 @@ export const MockTestResultsPage = ({
   return (
     <div className="min-h-screen bg-gray-50 py-8">
       <div className="max-w-4xl mx-auto px-4">
+        {wasExpired && (
+          <div className="mb-6 bg-yellow-50 border border-yellow-200 rounded-lg p-4 flex items-start gap-3">
+            <Clock className="w-5 h-5 text-yellow-600 flex-shrink-0 mt-0.5" />
+            <div>
+              <h3 className="font-semibold text-yellow-900 mb-1">
+                Тестийн хугацаа дууссан
+              </h3>
+              <p className="text-sm text-yellow-700">
+                Таны тестийн хугацаа дууссан тул таны хариулсан асуултууд
+                автоматаар илгээгдсэн байна. Та хариулаагүй асуултуудад оноо авч
+                чадаагүй болно.
+              </p>
+            </div>
+          </div>
+        )}
         {/* Navigation Breadcrumb */}
         <div className="mb-6">
           <Button
@@ -85,7 +114,6 @@ export const MockTestResultsPage = ({
             totalQuestions={attempt.total_questions!}
             percentage={attempt.percentage!}
             xpAwarded={attempt.xp_awarded}
-            eyshConvertedScore={attempt.eysh_converted_score}
           />
         </div>
 

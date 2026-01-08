@@ -7,6 +7,7 @@
 ## ✅ Completed Features
 
 ### Database & Backend
+
 - Complete schema: `user_profiles`, `courses`, `lessons`, `enrollments`, `lesson_progress`, quiz tables
 - RPC functions: `calculate_course_stats()`, `update_enrollment_progress()`, quiz validation
 - **Updated calculate_course_stats()** returns exercise_count and total_xp
@@ -16,6 +17,7 @@
 #### 🆕 NEW: Mongolian ЭЕШ Content Migration (Dec 9, 2025)
 
 **📊 Content Statistics:**
+
 - 📚 **10 ЭЕШ-aligned courses** (Math: 4, Physics: 3, Chemistry: 2, English: 1)
 - 📖 **124 Mongolian lessons** (60% video, 20% quiz, 15% text, 5% assignment)
 - ❓ **150+ realistic quiz questions** with detailed Mongolian explanations
@@ -24,6 +26,7 @@
 - 💰 **Complete purchase flow** (shopping cart + payment simulation)
 
 **🗂️ Files Created:**
+
 - **Badge System Schema** (`008_create_badge_system.sql`) - Complete achievement system with automatic triggers
 - **Teachers Table** (`009_add_teachers.sql`) - Instructor profiles with Mongolian credentials
 - **Payment Simulation** (`010_create_payment_simulation.sql`) - Shopping cart and purchase flow tables
@@ -35,11 +38,13 @@
 **⚠️ IMPORTANT:** These migrations/seeds are created but **NOT YET APPLIED** to database. Must run in Supabase Dashboard.
 
 ### Core Pages
+
 - **Courses Page**: Filtering, pagination (6/page), course cards with stats
 - **Course Detail**: Hero section, accordion lesson list, stats, "Enroll Now" button
 - **Lesson Detail**: Video player, quiz system, sidebar navigation, content tabs, breadcrumbs
 
 ### Video System
+
 - react-player v3 integration
 - Plays MP4 from Supabase Storage
 - **Progress tracking fully implemented** (auto-save every 5 seconds)
@@ -49,6 +54,7 @@
 - Error handling
 
 ### Quiz System
+
 - Multiple choice questions with instant feedback
 - Progress bar, navigation (Previous/Next)
 - Results screen with scoring
@@ -60,12 +66,14 @@
 - Quiz completion updates lesson progress
 
 ### Lesson Navigation
+
 - Previous/Next buttons functional
 - Clickable sidebar lessons
 - Works for all lesson types (video/text/quiz/assignment)
 - URL updates on navigation
 
 ### Performance Optimizations
+
 - Database view reduces courses page from 11 queries to 1 query
 - Next.js revalidation (300s) for caching
 - Parallelized queries with Promise.all
@@ -74,6 +82,7 @@
 - **🆕 Reduced network round trips** - 1 server action instead of 2 for lesson completion
 
 ### Code Quality Improvements
+
 - Extracted utility functions to `/src/lib/lesson-utils.ts`
 - Created `LessonRenderer` component for type-specific rendering
 - Shared `CourseBreadcrumb` component (DRY principle)
@@ -85,6 +94,7 @@
 - **Component composition** - CourseCard handles both enrolled and recommended courses
 
 ### Authentication
+
 - Sign up/Sign in pages with UI complete
 - Google OAuth integration
 - Middleware for session management
@@ -93,6 +103,7 @@
 - **Email confirmation flow** with proper error handling
 
 ### Enrollment System
+
 - **Enrollment server actions** (create, check, list enrollments)
 - **"Enroll Now" button** creates enrollment in database
 - **Lesson page protection** - redirects if not enrolled
@@ -100,6 +111,7 @@
 - Auto-updates progress via database trigger
 
 ### Dashboard UI
+
 - Profile header with avatar, XP, streak, and league stats
 - **My Courses tab** showing enrolled courses with real progress
 - **Continue Learning button** takes you to last accessed lesson
@@ -112,6 +124,7 @@
 - Mobile responsive layout
 
 ### Onboarding System
+
 - **Multi-step wizard** with 4 steps and progress bar
 - **Step 1:** Welcome greeting with user's name
 - **Step 2:** Goal selection (Professional growth, Excel in school, Lifelong learning, Explore new subjects)
@@ -122,6 +135,7 @@
 - **Saves selections** to learning_goals array in user profile
 
 ### Course Stats & XP Display
+
 - **Dynamic exercise count** from database (counts quiz/assignment lessons)
 - **Dynamic total XP** calculation includes video, quiz, text, and milestone bonuses
 - **CourseHero displays** real exercise count and total XP per course
@@ -133,6 +147,7 @@
 ## 📋 Current State
 
 ### What's Working
+
 1. Browse courses with filtering and pagination
 2. View course details with lesson lists
 3. **Enroll in courses** (creates enrollment in database)
@@ -141,39 +156,40 @@
 6. **Video progress auto-saves** every 5 seconds
 7. **Resume from saved position** when returning to lesson
 8. **Auto-mark complete** when video reaches 90%
-10. **Sidebar shows completion status** with checkmarks
-11. **Dashboard shows real enrollments** with progress percentages
-12. **Progress auto-updates** via database trigger
-13. Navigate between lessons (buttons + sidebar)
-14. Take interactive quizzes with feedback
-15. **Quiz attempts save to database** with scores
-16. **Quizzes mark lessons complete** at 80%+ score
-17. **Best quiz scores tracked** per lesson
-18. All durations display as MM:SS (8:10, 16:23)
-19. Fast page loads with optimized queries
-20. **XP system fully functional** - awards XP for video and quiz completion
-21. **Real XP displayed in dashboard** with level and league calculations
-22. **XP toast notifications** when earning points
-23. **Milestone bonuses auto-award** at 25%, 50%, 75%, 100% course completion
-24. **First course completion bonus** awards 1,000 XP
-25. **Streak system tracks daily activity** and awards bonuses (3/7/30 days)
-26. **Streak displayed in dashboard** with 🔥 fire emoji
-27. **Toast notifications for all XP gains** (lessons, quizzes, milestones, streaks)
-28. **Profile completion bonus** awards 150 XP for completing avatar, DOB, and learning goals
-29. **Onboarding page** guides new users through profile setup
-30. **Dashboard banner** prompts users with incomplete profiles
-31. **Profile edit form** fully functional with backend save
-32. **Multi-step onboarding wizard** with progress bar and user name greeting
-33. **Course recommendations** personalized by learning goals or popular courses
-34. **Dynamic course stats** - exercise count and total XP from database
-35. **Accurate lesson XP display** in course content (varies by type and duration)
-36. **Auth callback** redirects new users to onboarding automatically
+9. **Sidebar shows completion status** with checkmarks
+10. **Dashboard shows real enrollments** with progress percentages
+11. **Progress auto-updates** via database trigger
+12. Navigate between lessons (buttons + sidebar)
+13. Take interactive quizzes with feedback
+14. **Quiz attempts save to database** with scores
+15. **Quizzes mark lessons complete** at 80%+ score
+16. **Best quiz scores tracked** per lesson
+17. All durations display as MM:SS (8:10, 16:23)
+18. Fast page loads with optimized queries
+19. **XP system fully functional** - awards XP for video and quiz completion
+20. **Real XP displayed in dashboard** with level and league calculations
+21. **XP toast notifications** when earning points
+22. **Milestone bonuses auto-award** at 25%, 50%, 75%, 100% course completion
+23. **First course completion bonus** awards 1,000 XP
+24. **Streak system tracks daily activity** and awards bonuses (3/7/30 days)
+25. **Streak displayed in dashboard** with 🔥 fire emoji
+26. **Toast notifications for all XP gains** (lessons, quizzes, milestones, streaks)
+27. **Profile completion bonus** awards 150 XP for completing avatar, DOB, and learning goals
+28. **Onboarding page** guides new users through profile setup
+29. **Dashboard banner** prompts users with incomplete profiles
+30. **Profile edit form** fully functional with backend save
+31. **Multi-step onboarding wizard** with progress bar and user name greeting
+32. **Course recommendations** personalized by learning goals or popular courses
+33. **Dynamic course stats** - exercise count and total XP from database
+34. **Accurate lesson XP display** in course content (varies by type and duration)
+35. **Auth callback** redirects new users to onboarding automatically
 
 ---
 
 ## 🔧 Configuration Needed
 
 ### Google OAuth Setup
+
 - [ ] Enable Google provider in Supabase (Authentication → Providers)
 - [ ] Create OAuth credentials in Google Cloud Console
 - [ ] Add redirect URI in Google Console: `https://pedpzfvyjnkapqylfbqi.supabase.co/auth/v1/callback`
@@ -185,6 +201,7 @@
 ## 🚧 Implementation Plan
 
 ### Phase 0: Dashboard UI ✅ COMPLETED
+
 - ✅ Profile header with avatar, name, XP, level display
 - ✅ "My Courses" section showing enrolled courses with progress bars
 - ✅ Achievements/badges section with locked/unlocked badges
@@ -193,6 +210,7 @@
 - ✅ Empty states for no data
 
 ### Phase 1: Enrollment System ✅ COMPLETED
+
 - ✅ Create enrollment on "Enroll Now" click
 - ✅ Check enrollment before allowing lesson access
 - ✅ Redirect to course page if not enrolled
@@ -200,6 +218,7 @@
 - ✅ Auto user profile creation if doesn't exist
 
 ### Phase 2: Video Progress Tracking ✅ COMPLETED
+
 - ✅ Save `last_position_seconds` to `lesson_progress` table
 - ✅ Resume from saved position on lesson load
 - ✅ Mark lesson as complete when video ends (90%+)
@@ -208,6 +227,7 @@
 - ✅ Dashboard progress bars update automatically
 
 ### Phase 3: Quiz Attempt Tracking ✅ COMPLETED
+
 - ✅ Save quiz attempts to database with enrollment_id
 - ✅ Track best score per quiz with `getBestQuizScore()`
 - ✅ Auto-mark quiz lesson complete at 80%+ score
@@ -219,6 +239,7 @@
 ---
 
 ### Phase 4A: Core XP System ✅ COMPLETED
+
 - ✅ Created `xp_transactions` table with trigger for auto-updating total_xp
 - ✅ Added `total_xp`, `current_streak`, `longest_streak` columns to user_profiles
 - ✅ Award XP on video completion (50 XP base + duration bonus + first lesson bonus)
@@ -230,6 +251,7 @@
 - ✅ Separated XP logic into clean server actions and helper functions
 
 ### Phase 4B: Milestone Bonuses ✅ COMPLETED
+
 - ✅ Award course progress milestones (25%, 50%, 75%, 100%)
 - ✅ First course completion bonus (1,000 XP)
 - ✅ Auto-check milestones on lesson/quiz completion
@@ -237,6 +259,7 @@
 - ⏳ XP transaction history page in dashboard (Future)
 
 ### Phase 4D: Streak System ✅ COMPLETED
+
 - ✅ Track daily activity with `last_activity_date`
 - ✅ Calculate streak continuation/reset automatically
 - ✅ Award streak milestone bonuses (3-day: 100 XP, 7-day: 250 XP, 30-day: 1,000 XP)
@@ -248,6 +271,7 @@
 ---
 
 ### Phase 4C: Profile Completion ✅ COMPLETED
+
 - ✅ Database migration for profile completion tracking
 - ✅ RPC function to check profile completion (avatar, DOB, learning goals)
 - ✅ RPC function to award 150 XP for profile completion
@@ -266,6 +290,7 @@
 ---
 
 ### Phase 5: Profile Edit Functionality ✅ COMPLETED
+
 - ✅ Connect profile edit form to Supabase
 - ✅ Update user_profiles table (full_name, date_of_birth, learning_goals)
 - ✅ Real-time profile updates with revalidation
@@ -274,6 +299,7 @@
 ---
 
 ### Phase 7: Course Recommendations & Component Refactoring ✅ COMPLETED
+
 - ✅ Course recommendations based on learning goals
 - ✅ Fallback to popular courses if no learning goals set
 - ✅ Empty state shows personalized or popular recommendations
@@ -289,6 +315,7 @@
 ---
 
 ### Phase 6: Connect Sidebar Progress
+
 - Fetch real lesson completion data
 - Update progress bar with actual percentages
 - Show completed lesson indicators
@@ -297,6 +324,7 @@
 ---
 
 ### Phase 8: Badge/Achievement System (IN PROGRESS - Dec 9, 2025)
+
 - ✅ Create `badges` and `user_badges` database tables
 - ✅ Seed badges table with 45+ badges with Mongolian translations
 - ✅ Database triggers for automatic badge checking (lesson/quiz/course completion)
@@ -312,6 +340,7 @@
 ---
 
 ### Phase 9: Mongolian ЭЕШ Content & Teachers (COMPLETED - Dec 9, 2025) ✅
+
 - ✅ Replace English courses with 10 ЭЕШ-aligned Mongolian courses
 - ✅ Create 124 Mongolian lessons across all courses
 - ✅ Write 150+ realistic ЭЕШ-style quiz questions in Mongolian
@@ -321,6 +350,7 @@
 - ⏳ **NEED TO RUN:** Apply migrations and seeds to database
 
 **Courses Created:**
+
 - Math (4): Алгебр, Геометр, Тооны онол, Тохромол ба Статистик
 - Physics (3): Механик, Цахилгаан ба Соронзон, Дулааны Физик
 - Chemistry (2): Энгийн Хими, Органик Хими
@@ -329,6 +359,7 @@
 ---
 
 ### Phase 10: Course Purchase Flow (COMPLETED - Dec 9, 2025) ✅
+
 - ✅ Create `course_purchases` table for purchase tracking
 - ✅ Create `shopping_cart` table for cart functionality
 - ✅ Implement database functions: `has_course_access()`, `simulate_purchase()`
@@ -345,6 +376,7 @@
 ---
 
 ### Phase 11: UI Mongolian Conversion (IN PROGRESS - Dec 10, 2025)
+
 - ✅ Convert landing page components (Hero, Features, WhyChooseUs, etc.)
 - ✅ Convert layout components (Header, Footer, Navigation)
 - ✅ Convert course components (FilterCourses levels, CoursesList empty state)
@@ -362,6 +394,7 @@
 ---
 
 ### Phase 12: Design & Mobile Responsiveness (NOT STARTED)
+
 - ⏳ Fix Footer responsive padding (px-36 → responsive)
 - ⏳ Polish landing page mobile layout
 - ⏳ Polish guide page mobile layout
@@ -374,6 +407,7 @@
 ## 📊 Database Structure
 
 ### Core Tables
+
 - `user_profiles` - User data, XP, role
 - `courses` - Course info, pricing, thumbnails, **instructor_id** 🆕
 - `lessons` - Lesson content, duration_seconds, video URLs
@@ -382,30 +416,36 @@
 - `lesson_progress` - Individual lesson tracking, last position
 
 ### Quiz Tables
+
 - `quiz_questions` - Questions with explanations and points
 - `quiz_options` - Multiple choice options with correct answer flags
 - `quiz_attempts` - User quiz attempts with scores
 - `quiz_answers` - Individual answers within attempts
 
 ### Views
+
 - `courses_with_stats` - Pre-calculated lesson counts and durations
 - **🆕 Migration 011** - Refreshed view to include `instructor_id` for teacher data
 
 ### XP System Tables ✅
+
 - `xp_transactions` - XP award history with auto-update trigger
 - User profile columns: `total_xp`, `current_streak`, `longest_streak`, `last_activity_date`
 
 ### 🆕 Badge/Achievement System Tables ✅ (Dec 9, 2025)
+
 - `badges` - Achievement definitions (45+ badges with Mongolian translations)
 - `user_badges` - User badge unlocks and progress tracking
 - **Automatic triggers** - Check and award badges on lesson/quiz/course completion
 - **Functions** - `check_and_award_badge()`, `get_user_badge_stats()`
 
 ### 🆕 Teacher/Instructor Tables ✅ (Dec 9, 2025)
+
 - `teachers` - Instructor profiles with Mongolian bios and credentials
 - **8 teachers seeded** - МУИС, ШУТИС professors with specializations
 
 ### 🆕 Payment Simulation Tables ✅ (Dec 9, 2025)
+
 - `course_purchases` - Simulated course purchases (UI/flow only)
 - `shopping_cart` - Temporary cart for course collection
 - **Functions** - `has_course_access()`, `simulate_purchase()`, `get_cart_total()`
@@ -416,6 +456,7 @@
 ## 🐛 Known Issues & Bug Fixes
 
 ### ✅ Fixed (Dec 10, 2025)
+
 1. ✅ **Streak system timezone bug** - Fixed incorrect day calculation causing multiple increments
 2. ✅ **Level filter bug** - Fixed "Бүгд" (All) showing no results
 3. ✅ **Teacher data not loading** - Fixed foreign key join syntax (`teachers!instructor_id`)
@@ -425,6 +466,7 @@
 7. ✅ **Toast notifications** - Converted to Mongolian ("Хичээлээ амжилттай дуусгалаа!", "өдөр стрик!")
 
 ### ⚠️ Still Open
+
 1. ⚠️ **NEW MIGRATIONS NOT APPLIED** - Migration 011 and others need to be run
 2. ⚠️ Video resume functionality not working properly (seekTo method issue)
 3. Assignment pages are placeholders
@@ -439,6 +481,7 @@
 ## 💾 Tech Stack
 
 **Frontend:**
+
 - Next.js 15.5.5 (App Router, Turbopack)
 - React 19, TypeScript (strict mode)
 - Tailwind CSS v4, shadcn/ui
@@ -446,10 +489,12 @@
 - Sonner (toast notifications)
 
 **Backend:**
+
 - Supabase (PostgreSQL, Auth, Storage)
 - Row Level Security (RLS)
 
 **Tools:**
+
 - Bun (package manager)
 
 ---
@@ -483,6 +528,7 @@
 ## 🔧 Admin Panel (Branch: 16-create-admin-authentication)
 
 **Build Order:**
+
 1. ✅ Admin auth + layout (middleware, sidebar, header, breadcrumbs)
 2. ✅ Category CRUD
 3. ✅ Course CRUD (with categories, teacher selection)
@@ -494,6 +540,7 @@
 9. ⏳ Thumbnail upload to Supabase Storage - not yet implemented
 
 **Routes (flat):**
+
 - `/admin` - Dashboard with stats
 - `/admin/categories` - Category CRUD
 - `/admin/courses` - Course table & CRUD
@@ -502,6 +549,7 @@
 - `/admin/lessons/[id]/quiz` - Quiz builder
 
 **Files Created:**
+
 - `src/middleware.ts` - Admin route protection
 - `src/lib/actions/admin/` - Server actions (auth, categories, courses, units, lessons, quiz)
 - `src/components/admin/` - Admin UI components
@@ -516,6 +564,7 @@
 **Next Immediate Steps:**
 
 ### 🔴 CRITICAL - Apply Database Changes
+
 1. **Run migrations in Supabase Dashboard SQL Editor:**
    - `008_create_badge_system.sql` (badge tables + triggers)
    - `009_add_teachers.sql` (teachers table + 8 teachers) ✅ APPLIED
@@ -527,12 +576,14 @@
    - `006_seed_mongolian_quiz_questions.sql` (150+ quiz questions) ✅ APPLIED
 
 ### 🟡 HIGH PRIORITY - Backend Implementation
+
 2. Phase 8 - Badge server actions (`/src/lib/actions/badges.ts`)
 3. Phase 10 - Cart & Purchase server actions
 4. Phase 10 - Update enrollment.ts with purchase gating
 5. Phase 8 - Replace AchievementsTab mock data with real queries
 
 ### 🟢 MEDIUM PRIORITY - UI & Polish
+
 6. Phase 11 - Complete UI Mongolian conversion (100+ files remaining)
 7. Phase 12 - Mobile responsiveness fixes
 8. Phase 6 - Connect Sidebar Progress (real lesson completion data)
@@ -544,6 +595,7 @@
 ## 🎉 Recent Accomplishments (Dec 10, 2025)
 
 ### Bug Fixes
+
 - ✅ Fixed streak system timezone calculation bug
 - ✅ Fixed courses filter level "Бүгд" showing no results
 - ✅ Fixed teacher data not loading (foreign key syntax)
@@ -551,17 +603,20 @@
 - ✅ Fixed TypeScript errors in cart.ts and purchase.ts
 
 ### Performance Improvements
+
 - ✅ Optimized video completion: 1 server call instead of 2 (50% faster)
 - ✅ Reduced network round trips for lesson completion
 - ✅ Eliminated duplicate authentication calls
 
 ### Localization
+
 - ✅ Converted toast notifications to Mongolian
 - ✅ Converted level filter options to Mongolian
 - ✅ Converted course empty states to Mongolian
 - ✅ Converted home page and guide page to Mongolian
 
 ### Build Quality
+
 - ✅ Production build passing
 - ✅ TypeScript: 0 errors
 - ✅ ESLint: Only minor warnings (unused imports)
