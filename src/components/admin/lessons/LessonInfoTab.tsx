@@ -11,6 +11,8 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import type { LessonFormData } from "@/lib/actions/admin/lessons";
+import type { QuizForSelect } from "@/lib/actions/admin/quizzes";
+import { QuizSelector } from "@/components/admin/quizzes/QuizSelector";
 
 type UnitOption = {
   id: string;
@@ -24,12 +26,14 @@ type LessonInfoTabProps = {
   formData: LessonFormData;
   onChange: (data: Partial<LessonFormData>) => void;
   units: UnitOption[];
+  quizzes: QuizForSelect[];
 };
 
 export const LessonInfoTab = ({
   formData,
   onChange,
   units,
+  quizzes,
 }: LessonInfoTabProps) => {
   const groupedUnits = units.reduce((acc, unit) => {
     const courseName = unit.course_title || "No Course";
@@ -112,6 +116,12 @@ export const LessonInfoTab = ({
           <p className="text-xs text-gray-500">Бүлэг доторх дараалал</p>
         </div>
       </div>
+
+      <QuizSelector
+        value={formData.quiz_id}
+        onChange={(value) => onChange({ quiz_id: value })}
+        quizzes={quizzes}
+      />
     </div>
   );
 };

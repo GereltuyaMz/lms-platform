@@ -4,6 +4,7 @@ import { Plus, FileText } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { getUnit, getCoursesForSelect } from "@/lib/actions/admin/units";
+import { getQuizzesForSelect } from "@/lib/actions/admin/quizzes";
 import { UnitForm } from "@/components/admin/units/UnitForm";
 
 type UnitDetailPageProps = {
@@ -14,21 +15,25 @@ export default async function UnitDetailPage({ params }: UnitDetailPageProps) {
   const { id } = await params;
   // Handle "new" route
   if (id === "new") {
-    const courses = await getCoursesForSelect();
+    const [courses, quizzes] = await Promise.all([
+      getCoursesForSelect(),
+      getQuizzesForSelect(),
+    ]);
     return (
       <div className="max-w-2xl space-y-6">
         <div>
           <h1 className="text-2xl font-semibold text-gray-900">Шинэ бүлэг</h1>
           <p className="text-gray-500 mt-1">Хичээлд шинэ бүлэг үүсгэх</p>
         </div>
-        <UnitForm courses={courses} />
+        <UnitForm courses={courses} quizzes={quizzes} />
       </div>
     );
   }
 
-  const [unit, courses] = await Promise.all([
+  const [unit, courses, quizzes] = await Promise.all([
     getUnit(id),
     getCoursesForSelect(),
+    getQuizzesForSelect(),
   ]);
 
   if (!unit) {
@@ -45,7 +50,7 @@ export default async function UnitDetailPage({ params }: UnitDetailPageProps) {
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
         {/* Unit Form - 2 columns */}
         <div className="lg:col-span-2">
-          <UnitForm unit={unit} courses={courses} />
+          <UnitForm unit={unit} courses={courses} quizzes={quizzes} />
         </div>
 
         {/* Lessons Sidebar - 1 column */}

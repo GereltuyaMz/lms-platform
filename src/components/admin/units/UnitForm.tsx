@@ -21,14 +21,17 @@ import {
   type UnitWithRelations,
 } from "@/lib/actions/admin/units";
 import type { Course } from "@/types/database/tables";
+import type { QuizForSelect } from "@/lib/actions/admin/quizzes";
+import { QuizSelector } from "@/components/admin/quizzes/QuizSelector";
 
 type UnitFormProps = {
   unit?: UnitWithRelations | null;
   courses: Pick<Course, "id" | "title">[];
+  quizzes: QuizForSelect[];
   defaultCourseId?: string;
 };
 
-export const UnitForm = ({ unit, courses, defaultCourseId }: UnitFormProps) => {
+export const UnitForm = ({ unit, courses, quizzes, defaultCourseId }: UnitFormProps) => {
   const router = useRouter();
   const isEditing = !!unit;
 
@@ -39,6 +42,7 @@ export const UnitForm = ({ unit, courses, defaultCourseId }: UnitFormProps) => {
     description: unit?.description || null,
     order_index: unit?.order_index || 0,
     unit_content: unit?.unit_content || null,
+    quiz_id: unit?.quiz_id || null,
   });
 
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -148,6 +152,13 @@ export const UnitForm = ({ unit, courses, defaultCourseId }: UnitFormProps) => {
             />
             <p className="text-xs text-gray-500">Бага тоо эхэнд харагдана</p>
           </div>
+
+          <QuizSelector
+            value={formData.quiz_id}
+            onChange={(value) => handleChange("quiz_id", value)}
+            quizzes={quizzes}
+            label="Бүлгийн тест"
+          />
 
           <div className="flex items-center gap-4 pt-4 border-t">
             <Button type="submit" disabled={isSubmitting}>

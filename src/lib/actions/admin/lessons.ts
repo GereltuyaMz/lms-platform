@@ -16,6 +16,7 @@ export type LessonFormData = {
   title: string;
   description: string | null;
   order_in_unit: number;
+  quiz_id: string | null;
 };
 
 export async function getLessons(): Promise<LessonWithRelations[]> {
@@ -34,8 +35,7 @@ export async function getLessons(): Promise<LessonWithRelations[]> {
       quiz_questions (count)
     `
     )
-    .order("course_id", { ascending: true })
-    .order("order_in_unit", { ascending: true });
+    .order("created_at", { ascending: false });
 
   if (error) throw new Error(error.message);
 
@@ -182,6 +182,7 @@ export async function createLesson(
       slug,
       description: formData.description,
       order_in_unit: formData.order_in_unit,
+      quiz_id: formData.quiz_id,
     })
     .select()
     .single();
@@ -214,6 +215,7 @@ export async function updateLesson(
       slug,
       description: formData.description,
       order_in_unit: formData.order_in_unit,
+      quiz_id: formData.quiz_id,
     })
     .eq("id", id)
     .select()

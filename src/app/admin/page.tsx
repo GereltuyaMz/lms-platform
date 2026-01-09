@@ -33,36 +33,36 @@ export default async function AdminDashboard() {
 
   const statCards = [
     {
-      title: "Total Courses",
+      title: "Нийт хичээл",
       value: stats.totalCourses,
-      subtitle: `${stats.publishedCourses} published, ${stats.draftCourses} drafts`,
+      subtitle: `${stats.publishedCourses} нийтлэгдсэн, ${stats.draftCourses} ноорог`,
       icon: BookOpen,
       href: "/admin/courses",
       color: "text-blue-600",
       bgColor: "bg-blue-50",
     },
     {
-      title: "Total Units",
+      title: "Нийт бүлэг",
       value: stats.totalUnits,
-      subtitle: "Course sections",
+      subtitle: "Хичээлийн бүлгүүд",
       icon: Layers,
       href: "/admin/units",
       color: "text-purple-600",
       bgColor: "bg-purple-50",
     },
     {
-      title: "Total Lessons",
+      title: "Нийт сэдэв",
       value: stats.totalLessons,
-      subtitle: "Video, text & quizzes",
+      subtitle: "Видео, текст & тест",
       icon: FileText,
       href: "/admin/lessons",
       color: "text-green-600",
       bgColor: "bg-green-50",
     },
     {
-      title: "Total Enrollments",
+      title: "Нийт бүртгэл",
       value: stats.totalEnrollments,
-      subtitle: "Active learners",
+      subtitle: "Идэвхтэй суралцагчид",
       icon: Users,
       href: "#",
       color: "text-orange-600",
@@ -73,8 +73,8 @@ export default async function AdminDashboard() {
   return (
     <div className="space-y-6">
       <div>
-        <h1 className="text-2xl font-semibold text-gray-900">Dashboard</h1>
-        <p className="text-gray-500 mt-1">Overview of your LMS content</p>
+        <h1 className="text-2xl font-semibold text-gray-900">Хянах самбар</h1>
+        <p className="text-gray-500 mt-1">LMS агуулгын ерөнхий мэдээлэл</p>
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
@@ -104,7 +104,7 @@ export default async function AdminDashboard() {
         <Card className="border-gray-200">
           <CardHeader>
             <CardTitle className="text-lg font-medium text-gray-900">
-              Quick Actions
+              Түргэн үйлдлүүд
             </CardTitle>
           </CardHeader>
           <CardContent className="space-y-2">
@@ -128,8 +128,8 @@ export default async function AdminDashboard() {
                 <Layers className="h-4 w-4 text-purple-600" />
               </div>
               <div>
-                <p className="font-medium text-gray-900">Manage Categories</p>
-                <p className="text-sm text-gray-500">Organize your course categories</p>
+                <p className="font-medium text-gray-900">Ангилал удирдах</p>
+                <p className="text-sm text-gray-500">Хичээлийн ангилалуудыг зохион байгуулах</p>
               </div>
             </Link>
           </CardContent>
@@ -138,12 +138,12 @@ export default async function AdminDashboard() {
         <Card className="border-gray-200">
           <CardHeader>
             <CardTitle className="text-lg font-medium text-gray-900">
-              Recent Activity
+              Сүүлийн үйлдлүүд
             </CardTitle>
           </CardHeader>
           <CardContent>
             <p className="text-gray-500 text-sm">
-              Activity feed will be shown here...
+              Үйлдлийн түүх энд харагдана...
             </p>
           </CardContent>
         </Card>

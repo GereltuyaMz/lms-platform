@@ -33,7 +33,7 @@ export const LessonRenderer = ({
         {/* Render quiz after content if lesson has quiz data */}
         {quizData && (
           <QuizPlayer
-            title={`${lesson.title} - Шалгалт`}
+            title={`${lesson.title} - Тест`}
             quizData={quizData}
             lessonId={lesson.id}
             courseId={courseId}
@@ -60,10 +60,10 @@ export const LessonRenderer = ({
     <div className="bg-white rounded-lg border p-6 mb-6">
       <div className="text-center py-12">
         <p className="text-lg text-muted-foreground mb-4">
-          No content available
+          Агуулга байхгүй байна
         </p>
         <p className="text-sm text-muted-foreground">
-          This lesson has no content blocks yet.
+          Энэ хичээлд агуулга оруулаагүй байна.
         </p>
       </div>
     </div>

@@ -68,7 +68,7 @@ export const AdminHeader = ({ user }: AdminHeaderProps) => {
             <DropdownMenuItem asChild>
               <Link href="/" className="cursor-pointer">
                 <User className="mr-2 h-4 w-4" />
-                View Site
+                Сайт руу очих
               </Link>
             </DropdownMenuItem>
             <DropdownMenuSeparator />
@@ -77,7 +77,7 @@ export const AdminHeader = ({ user }: AdminHeaderProps) => {
               className="text-red-600 focus:text-red-600 cursor-pointer"
             >
               <LogOut className="mr-2 h-4 w-4" />
-              Sign Out
+              Гарах
             </DropdownMenuItem>
           </DropdownMenuContent>
         </DropdownMenu>

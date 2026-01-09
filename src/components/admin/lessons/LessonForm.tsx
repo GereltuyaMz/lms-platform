@@ -52,6 +52,7 @@ export const LessonForm = ({ lesson, units, defaultUnitId }: LessonFormProps) =>
     title: lesson?.title || "",
     description: lesson?.description || "",
     order_in_unit: lesson?.order_in_unit || 0,
+    quiz_id: lesson?.quiz_id || null,
   });
   const [isSubmitting, setIsSubmitting] = useState(false);
 
@@ -70,7 +71,8 @@ export const LessonForm = ({ lesson, units, defaultUnitId }: LessonFormProps) =>
 
     if (result.success) {
       toast.success(result.message);
-      router.push(formData.unit_id ? `/admin/units/${formData.unit_id}` : "/admin/lessons");
+      // Always redirect to lessons table view after creating/updating
+      router.push("/admin/lessons");
     } else {
       toast.error(result.message);
     }
@@ -166,7 +168,7 @@ export const LessonForm = ({ lesson, units, defaultUnitId }: LessonFormProps) =>
         <Button
           type="button"
           variant="outline"
-          onClick={() => router.push(formData.unit_id ? `/admin/units/${formData.unit_id}` : "/admin/lessons")}
+          onClick={() => router.push("/admin/lessons")}
         >
           Цуцлах
         </Button>

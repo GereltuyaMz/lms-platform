@@ -31,7 +31,7 @@ export const TestContent = ({
 
   return (
     <QuizPlayer
-      title={`${lessonTitle} - Шалгалт`}
+      title={`${lessonTitle} - Тест`}
       quizData={quizData}
       lessonId={lessonId}
       courseId={courseId}

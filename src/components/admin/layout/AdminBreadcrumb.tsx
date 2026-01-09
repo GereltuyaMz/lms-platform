@@ -19,8 +19,8 @@ const routeLabels: Record<string, string> = {
   categories: "Ангилал",
   courses: "Хичээлүүд",
   units: "Бүлэгүүд",
-  lessons: "Хичээлүүд",
-  quiz: "Шалгалт үүсгэгч",
+  lessons: "Сэдвүүд",
+  quizzes: "Тестүүд",
   new: "Шинэ",
   edit: "Засах",
 };

@@ -17,6 +17,7 @@ export type UnitFormData = {
   description: string | null;
   order_index: number;
   unit_content: string | null;
+  quiz_id: string | null;
 };
 
 export async function getUnits(): Promise<UnitWithRelations[]> {
@@ -140,6 +141,7 @@ export async function createUnit(
       slug,
       order_index: formData.order_index,
       unit_content: formData.unit_content,
+      quiz_id: formData.quiz_id,
     })
     .select()
     .single();
@@ -171,6 +173,7 @@ export async function updateUnit(
       slug,
       order_index: formData.order_index,
       unit_content: formData.unit_content,
+      quiz_id: formData.quiz_id,
     })
     .eq("id", id)
     .select()

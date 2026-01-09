@@ -41,8 +41,13 @@ export const CategoryTable = ({ categories }: CategoryTableProps) => {
   const router = useRouter();
   const [deleteId, setDeleteId] = useState<string | null>(null);
   const [isDeleting, setIsDeleting] = useState(false);
-  const [expandedParents, setExpandedParents] = useState<Set<string>>(new Set());
   const [localCategories, setLocalCategories] = useState<Category[]>(categories);
+
+  // Initialize with first parent expanded
+  const [expandedParents, setExpandedParents] = useState<Set<string>>(() => {
+    const firstParent = categories.find((c) => !c.parent_id && c.category_type === "exam");
+    return firstParent ? new Set([firstParent.id]) : new Set();
+  });
 
   const sensors = useSensors(
     useSensor(PointerSensor, { activationConstraint: { distance: 8 } }),
@@ -157,6 +162,7 @@ export const CategoryTable = ({ categories }: CategoryTableProps) => {
 
         {/* Parent categories */}
         <DndContext
+          id="dnd-parent-categories"
           sensors={sensors}
           collisionDetection={closestCenter}
           onDragEnd={(e) => handleDragEnd(parents, e)}
@@ -184,6 +190,7 @@ export const CategoryTable = ({ categories }: CategoryTableProps) => {
               Бусад (Эцэг ангилалгүй)
             </div>
             <DndContext
+              id="dnd-orphan-categories"
               sensors={sensors}
               collisionDetection={closestCenter}
               onDragEnd={(e) => handleDragEnd(orphans, e)}

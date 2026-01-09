@@ -98,7 +98,7 @@ export const CourseTableRow = ({
           </SelectTrigger>
           <SelectContent>
             <SelectItem value="draft">Ноорог</SelectItem>
-            <SelectItem value="published">Нийтлэгдсэн</SelectItem>
+            <SelectItem value="published">Нийтлэх</SelectItem>
           </SelectContent>
         </Select>
       </TableCell>

@@ -33,3 +33,5 @@ CREATE INDEX idx_units_content ON units(course_id, unit_content);
 -- COMMENTS
 -- =====================================================
 COMMENT ON COLUMN units.unit_content IS 'Content type for unit categorization (theory, practice, mixed, quiz, project)';
+
+ALTER TABLE units DROP CONSTRAINT units_unit_content_check;

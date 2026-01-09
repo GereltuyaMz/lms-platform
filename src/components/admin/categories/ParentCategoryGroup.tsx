@@ -142,6 +142,7 @@ export const ParentCategoryGroup = ({
         {childCategories.length > 0 && (
           <CollapsibleContent>
             <DndContext
+              id={`dnd-children-${parent.id}`}
               sensors={sensors}
               collisionDetection={closestCenter}
               onDragEnd={onChildDragEnd}
