@@ -71,6 +71,7 @@ export const UnitInlineForm = ({
       description: null,
       order_index: isEditing ? unit.order_index : nextOrderIndex,
       unit_content: formData.unit_content.trim() || null,
+      quiz_id: null,
     };
 
     const result = isEditing

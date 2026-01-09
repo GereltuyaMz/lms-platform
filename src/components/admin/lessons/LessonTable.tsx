@@ -37,7 +37,7 @@ export const LessonTable = ({ lessons }: LessonTableProps) => {
   const [sortField, setSortField] = useState<"course" | "unit" | null>(null);
   const [sortDirection, setSortDirection] = useState<"asc" | "desc">("asc");
   const [currentPage, setCurrentPage] = useState(1);
-  const pageSize = 10;
+  const pageSize = 20;
 
   const handleSort = (field: "course" | "unit") => {
     if (sortField === field) {
@@ -92,7 +92,8 @@ export const LessonTable = ({ lessons }: LessonTableProps) => {
         <Table>
           <TableHeader>
             <TableRow className="bg-gray-50">
-              <TableHead className="font-medium w-[300px]">Хичээл</TableHead>
+              <TableHead className="font-medium w-[50px]">№</TableHead>
+              <TableHead className="font-medium w-[250px]">Хичээл</TableHead>
               <TableHead className="font-medium">
                 <div className="flex items-center gap-2">
                   <span>Хичээл / Бүлэг</span>
@@ -107,21 +108,24 @@ export const LessonTable = ({ lessons }: LessonTableProps) => {
                 </div>
               </TableHead>
               <TableHead className="font-medium">Нийт хугацаа</TableHead>
+              <TableHead className="font-medium">Үүсгэсэн</TableHead>
+              <TableHead className="font-medium">Шинэчилсэн</TableHead>
               <TableHead className="font-medium text-right">Үйлдэл</TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
             {paginatedLessons.length === 0 ? (
               <TableRow>
-                <TableCell colSpan={4} className="text-center text-gray-500 py-8">
+                <TableCell colSpan={7} className="text-center text-gray-500 py-8">
                   Хичээл олдсонгүй. Эхний хичээлээ үүсгэнэ үү.
                 </TableCell>
               </TableRow>
             ) : (
-              paginatedLessons.map((lesson) => (
+              paginatedLessons.map((lesson, index) => (
                 <LessonTableRow
                   key={lesson.id}
                   lesson={lesson}
+                  rowNumber={(currentPage - 1) * pageSize + index + 1}
                   onRowClick={(id) => router.push(`/admin/lessons/${id}`)}
                   onDelete={setDeleteId}
                 />

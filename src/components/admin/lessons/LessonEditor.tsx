@@ -19,6 +19,7 @@ import {
 } from "@/lib/actions/admin/lessons";
 import { upsertLessonContent } from "@/lib/actions/admin/lesson-content";
 import type { LessonContent } from "@/types/database/tables";
+import type { QuizForSelect } from "@/lib/actions/admin/quizzes";
 
 type UnitOption = {
   id: string;
@@ -33,6 +34,7 @@ type ContentState = { videoUrl: string | null; content: string };
 type LessonEditorProps = {
   lesson?: LessonWithRelations | null;
   units: UnitOption[];
+  quizzes: QuizForSelect[];
   initialContent?: LessonContent[];
   defaultUnitId?: string;
 };
@@ -40,6 +42,7 @@ type LessonEditorProps = {
 export const LessonEditor = ({
   lesson,
   units,
+  quizzes,
   initialContent = [],
   defaultUnitId,
 }: LessonEditorProps) => {
@@ -58,6 +61,7 @@ export const LessonEditor = ({
     title: lesson?.title || "",
     description: lesson?.description || "",
     order_in_unit: lesson?.order_in_unit || 0,
+    quiz_id: lesson?.quiz_id || null,
   });
 
   const [theory, setTheory] = useState<ContentState>({
@@ -139,8 +143,8 @@ export const LessonEditor = ({
       if (isEditing) {
         router.refresh();
       } else {
-        // Redirect to the new lesson's edit page
-        router.push(`/admin/lessons/${lessonId}`);
+        // Redirect to the lessons table view
+        router.push("/admin/lessons");
       }
     } catch (error) {
       toast.error("Алдаа гарлаа");
@@ -186,7 +190,7 @@ export const LessonEditor = ({
                   <FileText className="h-4 w-4 mr-2" />Жишээ
                 </TabsTrigger>
                 <TabsTrigger value="test" className={tabTriggerClass}>
-                  <CheckCircle2 className="h-4 w-4 mr-2" />Шалгалт
+                  <CheckCircle2 className="h-4 w-4 mr-2" />Тест
                 </TabsTrigger>
               </TabsList>
             </div>
@@ -196,6 +200,7 @@ export const LessonEditor = ({
                 formData={formData}
                 onChange={(data) => setFormData((prev) => ({ ...prev, ...data }))}
                 units={units}
+                quizzes={quizzes}
               />
             </TabsContent>
 
@@ -208,17 +213,37 @@ export const LessonEditor = ({
             </TabsContent>
 
             <TabsContent value="test" className="p-6 m-0">
-              <div className="text-center py-16">
-                <div className="inline-flex items-center justify-center w-16 h-16 rounded-full bg-gray-100 mb-4">
-                  <CheckCircle2 className="h-8 w-8 text-gray-400" />
+              {formData.quiz_id ? (
+                <div className="text-center py-16">
+                  <div className="inline-flex items-center justify-center w-16 h-16 rounded-full bg-green-100 mb-4">
+                    <CheckCircle2 className="h-8 w-8 text-green-600" />
+                  </div>
+                  <h3 className="text-lg font-semibold text-gray-700 mb-2">
+                    Тест холбогдсон
+                  </h3>
+                  <p className="text-gray-500 mb-4">
+                    {quizzes.find((q) => q.id === formData.quiz_id)?.title || "Тест"} -{" "}
+                    {quizzes.find((q) => q.id === formData.quiz_id)?.question_count || 0} асуулт
+                  </p>
+                  <a
+                    href={`/admin/quizzes/${formData.quiz_id}`}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="text-primary hover:underline text-sm"
+                  >
+                    Тестийг засах →
+                  </a>
                 </div>
-                <h3 className="text-lg font-semibold text-gray-700 mb-2">
-                  Шалгалтын холболт удахгүй нэмэгдэнэ
-                </h3>
-                <p className="text-gray-500">
-                  Хичээлд шалгалтын асуулт холбох боломж удахгүй бэлэн болно.
-                </p>
-              </div>
+              ) : (
+                <div className="text-center py-16">
+                  <div className="inline-flex items-center justify-center w-16 h-16 rounded-full bg-gray-100 mb-4">
+                    <CheckCircle2 className="h-8 w-8 text-gray-400" />
+                  </div>
+                  <h3 className="text-lg font-semibold text-gray-700 mb-2">
+                    Тест холбогдоогүй байна
+                  </h3>
+                </div>
+              )}
             </TabsContent>
           </Tabs>
         </CardContent>
@@ -229,7 +254,7 @@ export const LessonEditor = ({
         isSubmitting={isSubmitting}
         isEditing={isEditing}
         onSave={handleSave}
-        onCancel={() => router.push(formData.unit_id ? `/admin/units/${formData.unit_id}` : "/admin/lessons")}
+        onCancel={() => router.push("/admin/lessons")}
       />
     </div>
   );

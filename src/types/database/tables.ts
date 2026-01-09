@@ -34,6 +34,7 @@ export interface CategoryWithChildren extends Category {
 export interface Unit {
   id: string;
   course_id: string;
+  quiz_id: string | null; // Optional attached quiz for unit-level exam
   title: string;
   title_mn: string | null;
   description: string | null;
@@ -82,6 +83,7 @@ export interface Lesson {
   id: string;
   course_id: string;
   unit_id: string | null; // Foreign key to units table
+  quiz_id: string | null; // Optional attached quiz for knowledge check
   title: string;
   slug: string;
   description: string | null;
@@ -137,11 +139,24 @@ export interface LessonProgress {
 }
 
 // =====================================================
+// QUIZZES (Standalone reusable quiz assets)
+// =====================================================
+
+export interface Quiz {
+  id: string;
+  title: string;
+  description: string | null;
+  created_at: string;
+  updated_at: string;
+}
+
+// =====================================================
 // QUIZ_QUESTIONS
 // =====================================================
 
 export interface QuizQuestion {
   id: string;
+  quiz_id: string | null; // For standalone quizzes
   lesson_id: string | null; // Nullable for unit-level quizzes
   unit_id: string | null; // For unit-level quizzes
   question: string;

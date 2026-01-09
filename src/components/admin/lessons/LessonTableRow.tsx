@@ -8,8 +8,19 @@ import type { LessonWithRelations } from "@/lib/actions/admin/lessons";
 
 type LessonTableRowProps = {
   lesson: LessonWithRelations;
+  rowNumber: number;
   onRowClick: (id: string) => void;
   onDelete: (id: string) => void;
+};
+
+const formatDate = (dateString: string | null) => {
+  if (!dateString) return "—";
+  const date = new Date(dateString);
+  return date.toLocaleDateString("mn-MN", {
+    year: "numeric",
+    month: "2-digit",
+    day: "2-digit",
+  });
 };
 
 const getTotalDuration = (lesson: LessonWithRelations) => {
@@ -25,6 +36,7 @@ const getTotalDuration = (lesson: LessonWithRelations) => {
 
 export const LessonTableRow = ({
   lesson,
+  rowNumber,
   onRowClick,
   onDelete,
 }: LessonTableRowProps) => (
@@ -32,10 +44,11 @@ export const LessonTableRow = ({
     className="hover:bg-gray-50 cursor-pointer"
     onClick={() => onRowClick(lesson.id)}
   >
+    <TableCell className="text-gray-500 text-sm">{rowNumber}</TableCell>
     <TableCell>
-      <span className="font-medium text-gray-900">{lesson.title}</span>
+      <span className="font-medium text-gray-900 block truncate max-w-[220px]">{lesson.title}</span>
       {lesson.description && (
-        <p className="text-xs text-gray-500 truncate max-w-[250px]">
+        <p className="text-xs text-gray-500 truncate max-w-[220px]">
           {lesson.description}
         </p>
       )}
@@ -51,6 +64,8 @@ export const LessonTableRow = ({
       </div>
     </TableCell>
     <TableCell className="text-gray-600">{getTotalDuration(lesson)}</TableCell>
+    <TableCell className="text-gray-500 text-sm">{formatDate(lesson.created_at)}</TableCell>
+    <TableCell className="text-gray-500 text-sm">{formatDate(lesson.updated_at)}</TableCell>
     <TableCell className="text-right" onClick={(e) => e.stopPropagation()}>
       <div className="flex items-center justify-end gap-1">
         <Button variant="ghost" size="sm" asChild>

@@ -28,7 +28,7 @@ export const LessonContentEditor = ({
           <TabsList className="w-full justify-start">
             <TabsTrigger value="theory">📚 Онол</TabsTrigger>
             <TabsTrigger value="examples">📝 Жишээ</TabsTrigger>
-            <TabsTrigger value="test">✅ Шалгалт</TabsTrigger>
+            <TabsTrigger value="test">✅ Тест</TabsTrigger>
           </TabsList>
 
           <TabsContent value="theory" className="space-y-6 mt-6">
@@ -51,10 +51,10 @@ export const LessonContentEditor = ({
             <div className="text-center py-12">
               <div className="text-5xl mb-4 opacity-40">✅</div>
               <h3 className="text-lg font-semibold text-gray-600 mb-2">
-                Шалгалтын холболт удахгүй нэмэгдэнэ
+                Тестийн холболт удахгүй нэмэгдэнэ
               </h3>
               <p className="text-gray-500">
-                Хичээлд шалгалтын асуулт холбох боломж удахгүй бэлэн болно.
+                Хичээлд тестийн асуулт холбох боломж удахгүй бэлэн болно.
               </p>
             </div>
           </TabsContent>

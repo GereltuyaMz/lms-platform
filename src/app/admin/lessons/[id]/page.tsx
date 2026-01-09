@@ -1,5 +1,6 @@
 import { notFound } from "next/navigation";
 import { getLesson, getUnitsForSelect } from "@/lib/actions/admin/lessons";
+import { getQuizzesForSelect } from "@/lib/actions/admin/quizzes";
 import { LessonEditor } from "@/components/admin/lessons/LessonEditor";
 
 type LessonDetailPageProps = {
@@ -16,13 +17,17 @@ export default async function LessonDetailPage({
 
   // Handle "new" route - use the same unified editor
   if (id === "new") {
-    const units = await getUnitsForSelect();
-    return <LessonEditor units={units} defaultUnitId={defaultUnitId} />;
+    const [units, quizzes] = await Promise.all([
+      getUnitsForSelect(),
+      getQuizzesForSelect(),
+    ]);
+    return <LessonEditor units={units} quizzes={quizzes} defaultUnitId={defaultUnitId} />;
   }
 
-  const [lesson, units] = await Promise.all([
+  const [lesson, units, quizzes] = await Promise.all([
     getLesson(id),
     getUnitsForSelect(),
+    getQuizzesForSelect(),
   ]);
 
   if (!lesson) {
@@ -33,6 +38,7 @@ export default async function LessonDetailPage({
     <LessonEditor
       lesson={lesson}
       units={units}
+      quizzes={quizzes}
       initialContent={lesson.content_blocks}
     />
   );
