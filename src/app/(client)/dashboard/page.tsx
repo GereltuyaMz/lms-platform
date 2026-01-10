@@ -1,14 +1,12 @@
 import { createClient } from "@/lib/supabase/server";
 import { redirect } from "next/navigation";
 import {
-  ProfileHeader,
   DashboardTabs,
   MyCoursesTab,
   AchievementsTab,
-  ProfileTab,
   ShopTab,
-  ProfileCompletionBanner,
   TestResultsTab,
+  ProfileOverview,
 } from "@/components/dashboard";
 import {
   getUserEnrollments,
@@ -37,25 +35,23 @@ export default async function DashboardPage() {
     redirect("/signin");
   }
 
-  const userEmail = user.email || "";
-
-  // Fetch real user stats, enrollments, profile, profile completion, badges, mock test attempts, and orders from database
+  // Fetch real user stats, enrollments, profile, badges, mock test attempts, orders, and profile completion from database
   const [
     { data: userStats },
     { data: enrollments },
     { data: userProfile },
-    profileCompletionResult,
     badgeProgress,
     mockTestAttempts,
     userOrders,
+    profileCompletionResult,
   ] = await Promise.all([
     getUserStats(),
     getUserEnrollments(),
     getUserProfile(),
-    checkProfileCompletion(),
     getUserBadgeProgress(),
     getUserMockTestAttempts(),
     getUserOrders(),
+    checkProfileCompletion(),
   ]);
 
   // Use empty array if no enrollments or error
@@ -72,6 +68,8 @@ export default async function DashboardPage() {
       description: string | null;
       thumbnail_url: string | null;
       level: CourseLevel;
+      duration_hours: number | null;
+      lessons: { count: number }[];
     } | null;
   }>;
 
@@ -100,20 +98,22 @@ export default async function DashboardPage() {
   const recommendedCoursesResult =
     userEnrollments.length === 0 ? await getRecommendedCourses() : null;
 
+  // Get profile completion status
   const isProfileComplete = profileCompletionResult.isComplete || false;
 
   return (
     <div className="min-h-screen bg-gray-50">
-      {/* Profile Header */}
-      <ProfileHeader userStats={userStats} />
-
-      {/* Profile Completion Banner */}
-      <div className="container mx-auto px-4 pt-8 max-w-[1400px]">
-        <ProfileCompletionBanner isProfileComplete={isProfileComplete} />
-      </div>
-
-      {/* Dashboard Tabs */}
+      {/* Dashboard Tabs with 3-column layout */}
       <DashboardTabs
+        profileOverviewContent={
+          <ProfileOverview
+            userStats={userStats}
+            enrollments={userEnrollments}
+            recommendedCourses={recommendedCoursesResult?.courses || []}
+            isPersonalized={recommendedCoursesResult?.isPersonalized || false}
+            joinedDate={userProfile?.created_at}
+          />
+        }
         coursesContent={
           <MyCoursesTab
             enrollments={userEnrollments}
@@ -127,21 +127,9 @@ export default async function DashboardPage() {
         testResultsContent={
           <TestResultsTab attempts={mockTestAttempts.data || []} />
         }
-        profileContent={
-          <ProfileTab
-            username={userStats.username}
-            email={userEmail}
-            avatarUrl={userStats.avatarUrl}
-            dateOfBirth={userProfile?.date_of_birth || ""}
-            phoneNumber={userProfile?.phone_number || ""}
-            learningGoals={
-              Array.isArray(userProfile?.learning_goals)
-                ? userProfile.learning_goals.join(", ")
-                : userProfile?.learning_goals || ""
-            }
-          />
-        }
         shopContent={<ShopTab orders={userOrders} />}
+        achievements={badgeProgress}
+        isProfileComplete={isProfileComplete}
       />
     </div>
   );

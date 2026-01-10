@@ -2,9 +2,17 @@
 
 import { useState, useEffect } from "react";
 import { useSearchParams, useRouter } from "next/navigation";
-import { BoardIcon } from "@/icons";
-import { Trophy, User, ShoppingBag, FileBarChart } from "lucide-react";
+import {
+  UserIcon,
+  VideoIcon,
+  TrophyIcon,
+  BookBookmarkIcon,
+  StorefrontIcon,
+} from "@phosphor-icons/react";
 import { cn } from "@/lib/utils";
+import { AchievementsSidebar } from "./AchievementsSidebar";
+import { ProfileCompletionBanner } from "./ProfileCompletionBanner";
+import type { BadgeWithProgress } from "@/lib/actions/badges";
 
 type TabId = "courses" | "achievements" | "test-results" | "profile" | "shop";
 
@@ -15,60 +23,66 @@ type Tab = {
 };
 
 type DashboardTabsProps = {
+  // Main content for each tab
+  profileOverviewContent: React.ReactNode;
   coursesContent: React.ReactNode;
   achievementsContent: React.ReactNode;
   testResultsContent: React.ReactNode;
-  profileContent: React.ReactNode;
   shopContent: React.ReactNode;
+  // Data for right sidebar
+  achievements: BadgeWithProgress[];
+  isProfileComplete: boolean;
 };
 
 const tabs: Tab[] = [
   {
+    id: "profile",
+    label: "Профайл",
+    icon: <UserIcon size={20} />,
+  },
+  {
     id: "courses",
     label: "Миний хичээлүүд",
-    icon: <BoardIcon width={24} height={24} />,
+    icon: <VideoIcon size={20} />,
   },
   {
     id: "achievements",
     label: "Амжилтууд",
-    icon: <Trophy className="w-6 h-6" />,
+    icon: <TrophyIcon size={20} />,
   },
   {
     id: "test-results",
     label: "Тестийн үр дүн",
-    icon: <FileBarChart className="w-6 h-6" />,
-  },
-  {
-    id: "profile",
-    label: "Профайл",
-    icon: <User className="w-6 h-6" />,
+    icon: <BookBookmarkIcon size={20} />,
   },
   {
     id: "shop",
     label: "Дэлгүүр",
-    icon: <ShoppingBag className="w-6 h-6" />,
+    icon: <StorefrontIcon size={20} />,
   },
 ];
 
 export const DashboardTabs = ({
+  profileOverviewContent,
   coursesContent,
   achievementsContent,
   testResultsContent,
-  profileContent,
   shopContent,
+  achievements,
+  isProfileComplete,
 }: DashboardTabsProps) => {
   const router = useRouter();
   const searchParams = useSearchParams();
 
-  // Read tab from URL or default to "courses"
+  // Read tab from URL or default to "profile"
   const tabFromUrl = searchParams.get("tab") as TabId | null;
   const initialTab =
     tabFromUrl &&
-    ["courses", "achievements", "test-results", "profile", "shop"].includes(
+    ["profile", "courses", "achievements", "test-results", "shop"].includes(
       tabFromUrl
     )
       ? tabFromUrl
-      : "courses";
+      : "profile";
 
   const [activeTab, setActiveTab] = useState<TabId>(initialTab);
 
@@ -77,7 +91,7 @@ export const DashboardTabs = ({
     const urlTab = searchParams.get("tab") as TabId | null;
     if (
       urlTab &&
-      ["courses", "achievements", "test-results", "profile", "shop"].includes(
+      ["profile", "courses", "achievements", "test-results", "shop"].includes(
         urlTab
       )
     ) {
@@ -92,41 +106,61 @@ export const DashboardTabs = ({
   };
 
   const contentMap: Record<TabId, React.ReactNode> = {
+    profile: profileOverviewContent,
     courses: coursesContent,
     achievements: achievementsContent,
     "test-results": testResultsContent,
-    profile: profileContent,
     shop: shopContent,
   };
 
+  // Show right sidebar on profile and courses tabs only
+  const showRightSidebar = activeTab === "profile" || activeTab === "courses";
+
+  // Wider content for test-results tab
+  const mainContentMaxWidth =
+    activeTab === "test-results" ? "lg:max-w-[802px]" : "lg:max-w-[518px]";
+
   return (
-    <div className="container mx-auto px-4 py-8 max-w-[1400px]">
-      <div className="flex flex-col lg:flex-row gap-6">
-        {/* Sidebar */}
-        <aside className="lg:w-64 flex-shrink-0">
-          <nav className="bg-white rounded-lg border p-2 space-y-1">
+    <div className="container mx-auto px-4 py-6 sm:py-8 max-w-[1400px]">
+      <div className="flex flex-col lg:flex-row gap-6 lg:gap-14">
+        {/* Left Sidebar - Navigation */}
+        <aside className="w-full lg:w-80 flex-shrink-0">
+          <nav className="bg-white rounded-2xl border p-5 space-y-1">
             {tabs.map((tab) => (
               <button
                 key={tab.id}
                 onClick={() => handleTabChange(tab.id)}
                 className={cn(
-                  "w-full flex items-center gap-3 px-4 py-3 rounded-lg text-left transition-colors",
+                  "w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-left transition-colors",
                   activeTab === tab.id
-                    ? "bg-gray-100 font-semibold"
+                    ? "bg-[var(--dashboard-tab-active)]"
                     : "hover:bg-gray-50"
                 )}
               >
+                {/* Icon with background */}
                 <span
                   className={cn(
-                    activeTab === tab.id ? "text-gray-900" : "text-gray-600"
+                    "w-10 h-10 rounded-full flex items-center justify-center flex-shrink-0",
+                    "bg-[var(--dashboard-icon-bg)] border border-white"
                   )}
                 >
-                  {tab.icon}
+                  <span
+                    className={cn(
+                      activeTab === tab.id
+                        ? "text-[var(--dashboard-text-active)]"
+                        : "text-gray-600"
+                    )}
+                  >
+                    {tab.icon}
+                  </span>
                 </span>
+                {/* Label */}
                 <span
                   className={cn(
-                    "text-lg",
-                    activeTab === tab.id ? "text-gray-900" : "text-gray-700"
+                    "text-base font-medium",
+                    activeTab === tab.id
+                      ? "text-[var(--dashboard-text-active)]"
+                      : "text-gray-700"
                   )}
                 >
                   {tab.label}
@@ -137,7 +171,23 @@ export const DashboardTabs = ({
         </aside>
 
         {/* Main Content */}
-        <main className="flex-1 min-w-0">{contentMap[activeTab]}</main>
+        <main className={`flex-1 min-w-0 ${mainContentMaxWidth}`}>
+          {contentMap[activeTab]}
+        </main>
+
+        {/* Right Sidebar - Profile Completion + Achievements (only on profile and courses tabs) */}
+        {showRightSidebar && (
+          <aside className="hidden lg:block lg:w-80 flex-shrink-0 space-y-6">
+            {/* Profile Completion Banner */}
+            <ProfileCompletionBanner isProfileComplete={isProfileComplete} />
+
+            {/* Achievements Sidebar */}
+            <AchievementsSidebar
+              achievements={achievements}
+              onViewAll={() => handleTabChange("achievements")}
+            />
+          </aside>
+        )}
       </div>
     </div>
   );

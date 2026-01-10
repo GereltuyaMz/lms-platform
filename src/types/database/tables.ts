@@ -102,12 +102,36 @@ export interface LessonContent {
   title: string; // Content title (e.g., "Теори", "Хялбар жишээ")
   content_type: ContentType; // theory, easy_example, hard_example, text, attachment
   video_url: string | null;
+  lesson_video_id: string | null; // FK to lesson_videos (Bunny Stream)
   content: string | null;
   description: string | null; // Text explanation shown below video content
   duration_seconds: number | null;
   order_index: number; // Order within lesson (1=theory, 2=easy, 3=hard)
   created_at: string;
   updated_at: string;
+}
+
+// =====================================================
+// LESSON_VIDEOS (Bunny Stream)
+// =====================================================
+
+export type VideoStatus = 'created' | 'uploading' | 'processing' | 'ready' | 'failed';
+
+export interface LessonVideo {
+  id: string;
+  bunny_video_id: string;
+  bunny_library_id: string;
+  title: string;
+  duration_seconds: number | null;
+  thumbnail_url: string | null;
+  original_filename: string | null;
+  file_size_bytes: number | null;
+  status: VideoStatus;
+  error_message: string | null;
+  uploaded_by: string | null;
+  created_at: string;
+  updated_at: string;
+  processing_completed_at: string | null;
 }
 
 // =====================================================

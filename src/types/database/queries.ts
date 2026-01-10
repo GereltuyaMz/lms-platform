@@ -128,6 +128,8 @@ export interface DashboardEnrollment {
     description: string | null
     thumbnail_url: string | null
     level: CourseLevel
+    duration_hours: number | null
+    lessons: { count: number }[]
   } | null
 }
 
