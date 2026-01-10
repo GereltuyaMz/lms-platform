@@ -133,7 +133,7 @@ export async function getUserEnrollments() {
       return { data: null, error: authError };
     }
 
-    // Get enrollments with course details
+    // Get enrollments with course details including duration and lesson count
     const { data: enrollments, error: enrollmentError } = await supabase
       .from("enrollments")
       .select(
@@ -148,7 +148,9 @@ export async function getUserEnrollments() {
           slug,
           description,
           thumbnail_url,
-          level
+          level,
+          duration_hours,
+          lessons (count)
         )
       `
       )

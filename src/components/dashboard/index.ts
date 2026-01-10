@@ -8,3 +8,5 @@ export * from "./ShopTab";
 export * from "./ProfileCompletionBanner";
 export * from "./XPGuideModal";
 export * from "./FormattedDate";
+export * from "./AchievementsSidebar";
+export * from "./ProfileOverview";
