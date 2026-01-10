@@ -2,10 +2,10 @@ import { TestPageWrapper } from "@/components/player";
 import { createClient } from "@/lib/supabase/server";
 import { notFound, redirect } from "next/navigation";
 import {
-  fetchUnitsWithQuiz,
-  getAllLessonsFromUnits,
+  getAllLessonsWithQuizzes,
   fetchQuizData,
   getAvailableSteps,
+  fetchUnitsWithQuiz,
 } from "@/lib/lesson-utils";
 import {
   getCourseUnits,
@@ -26,10 +26,10 @@ export default async function TestPage({ params }: PageProps) {
   const lessonId = id;
   const supabase = await createClient();
 
-  // Fetch course by slug (needed for courseId)
+  // Fetch course by slug (including title for breadcrumb)
   const { data: course, error: courseError } = await supabase
     .from("courses")
-    .select("id, slug")
+    .select("id, slug, title")
     .eq("slug", slug)
     .single();
 
@@ -58,56 +58,25 @@ export default async function TestPage({ params }: PageProps) {
     }
   }
 
-  // Get units for next lesson calculation
+  // Get all lessons and units for navigation (including unit quizzes)
   const units = await getCourseUnits(course.id);
   const hasUnits = units.length > 0;
-  const allLessons = hasUnits ? getAllLessonsFromUnits(units) : [];
-
   const unitQuizMap = hasUnits
-    ? await fetchUnitsWithQuiz(
-        supabase,
-        units.map((u) => u.id)
-      )
+    ? await fetchUnitsWithQuiz(supabase, units.map((u) => u.id))
     : new Map<string, boolean>();
+  const allLessons = hasUnits
+    ? getAllLessonsWithQuizzes(units, unitQuizMap)
+    : [];
 
-  // Find next lesson URL for quiz results navigation
-  let nextLessonUrl: string | null = null;
-
-  if (hasUnits) {
-    // Find current lesson's unit and position
-    for (let unitIndex = 0; unitIndex < units.length; unitIndex++) {
-      const unit = units[unitIndex];
-      const lessonIndex = unit.lessons.findIndex((l) => l.id === lessonId);
-
-      if (lessonIndex !== -1) {
-        // Found current lesson in this unit
-
-        // Check if there's a next lesson in the same unit
-        if (lessonIndex < unit.lessons.length - 1) {
-          const nextLesson = unit.lessons[lessonIndex + 1];
-          nextLessonUrl = `/courses/${slug}/learn/lesson/${nextLesson.id}/theory`;
-        }
-        // Check if this unit has a quiz
-        else if (unitQuizMap.get(unit.id)) {
-          nextLessonUrl = `/courses/${slug}/learn/lesson/${unit.id}/unit-quiz`;
-        }
-        // Check if there's a next unit with lessons
-        else if (unitIndex < units.length - 1) {
-          const nextUnit = units[unitIndex + 1];
-          if (nextUnit.lessons.length > 0) {
-            nextLessonUrl = `/courses/${slug}/learn/lesson/${nextUnit.lessons[0].id}/theory`;
-          }
-        }
-
+  // Find unit title for breadcrumb (if lesson belongs to a unit)
+  let unitTitle: string | undefined;
+  if (hasUnits && lessonWithContent) {
+    for (const unit of units) {
+      const lessonInUnit = unit.lessons?.find((l) => l.id === lessonId);
+      if (lessonInUnit) {
+        unitTitle = unit.title;
         break;
       }
-    }
-  } else {
-    // Flat lesson structure (no units)
-    const currentIndex = allLessons.findIndex((l) => l.id === lessonId);
-    if (currentIndex !== -1 && currentIndex < allLessons.length - 1) {
-      const nextLesson = allLessons[currentIndex + 1];
-      nextLessonUrl = `/courses/${slug}/learn/lesson/${nextLesson.id}/theory`;
     }
   }
 
@@ -117,7 +86,12 @@ export default async function TestPage({ params }: PageProps) {
       lessonId={lessonId}
       courseId={course.id}
       lessonTitle={lessonWithContent?.title || ""}
-      nextLessonUrl={nextLessonUrl}
+      courseTitle={course.title}
+      courseSlug={slug}
+      unitTitle={unitTitle}
+      currentStep="test"
+      availableSteps={availableSteps}
+      allLessons={allLessons}
     />
   );
 }

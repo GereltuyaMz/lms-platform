@@ -1,6 +1,5 @@
 export * from "./LessonRenderer";
 export * from "./LessonSidebar";
-export * from "./LessonContent";
 export * from "./NavigationButtons";
 export * from "./LessonPageClient";
 export * from "./VideoPlayer";
@@ -14,3 +13,8 @@ export * from "./QuizControls";
 export * from "./TestPageWrapper";
 export * from "./LessonBreadcrumb";
 export * from "./LessonContentLoading";
+export * from "./LessonContentHeader";
+export * from "./LessonContentWrapper";
+export * from "./MarkCompleteButton";
+export * from "./AIChatWidgetWrapper";
+export * from "./SetCurrentLesson";

@@ -17,3 +17,6 @@ export { NaturalSciencesIcon } from "./NaturalSciencesIcon";
 export { PlaceholderImage } from "./PlaceholderImage";
 export { CourseBackground } from "./CourseBackground";
 export { TooToolol } from "./TooToolol";
+export { TheoryIcon } from "./Theory";
+export { ExampleIcon } from "./Example";
+export { TestIcon } from "./Test";

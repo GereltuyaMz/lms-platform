@@ -1,17 +1,24 @@
 "use client";
 
-import { useState } from "react";
 import { TestContent } from "./TestContent";
-import { LessonStickyNav } from "./LessonStickyNav";
-import type { QuizControlsProps } from "./QuizControls";
+import { LessonContentWrapper } from "./LessonContentWrapper";
 import type { QuizData } from "@/types/quiz";
+import type { LessonStep } from "@/lib/lesson-step-utils";
+import type { Lesson } from "@/types/database/tables";
+import type { LessonItem } from "@/lib/lesson-utils";
 
 type TestPageWrapperProps = {
   quizData: QuizData | null;
   lessonId: string;
   courseId: string;
   lessonTitle: string;
-  nextLessonUrl?: string | null;
+  // Wrapper props for new design
+  courseTitle: string;
+  courseSlug: string;
+  unitTitle?: string;
+  currentStep: LessonStep;
+  availableSteps: LessonStep[];
+  allLessons: Lesson[] | LessonItem[];
 };
 
 export const TestPageWrapper = ({
@@ -19,28 +26,32 @@ export const TestPageWrapper = ({
   lessonId,
   courseId,
   lessonTitle,
-  nextLessonUrl,
+  courseTitle,
+  courseSlug,
+  unitTitle,
+  currentStep,
+  availableSteps,
+  allLessons,
 }: TestPageWrapperProps) => {
-  const [quizState, setQuizState] = useState<QuizControlsProps | null>(null);
-
   return (
-    <>
+    <LessonContentWrapper
+      courseTitle={courseTitle}
+      courseSlug={courseSlug}
+      courseId={courseId}
+      unitTitle={unitTitle}
+      lessonTitle={lessonTitle}
+      lessonId={lessonId}
+      currentStep={currentStep}
+      availableSteps={availableSteps}
+      allLessons={allLessons}
+      hideMarkComplete={true}
+    >
       <TestContent
         quizData={quizData}
         lessonId={lessonId}
         courseId={courseId}
         lessonTitle={lessonTitle}
-        nextLessonUrl={nextLessonUrl}
-        onQuizStateChange={setQuizState}
       />
-
-      {/* Bottom padding to prevent content hiding behind sticky nav */}
-      <div className="h-20 md:h-24" />
-
-      {/* Sticky Navigation */}
-      {quizState && (
-        <LessonStickyNav mode="quiz" quizProps={quizState} />
-      )}
-    </>
+    </LessonContentWrapper>
   );
 };

@@ -1,14 +1,11 @@
 import { QuizPlayer } from "./quiz/QuizPlayer";
 import type { QuizData } from "@/types/quiz";
-import type { QuizControlsProps } from "./QuizControls";
 
 type TestContentProps = {
   quizData: QuizData | null;
   lessonId: string;
   courseId: string;
   lessonTitle: string;
-  nextLessonUrl?: string | null;
-  onQuizStateChange?: (state: QuizControlsProps) => void;
 };
 
 export const TestContent = ({
@@ -16,8 +13,6 @@ export const TestContent = ({
   lessonId,
   courseId,
   lessonTitle,
-  nextLessonUrl,
-  onQuizStateChange,
 }: TestContentProps) => {
   if (!quizData) {
     return (
@@ -35,8 +30,6 @@ export const TestContent = ({
       quizData={quizData}
       lessonId={lessonId}
       courseId={courseId}
-      nextLessonUrl={nextLessonUrl}
-      onQuizStateChange={onQuizStateChange}
     />
   );
 };

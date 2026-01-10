@@ -25,7 +25,7 @@ export const CourseHero = ({ course, teacher }: CourseHeroProps) => {
 
   return (
     <div className="bg-[#faf9f7] border-b relative overflow-hidden">
-      <div className="container mx-auto py-8 sm:py-10 md:py-12 lg:py-14 px-4 sm:px-6 md:px-8 lg:px-[120px] max-w-[1510px] relative">
+      <div className="container mx-auto py-8 sm:py-10 md:py-12 lg:py-10 px-4 sm:px-6 md:px-8 lg:px-[120px] max-w-[1510px] relative">
         {/* Decorative background graphic - positioned behind content */}
         <div className="absolute left-0 top-0 w-[200px] h-[134px] sm:w-[280px] sm:h-[187px] lg:w-[356px] lg:h-[238px] z-0 pointer-events-none opacity-30 sm:opacity-50 lg:opacity-100">
           <CourseBackground />
@@ -38,18 +38,18 @@ export const CourseHero = ({ course, teacher }: CourseHeroProps) => {
           <div className="flex flex-col gap-2 mt-4">
             {/* Level Badge */}
             <Badge
-              className={`text-xs text-white bg-[#2563eb] rounded-full px-2 py-0.5 w-fit`}
+              className={`text-xs text-white bg-[#2563eb] hover:bg-[#1d4ed8] transition-colors rounded-full px-2 py-0.5 w-fit`}
             >
               {formatCourseLevel(course.level)}
             </Badge>
 
             {/* Title */}
-            <h1 className="text-xl sm:text-2xl md:text-3xl lg:text-[40px] font-semibold leading-[1.2] tracking-[-0.4px] text-[#1a1a1a]">
+            <h1 className="text-2xl sm:text-2xl md:text-3xl lg:text-[40px] font-semibold leading-[1.2] tracking-[-0.4px] text-[#1a1a1a]">
               {course.title}
             </h1>
 
             {/* Description */}
-            <p className="text-xs sm:text-sm md:text-[14px] leading-[1.4] tracking-[-0.14px] text-[#333]">
+            <p className="text-sm sm:text-sm md:text-[14px] leading-[1.4] tracking-[-0.14px] text-[#333]">
               {course.description}
             </p>
 

@@ -1,6 +1,6 @@
 export type MessageRole = "user" | "assistant";
 export type MessageType = "solve" | "explain" | "generate_problem" | "general";
-export type LessonStep = "theory" | "example" | "test";
+export type LessonStep = "theory" | "example" | "test" | "unit-quiz";
 
 export type GeneratedProblem = {
   question: string;

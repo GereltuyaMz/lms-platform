@@ -77,7 +77,9 @@ export const transformLessonsForSidebar = (
   completedLessonIds: string[] = []
 ) => {
   // All courses now use units - this function should not be called
-  console.warn("transformLessonsForSidebar is deprecated. Use transformUnitsForSidebar instead.");
+  console.warn(
+    "transformLessonsForSidebar is deprecated. Use transformUnitsForSidebar instead."
+  );
   return [];
 };
 
@@ -111,6 +113,7 @@ export const transformUnitsForSidebar = (
       completed: completedLessonIds.includes(lesson.id),
       current: lesson.id === currentLessonId,
       locked: false,
+      unitId: unit.id, // Add unitId to all lessons for unit quiz navigation
     }));
 
     // Append unit quiz as last item if it exists
@@ -121,7 +124,9 @@ export const transformUnitsForSidebar = (
           duration: "Тест",
           type: "unit-quiz" as LessonType,
           completed: completedUnitQuizIds.includes(unit.id),
-          current: currentLessonId === `unit-quiz-${unit.id}` || currentUnitQuizId === unit.id,
+          current:
+            currentLessonId === `unit-quiz-${unit.id}` ||
+            currentUnitQuizId === unit.id,
           locked: false,
           isUnitQuiz: true,
           unitId: unit.id,
@@ -138,19 +143,68 @@ export const transformUnitsForSidebar = (
 
 /**
  * Get all lessons from units in flat array (for navigation)
+ * @deprecated Use getAllLessonsWithQuizzes for navigation that includes unit quizzes
  */
 export const getAllLessonsFromUnits = (units: UnitWithLessons[]): Lesson[] => {
   return units.flatMap((unit) => unit.lessons);
 };
 
-// Calculate progress for a course
+/**
+ * Get all lessons AND unit quizzes from units in navigation order
+ * Each unit's lessons are followed by its unit quiz (if exists)
+ * Returns LessonItem[] to support isUnitQuiz flag
+ */
+export const getAllLessonsWithQuizzes = (
+  units: UnitWithLessons[],
+  unitQuizMap: Map<string, boolean>
+): LessonItem[] => {
+  const items: LessonItem[] = [];
+
+  units.forEach((unit) => {
+    // Add all lessons from this unit
+    unit.lessons.forEach((lesson) => {
+      items.push({
+        id: lesson.id,
+        title: lesson.title,
+        duration: getLessonDurationDisplay(lesson),
+        type: "video" as LessonType,
+        completed: false,
+        current: false,
+        locked: false,
+      });
+    });
+
+    // Add unit quiz after all lessons if it exists
+    if (unitQuizMap.get(unit.id)) {
+      items.push({
+        id: `unit-quiz-${unit.id}`,
+        title: `${unit.title} - Бүлгийн тест`,
+        duration: "Тест",
+        type: "unit-quiz" as LessonType,
+        completed: false,
+        current: false,
+        locked: false,
+        isUnitQuiz: true,
+        unitId: unit.id,
+      });
+    }
+  });
+
+  return items;
+};
+
+// Calculate progress for a course (includes lessons AND unit quizzes)
 export const calculateCourseProgress = async (
   totalLessons: number,
   completedLessons: number = 0,
-  courseId: string
+  courseId: string,
+  totalUnitQuizzes: number = 0,
+  completedUnitQuizzes: number = 0
 ) => {
+  const totalItems = totalLessons + totalUnitQuizzes;
+  const completedItems = completedLessons + completedUnitQuizzes;
   const progressPercentage =
-    totalLessons > 0 ? Math.round((completedLessons / totalLessons) * 100) : 0;
+    totalItems > 0 ? Math.round((completedItems / totalItems) * 100) : 0;
 
   // Get authenticated user for streak data
   const supabase = await createClient();
@@ -165,8 +219,8 @@ export const calculateCourseProgress = async (
   ]);
 
   return {
-    completed: completedLessons,
-    total: totalLessons,
+    completed: completedItems,
+    total: totalItems,
     percentage: progressPercentage,
     totalXp,
     streak: streakData.currentStreak,
@@ -180,8 +234,7 @@ export const getNavigationUrls = (
   courseSlug: string
 ) => {
   const currentIndex = allLessons.findIndex((l) => l.id === currentLessonId);
-  const previousLesson =
-    currentIndex > 0 ? allLessons[currentIndex - 1] : null;
+  const previousLesson = currentIndex > 0 ? allLessons[currentIndex - 1] : null;
   const nextLesson =
     currentIndex < allLessons.length - 1 ? allLessons[currentIndex + 1] : null;
 
@@ -348,4 +401,8 @@ export const fetchAvailableStepsForLessons = async (
 };
 
 // Re-export client-safe step helpers
-export { getAvailableSteps, getStepLabel, type LessonStep } from './lesson-step-utils';
+export {
+  getAvailableSteps,
+  getStepLabel,
+  type LessonStep,
+} from "./lesson-step-utils";
