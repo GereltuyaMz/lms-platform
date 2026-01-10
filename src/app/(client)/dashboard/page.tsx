@@ -7,13 +7,12 @@ import {
   ShopTab,
   TestResultsTab,
   ProfileOverview,
-  // ProfileCompletionBanner, // TODO: Enable later
 } from "@/components/dashboard";
 import {
   getUserEnrollments,
   getLastAccessedLesson,
   getUserStats,
-  // checkProfileCompletion, // TODO: Enable later
+  checkProfileCompletion,
   getUserProfile,
   getRecommendedCourses,
   getUserMockTestAttempts,
@@ -36,7 +35,7 @@ export default async function DashboardPage() {
     redirect("/signin");
   }
 
-  // Fetch real user stats, enrollments, profile, badges, mock test attempts, and orders from database
+  // Fetch real user stats, enrollments, profile, badges, mock test attempts, orders, and profile completion from database
   const [
     { data: userStats },
     { data: enrollments },
@@ -44,6 +43,7 @@ export default async function DashboardPage() {
     badgeProgress,
     mockTestAttempts,
     userOrders,
+    profileCompletionResult,
   ] = await Promise.all([
     getUserStats(),
     getUserEnrollments(),
@@ -51,6 +51,7 @@ export default async function DashboardPage() {
     getUserBadgeProgress(),
     getUserMockTestAttempts(),
     getUserOrders(),
+    checkProfileCompletion(),
   ]);
 
   // Use empty array if no enrollments or error
@@ -97,18 +98,11 @@ export default async function DashboardPage() {
   const recommendedCoursesResult =
     userEnrollments.length === 0 ? await getRecommendedCourses() : null;
 
-  // TODO: Enable profile completion check later
-  // const profileCompletionResult = await checkProfileCompletion();
-  // const isProfileComplete = profileCompletionResult.isComplete || false;
+  // Get profile completion status
+  const isProfileComplete = profileCompletionResult.isComplete || false;
 
   return (
     <div className="min-h-screen bg-gray-50">
-      {/* Profile Completion Banner - temporarily disabled, will be used later
-      <div className="container mx-auto px-4 pt-8 max-w-[1400px]">
-        <ProfileCompletionBanner isProfileComplete={isProfileComplete} />
-      </div>
-      */}
-
       {/* Dashboard Tabs with 3-column layout */}
       <DashboardTabs
         profileOverviewContent={
@@ -135,6 +129,7 @@ export default async function DashboardPage() {
         }
         shopContent={<ShopTab orders={userOrders} />}
         achievements={badgeProgress}
+        isProfileComplete={isProfileComplete}
       />
     </div>
   );

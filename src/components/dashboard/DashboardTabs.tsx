@@ -11,6 +11,7 @@ import {
 } from "@phosphor-icons/react";
 import { cn } from "@/lib/utils";
 import { AchievementsSidebar } from "./AchievementsSidebar";
+import { ProfileCompletionBanner } from "./ProfileCompletionBanner";
 import type { BadgeWithProgress } from "@/lib/actions/badges";
 
 type TabId = "courses" | "achievements" | "test-results" | "profile" | "shop";
@@ -30,6 +31,7 @@ type DashboardTabsProps = {
   shopContent: React.ReactNode;
   // Data for right sidebar
   achievements: BadgeWithProgress[];
+  isProfileComplete: boolean;
 };
 
 const tabs: Tab[] = [
@@ -67,6 +69,7 @@ export const DashboardTabs = ({
   testResultsContent,
   shopContent,
   achievements,
+  isProfileComplete,
 }: DashboardTabsProps) => {
   const router = useRouter();
   const searchParams = useSearchParams();
@@ -113,9 +116,13 @@ export const DashboardTabs = ({
   // Show right sidebar on profile and courses tabs only
   const showRightSidebar = activeTab === "profile" || activeTab === "courses";
 
+  // Wider content for test-results tab
+  const mainContentMaxWidth =
+    activeTab === "test-results" ? "lg:max-w-[802px]" : "lg:max-w-[518px]";
+
   return (
-    <div className="container mx-auto px-4 py-8 max-w-[1400px]">
-      <div className="flex flex-col lg:flex-row gap-14">
+    <div className="container mx-auto px-4 py-6 sm:py-8 max-w-[1400px]">
+      <div className="flex flex-col lg:flex-row gap-6 lg:gap-14">
         {/* Left Sidebar - Navigation */}
         <aside className="w-full lg:w-80 flex-shrink-0">
           <nav className="bg-white rounded-2xl border p-5 space-y-1">
@@ -164,11 +171,17 @@ export const DashboardTabs = ({
         </aside>
 
         {/* Main Content */}
-        <main className="flex-1 min-w-0 lg:max-w-[518px]">{contentMap[activeTab]}</main>
+        <main className={`flex-1 min-w-0 ${mainContentMaxWidth}`}>
+          {contentMap[activeTab]}
+        </main>
 
-        {/* Right Sidebar - Achievements (only on profile and courses tabs) */}
+        {/* Right Sidebar - Profile Completion + Achievements (only on profile and courses tabs) */}
         {showRightSidebar && (
-          <aside className="hidden lg:block lg:w-80 flex-shrink-0">
+          <aside className="hidden lg:block lg:w-80 flex-shrink-0 space-y-6">
+            {/* Profile Completion Banner */}
+            <ProfileCompletionBanner isProfileComplete={isProfileComplete} />
+
+            {/* Achievements Sidebar */}
             <AchievementsSidebar
               achievements={achievements}
               onViewAll={() => handleTabChange("achievements")}

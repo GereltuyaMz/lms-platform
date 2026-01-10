@@ -5,6 +5,7 @@ import {
   ClockIcon,
   BookOpenIcon,
   SealCheckIcon,
+  CheckCircleIcon,
 } from "@phosphor-icons/react/dist/ssr";
 import { PlaceholderImage } from "@/icons";
 import type { CourseLevel } from "@/types/database/enums";
@@ -24,6 +25,7 @@ type CourseCardProps = {
     enrolled_at: string;
     progress_percentage: number;
     lastLessonId: string | null;
+    completed_at?: string | null;
   };
 };
 
@@ -42,6 +44,10 @@ export const CourseCard = ({ course, enrollment }: CourseCardProps) => {
 
   const duration = formatDuration(course.duration_hours);
 
+  // Determine if course is completed
+  const isCompleted =
+    enrollment?.progress_percentage === 100 || !!enrollment?.completed_at;
+
   return (
     <Link
       href={
@@ -52,12 +58,9 @@ export const CourseCard = ({ course, enrollment }: CourseCardProps) => {
     >
       <Card className="overflow-hidden hover:shadow-lg transition-shadow rounded-3xl border-0 bg-[#F8F1F6]">
         <CardContent className="p-0">
-          <div className="flex">
+          <div className="flex flex-col sm:flex-row">
             {/* Course Thumbnail */}
-            <div
-              className="relative flex-shrink-0 overflow-hidden rounded-3xl"
-              style={{ width: 200, height: 200 }}
-            >
+            <div className="relative flex-shrink-0 overflow-hidden rounded-3xl w-full h-48 sm:w-[200px] sm:h-[200px]">
               {course.thumbnail_url ? (
                 <Image
                   src={course.thumbnail_url}
@@ -73,31 +76,43 @@ export const CourseCard = ({ course, enrollment }: CourseCardProps) => {
                 </div>
               )}
 
-              {/* XP Badge */}
-              {enrollment && (
-                <div className="absolute top-3 left-3">
+              {/* Badge - XP or Completed */}
+              <div className="absolute top-3 left-3">
+                {enrollment && isCompleted ? (
+                  <span className="inline-flex items-center gap-1 bg-[#22C55E] px-2.5 py-1.5 rounded-full text-xs font-semibold text-white">
+                    <CheckCircleIcon size={14} weight="fill" />
+                    Дууссан
+                  </span>
+                ) : (
                   <span className="inline-flex items-center gap-1 bg-white/90 backdrop-blur-sm px-2.5 py-1.5 rounded-full text-xs font-semibold text-gray-700">
                     <SealCheckIcon size={14} />
                     1500 XP
                   </span>
-                </div>
-              )}
+                )}
+              </div>
             </div>
 
             {/* Course Info */}
-            <div className="flex-1 p-5 flex flex-col justify-around">
+            <div className="flex-1 p-4 sm:p-5 flex flex-col justify-around gap-3 sm:gap-0">
               {/* Labels */}
-              <div className="flex items-center gap-2">
+              <div className="flex flex-wrap items-center gap-2">
                 {duration && (
-                  <span className="inline-flex items-center gap-1.5 text-xs  bg-white px-3 py-1 rounded-full border border-[#D4D4D4]">
+                  <span className="inline-flex items-center gap-1.5 text-xs bg-white px-3 py-1 rounded-full border border-[#D4D4D4]">
                     <ClockIcon size={14} />
                     {duration}
                   </span>
                 )}
                 {lessonCount > 0 && (
-                  <span className="inline-flex items-center gap-1.5 text-xs  bg-white px-3 py-1 rounded-full border border-[#D4D4D4]">
+                  <span className="inline-flex items-center gap-1.5 text-xs bg-white px-3 py-1 rounded-full border border-[#D4D4D4]">
                     <BookOpenIcon size={14} />
                     {lessonCount} хичээл
+                  </span>
+                )}
+                {/* XP label - only show when completed */}
+                {isCompleted && (
+                  <span className="inline-flex items-center gap-1.5 text-xs bg-white px-3 py-1 rounded-full border border-[#D4D4D4]">
+                    <SealCheckIcon size={14} />
+                    1500 XP
                   </span>
                 )}
               </div>
@@ -112,8 +127,8 @@ export const CourseCard = ({ course, enrollment }: CourseCardProps) => {
                 )}
               </div>
 
-              {/* Progress */}
-              {enrollment && (
+              {/* Progress or Action Button */}
+              {enrollment ? (
                 <div>
                   <div className="flex justify-between text-xs mb-1.5">
                     <span className="text-muted-foreground">Хичээлийн явц</span>
@@ -132,6 +147,10 @@ export const CourseCard = ({ course, enrollment }: CourseCardProps) => {
                     />
                   </div>
                 </div>
+              ) : (
+                <button className="w-fit px-6 py-2 rounded-full bg-[#22C55E] hover:bg-[#16A34A] text-white text-sm font-semibold transition-colors">
+                  Хичээл үзэх
+                </button>
               )}
             </div>
           </div>

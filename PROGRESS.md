@@ -404,6 +404,46 @@
 
 ---
 
+### Phase 13: Bunny Video Integration (IN PROGRESS - Jan 10, 2026)
+
+**Goal:** Replace YouTube/Vimeo URL input with direct video uploads to Bunny Stream CDN
+
+**Completed:**
+
+- ✅ Phase 1: Database setup
+  - `lesson_videos` table (stores Bunny video metadata)
+  - `lesson_video_id` FK column on `lesson_content`
+  - TypeScript types (`LessonVideo`, `VideoStatus`)
+- ✅ Phase 2: Supabase Edge Function (`bunny-video-upload`)
+  - `create` - Create video in Bunny, return upload URL
+  - `upload` - Proxy upload to Bunny (keeps API key server-side)
+  - `status` - Poll video processing status
+  - `webhook` - Receive encoding completion notifications
+  - `delete` - Remove video from Bunny and DB
+
+**TODO:**
+
+- ⏳ Phase 3: Frontend upload component (`BunnyVideoUploader.tsx`)
+- ⏳ Phase 4: Server actions (`lesson-videos.ts`)
+- ⏳ Phase 5: Video playback (`BunnyVideoPlayer.tsx`)
+
+**Files Created:**
+
+- `supabase/migrations/052_create_lesson_videos.sql`
+- `supabase/migrations/053_add_lesson_video_to_lesson_content.sql`
+- `supabase/functions/bunny-video-upload/index.ts`
+- Updated `src/types/database/tables.ts`
+
+**Environment Variables Needed:**
+
+```bash
+# Set in Supabase Edge Function secrets
+supabase secrets set BUNNY_API_KEY=your-api-key
+supabase secrets set BUNNY_LIBRARY_ID=your-library-id
+```
+
+---
+
 ## 📊 Database Structure
 
 ### Core Tables
@@ -450,6 +490,12 @@
 - `shopping_cart` - Temporary cart for course collection
 - **Functions** - `has_course_access()`, `simulate_purchase()`, `get_cart_total()`
 - **RLS policies** - Users can only access their own purchases/cart
+
+### 🆕 Video Hosting Tables (Jan 10, 2026)
+
+- `lesson_videos` - Bunny Stream video metadata (bunny_video_id, status, duration, thumbnail)
+- `lesson_content.lesson_video_id` - FK to lesson_videos (takes precedence over video_url)
+- **Edge Function** - `bunny-video-upload` (create, upload, status, webhook, delete)
 
 ---
 

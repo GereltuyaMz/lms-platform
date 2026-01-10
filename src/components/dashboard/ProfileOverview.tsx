@@ -164,14 +164,33 @@ export const ProfileOverview = ({
         </div>
       </div>
 
-      {/* Enrolled Courses Section */}
+      {/* Courses Section */}
       <div>
-        <h2 className="text-xl font-semibold mb-4">Үзэж буй хичээлүүд</h2>
+        <h2 className="text-xl font-semibold mb-4">
+          {enrollments.length === 0 ? "Онцлох хичээлүүд" : "Үзэж буй хичээлүүд"}
+        </h2>
         {enrollments.length === 0 ? (
-          <EmptyCoursesState
-            recommendedCourses={recommendedCourses}
-            isPersonalized={isPersonalized}
-          />
+          recommendedCourses.length > 0 ? (
+            <div className="grid grid-cols-1 gap-4">
+              {recommendedCourses.map((course) => (
+                <CourseCard
+                  key={course.id}
+                  course={{
+                    title: course.title,
+                    slug: course.slug,
+                    description: course.description,
+                    thumbnail_url: course.thumbnail_url,
+                    level: course.level,
+                  }}
+                />
+              ))}
+            </div>
+          ) : (
+            <EmptyCoursesState
+              recommendedCourses={recommendedCourses}
+              isPersonalized={isPersonalized}
+            />
+          )
         ) : (
           <div className="grid grid-cols-1 gap-4">
             {enrollments.map((enrollment) => {

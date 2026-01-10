@@ -24,9 +24,9 @@ export const MyCoursesTab = ({
 
   return (
     <div>
-      <h2 className="text-2xl md:text-3xl font-bold mb-6">Миний хичээлүүд</h2>
+      <h2 className="text-xl font-semibold mb-4">Үзэж буй хичээлүүд</h2>
 
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+      <div className="grid grid-cols-1 gap-4">
         {enrollments.map((enrollment) => {
           const course = enrollment.courses
           if (!course) return null
@@ -40,6 +40,7 @@ export const MyCoursesTab = ({
                 enrolled_at: enrollment.enrolled_at,
                 progress_percentage: enrollment.progress_percentage,
                 lastLessonId: enrollment.lastLessonId,
+                completed_at: enrollment.completed_at,
               }}
             />
           )
