@@ -44,10 +44,10 @@ export const CourseSidebar = ({
   return (
     <div>
       <div className="bg-white border border-[rgba(0,0,0,0.2)] rounded-[20px] p-4 sm:p-5 flex flex-col gap-4 sm:gap-5">
-        {/* Main Content - Horizontal on tablet, vertical on mobile/desktop */}
-        <div className="flex flex-col sm:flex-row sm:gap-5 lg:flex-col gap-3">
+        {/* Main Content - Horizontal on mobile/tablet, vertical on desktop */}
+        <div className="flex flex-row gap-3 sm:gap-5 lg:flex-col">
           {/* Cover Image */}
-          <div className="relative aspect-[309/196] rounded-lg overflow-hidden bg-white w-full sm:w-[200px] sm:shrink-0 lg:w-full">
+          <div className="relative aspect-[309/196] rounded-lg overflow-hidden bg-white w-[120px] shrink-0 sm:w-[200px] lg:w-full">
             {thumbnailUrl ? (
               <Image
                 src={thumbnailUrl}

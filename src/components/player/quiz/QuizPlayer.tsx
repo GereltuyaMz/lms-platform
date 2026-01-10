@@ -1,13 +1,14 @@
 "use client";
 
-import { useState, useEffect, useCallback } from "react";
+import { useState, useCallback } from "react";
 import { useRouter } from "next/navigation";
+import { Loader2, CheckCircle, XCircle } from "lucide-react";
 import { QuizProgress } from "./QuizProgress";
 import { QuizQuestion } from "./QuizQuestion";
 import { QuizResults } from "./QuizResults";
 import { saveQuizAttempt, awardQuizCompletionXP } from "@/lib/actions";
 import { toast } from "sonner";
-import type { QuizControlsProps } from "../QuizControls";
+import { Button } from "@/components/ui/button";
 import type { QuizOptionUI } from "@/types/quiz";
 
 type QuizQuestionData = {
@@ -29,8 +30,6 @@ type QuizPlayerProps = {
   quizData: QuizData | null;
   lessonId: string;
   courseId: string;
-  nextLessonUrl?: string | null;
-  onQuizStateChange?: (state: QuizControlsProps) => void;
 };
 
 export const QuizPlayer = ({
@@ -38,8 +37,6 @@ export const QuizPlayer = ({
   quizData,
   lessonId,
   courseId,
-  nextLessonUrl,
-  onQuizStateChange,
 }: QuizPlayerProps) => {
   const router = useRouter();
   const [currentQuestion, setCurrentQuestion] = useState(0);
@@ -222,56 +219,6 @@ export const QuizPlayer = ({
     setIsSubmitting(false);
   }, []);
 
-  // Emit quiz state changes to parent component for sticky nav
-  useEffect(() => {
-    if (onQuizStateChange && quizData) {
-      if (currentQuestion !== -1) {
-        // During quiz: emit question controls
-        onQuizStateChange({
-          currentQuestion,
-          totalQuestions: quizData.questions.length,
-          selectedAnswer,
-          showExplanation,
-          isSubmitting,
-          isFirstQuestion: currentQuestion === 0,
-          isLastQuestion: currentQuestion === quizData.questions.length - 1,
-          onSubmit: handleSubmit,
-          onNext: handleNext,
-          onPrevious: handlePrevious,
-        });
-      } else {
-        // On results screen: emit results controls
-        onQuizStateChange({
-          currentQuestion: -1,
-          totalQuestions: quizData.questions.length,
-          selectedAnswer: null,
-          showExplanation: false,
-          isSubmitting: false,
-          isFirstQuestion: false,
-          isLastQuestion: false,
-          onSubmit: handleRetry,
-          onNext: nextLessonUrl ? () => router.push(nextLessonUrl) : undefined,
-          onPrevious: handleRetry,
-          isResultsScreen: true,
-          nextLessonUrl,
-        });
-      }
-    }
-  }, [
-    currentQuestion,
-    selectedAnswer,
-    showExplanation,
-    isSubmitting,
-    quizData,
-    onQuizStateChange,
-    nextLessonUrl,
-    router,
-    handleSubmit,
-    handleNext,
-    handlePrevious,
-    handleRetry,
-  ]);
-
   // If no quiz data, show error message (after hooks)
   if (!quizData || quizData.questions.length === 0) {
     return (
@@ -290,18 +237,29 @@ export const QuizPlayer = ({
 
   const question = quizData.questions[currentQuestion];
 
+  const isFirstQuestion = currentQuestion === 0;
+  const isLastQuestion = currentQuestion === quizData.questions.length - 1;
+
   return (
-    <div className="bg-white rounded-lg border overflow-hidden mb-6">
+    <div className="bg-white rounded-xl border overflow-hidden">
       {currentQuestion === -1 ? (
-        <QuizResults
-          score={score}
-          totalQuestions={quizData.questions.length}
-          xpAwarded={xpAwarded}
-        />
+        <>
+          <QuizResults
+            score={score}
+            totalQuestions={quizData.questions.length}
+            xpAwarded={xpAwarded}
+          />
+          {/* Results Navigation */}
+          <div className="px-4 md:px-6 pb-4 md:pb-6 pt-2 flex items-center justify-center border-t bg-gray-50">
+            <Button variant="outline" onClick={handleRetry}>
+              Дахин турших
+            </Button>
+          </div>
+        </>
       ) : (
-        <div className="p-6">
-          <div className="mb-6">
-            <h2 className="text-2xl font-bold mb-2">{title}</h2>
+        <div className="p-4 md:p-6">
+          <div className="mb-4 md:mb-6">
+            <h2 className="text-xl md:text-2xl font-bold mb-2">{title}</h2>
             <p className="text-muted-foreground">
               Энэ тестээр мэдлэгээ шалгаарай
             </p>
@@ -322,6 +280,89 @@ export const QuizPlayer = ({
             onAnswerSelect={setSelectedAnswer}
             questionId={question.id}
           />
+
+          {/* Quiz Navigation - Inside the card */}
+          <div className="mt-4 md:mt-6 pt-4 md:pt-6 border-t flex items-center justify-between">
+            <Button
+              variant="outline"
+              onClick={handlePrevious}
+              disabled={isFirstQuestion || showExplanation}
+            >
+              Өмнөх
+            </Button>
+
+            <span className="text-sm font-medium text-muted-foreground">
+              {currentQuestion + 1} / {quizData.questions.length}
+            </span>
+
+            {!showExplanation ? (
+              <Button
+                onClick={handleSubmit}
+                disabled={selectedAnswer === null}
+                className="bg-[#606099] hover:bg-[#505085]"
+              >
+                Хариу илгээх
+              </Button>
+            ) : (
+              <Button
+                onClick={handleNext}
+                disabled={isSubmitting}
+                className="bg-[#606099] hover:bg-[#505085]"
+              >
+                {isSubmitting ? (
+                  <>
+                    <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                    Хадгалж байна...
+                  </>
+                ) : isLastQuestion ? (
+                  "Үр дүнг харах"
+                ) : (
+                  "Дараагийн асуулт"
+                )}
+              </Button>
+            )}
+          </div>
+
+          {/* Explanation - Below navigation */}
+          {showExplanation && (
+            <div
+              className={`p-3 md:p-4 rounded-lg mt-4 md:mt-6 ${
+                selectedAnswer === question.correctAnswer
+                  ? "bg-green-50 border border-green-200"
+                  : "bg-red-50 border border-red-200"
+              }`}
+            >
+              <div className="flex items-start gap-3">
+                {selectedAnswer === question.correctAnswer ? (
+                  <CheckCircle className="w-5 h-5 text-green-600 flex-shrink-0 mt-0.5" />
+                ) : (
+                  <XCircle className="w-5 h-5 text-red-600 flex-shrink-0 mt-0.5" />
+                )}
+                <div>
+                  <p
+                    className={`font-semibold mb-1 ${
+                      selectedAnswer === question.correctAnswer
+                        ? "text-green-900"
+                        : "text-red-900"
+                    }`}
+                  >
+                    {selectedAnswer === question.correctAnswer
+                      ? "Зөв байна!"
+                      : "Буруу байна"}
+                  </p>
+                  <p
+                    className={`text-sm ${
+                      selectedAnswer === question.correctAnswer
+                        ? "text-green-700"
+                        : "text-red-700"
+                    }`}
+                  >
+                    {question.explanation}
+                  </p>
+                </div>
+              </div>
+            </div>
+          )}
         </div>
       )}
     </div>

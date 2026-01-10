@@ -5,6 +5,10 @@ import {
   getCourseUnits,
   getUnitQuizQuestions,
 } from "@/lib/actions/unit-actions";
+import {
+  fetchUnitsWithQuiz,
+  getAllLessonsWithQuizzes,
+} from "@/lib/lesson-utils";
 import { UnitQuizPageClient } from "./UnitQuizPageClient";
 
 export const revalidate = 0;
@@ -59,6 +63,14 @@ export default async function UnitQuizPage({ params }: PageProps) {
   // Fetch quiz questions only (sidebar data is handled by layout)
   const quizQuestions = await getUnitQuizQuestions(unitId);
 
+  // Get all lessons and units for navigation (including unit quizzes)
+  const units = await getCourseUnits(course.id);
+  const unitQuizMap = await fetchUnitsWithQuiz(
+    supabase,
+    units.map((u) => u.id)
+  );
+  const allLessons = getAllLessonsWithQuizzes(units, unitQuizMap);
+
   // Transform quiz data for the player
   type QuizOption = {
     id: string;
@@ -88,27 +100,16 @@ export default async function UnitQuizPage({ params }: PageProps) {
         }
       : null;
 
-  // Find next lesson after this unit quiz
-  const units = await getCourseUnits(course.id);
-  const currentUnitIndex = units.findIndex((u) => u.id === unitId);
-  let nextLessonUrl: string | null = null;
-
-  if (currentUnitIndex !== -1 && currentUnitIndex < units.length - 1) {
-    const nextUnit = units[currentUnitIndex + 1];
-    if (nextUnit.lessons.length > 0) {
-      nextLessonUrl = `/courses/${slug}/learn/lesson/${nextUnit.lessons[0].id}/theory`;
-    }
-  }
-
   return (
-    <div className="bg-white rounded-lg border overflow-hidden mb-6">
-      <UnitQuizPageClient
-        title={`${unit.title} - Бүлгийн тест`}
-        quizData={quizData}
-        unitId={unitId}
-        courseId={course.id}
-        nextLessonUrl={nextLessonUrl}
-      />
-    </div>
+    <UnitQuizPageClient
+      title={`${unit.title} - Бүлгийн тест`}
+      quizData={quizData}
+      unitId={unitId}
+      courseId={course.id}
+      courseSlug={slug}
+      courseTitle={course.title}
+      unitTitle={unit.title}
+      allLessons={allLessons}
+    />
   );
 }

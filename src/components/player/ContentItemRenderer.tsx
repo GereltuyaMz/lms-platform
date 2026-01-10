@@ -1,44 +1,12 @@
 "use client";
 
-import { BookOpen, Lightbulb, FileText, Paperclip } from "lucide-react";
 import { VideoPlayer } from "./VideoPlayer";
 import type { LessonContent } from "@/types/database/tables";
-import type { ContentType } from "@/types/database/enums";
 
 type ContentItemRendererProps = {
   content: LessonContent;
   lessonId: string;
   courseId: string;
-};
-
-const getContentIcon = (type: ContentType) => {
-  switch (type) {
-    case "theory":
-      return <BookOpen className="h-5 w-5 text-blue-600" />;
-    case "example":
-      return <Lightbulb className="h-5 w-5 text-green-600" />;
-    case "text":
-      return <FileText className="h-5 w-5 text-gray-600" />;
-    case "attachment":
-      return <Paperclip className="h-5 w-5 text-orange-600" />;
-    default:
-      return <FileText className="h-5 w-5 text-gray-600" />;
-  }
-};
-
-const getContentLabel = (type: ContentType): string => {
-  switch (type) {
-    case "theory":
-      return "Теори";
-    case "example":
-      return "Жишээ";
-    case "text":
-      return "Текст";
-    case "attachment":
-      return "Хавсралт";
-    default:
-      return "";
-  }
 };
 
 export const ContentItemRenderer = ({
@@ -53,15 +21,7 @@ export const ContentItemRenderer = ({
   if (!hasVideo && !hasText) return null;
 
   return (
-    <div className="mb-6">
-      {/* Content header with icon and title */}
-      <div className="flex items-center gap-2 mb-3">
-        {getContentIcon(content.content_type)}
-        <h3 className="font-semibold text-lg">
-          {content.title || getContentLabel(content.content_type)}
-        </h3>
-      </div>
-
+    <div>
       {/* Video content */}
       {hasVideo && (
         <VideoPlayer

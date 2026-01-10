@@ -27,8 +27,8 @@ export const QuizQuestion = ({
   const isCorrect = selectedAnswer === correctAnswer;
 
   return (
-    <div className="mb-6">
-      <h3 className="text-lg font-semibold mb-4">{question}</h3>
+    <div className="mb-4 md:mb-6">
+      <h3 className="text-base md:text-lg font-semibold mb-3 md:mb-4">{question}</h3>
 
       <RadioGroup
         key={questionId}
@@ -36,13 +36,13 @@ export const QuizQuestion = ({
         onValueChange={(value) => onAnswerSelect(parseInt(value))}
         disabled={showExplanation}
       >
-        <div className="space-y-3">
+        <div className="space-y-2 md:space-y-3">
           {options.map((option, index) => (
             <Label
               key={option.id}
               htmlFor={`option-${option.id}`}
               className={`
-                flex items-center space-x-3 p-4 rounded-lg border-2 transition-colors
+                flex items-center space-x-3 p-3 md:p-4 rounded-lg border-2 transition-colors
                 ${
                   showExplanation
                     ? index === correctAnswer
@@ -72,40 +72,6 @@ export const QuizQuestion = ({
         </div>
       </RadioGroup>
 
-      {/* Explanation */}
-      {showExplanation && (
-        <div
-          className={`p-4 rounded-lg mt-6 ${
-            isCorrect
-              ? "bg-green-50 border border-green-200"
-              : "bg-red-50 border border-red-200"
-          }`}
-        >
-          <div className="flex items-start gap-3">
-            {isCorrect ? (
-              <CheckCircle className="w-5 h-5 text-green-600 flex-shrink-0 mt-0.5" />
-            ) : (
-              <XCircle className="w-5 h-5 text-red-600 flex-shrink-0 mt-0.5" />
-            )}
-            <div>
-              <p
-                className={`font-semibold mb-1 ${
-                  isCorrect ? "text-green-900" : "text-red-900"
-                }`}
-              >
-                {isCorrect ? "Зөв байна!" : "Буруу байна"}
-              </p>
-              <p
-                className={`text-sm ${
-                  isCorrect ? "text-green-700" : "text-red-700"
-                }`}
-              >
-                {explanation}
-              </p>
-            </div>
-          </div>
-        </div>
-      )}
-    </div>
+      </div>
   );
 };

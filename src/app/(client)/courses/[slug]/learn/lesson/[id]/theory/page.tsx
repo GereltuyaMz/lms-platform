@@ -1,10 +1,11 @@
-import { TheoryContent, LessonStickyNav } from "@/components/player";
+import { TheoryContent } from "@/components/player";
 import { createClient } from "@/lib/supabase/server";
 import { notFound, redirect } from "next/navigation";
 import {
   fetchQuizData,
   getAvailableSteps,
-  getAllLessonsFromUnits,
+  getAllLessonsWithQuizzes,
+  fetchUnitsWithQuiz,
 } from "@/lib/lesson-utils";
 import {
   getCourseUnits,
@@ -25,10 +26,10 @@ export default async function TheoryPage({ params }: PageProps) {
   const lessonId = id;
   const supabase = await createClient();
 
-  // Fetch course by slug (needed for courseId)
+  // Fetch course by slug (including title for breadcrumb)
   const { data: course, error: courseError } = await supabase
     .from("courses")
-    .select("id, slug")
+    .select("id, slug, title")
     .eq("slug", slug)
     .single();
 
@@ -60,30 +61,40 @@ export default async function TheoryPage({ params }: PageProps) {
     }
   }
 
-  // Get all lessons for sticky nav
+  // Get all lessons and units for navigation (including unit quizzes)
   const units = await getCourseUnits(course.id);
   const hasUnits = units.length > 0;
-  const allLessons = hasUnits ? getAllLessonsFromUnits(units) : [];
+  const unitQuizMap = hasUnits
+    ? await fetchUnitsWithQuiz(supabase, units.map((u) => u.id))
+    : new Map<string, boolean>();
+  const allLessons = hasUnits
+    ? getAllLessonsWithQuizzes(units, unitQuizMap)
+    : [];
+
+  // Find unit title for breadcrumb (if lesson belongs to a unit)
+  let unitTitle: string | undefined;
+  if (hasUnits && lessonWithContent) {
+    for (const unit of units) {
+      const lessonInUnit = unit.lessons?.find((l) => l.id === lessonId);
+      if (lessonInUnit) {
+        unitTitle = unit.title;
+        break;
+      }
+    }
+  }
 
   return (
-    <>
-      <TheoryContent
-        lessonContent={lessonWithContent?.lesson_content}
-        courseId={course.id}
-        lessonId={lessonId}
-      />
-
-      {/* Sticky Navigation */}
-      <LessonStickyNav
-        mode="navigation"
-        navigationProps={{
-          courseSlug: slug,
-          lessonId,
-          currentStep: "theory",
-          availableSteps,
-          allLessons,
-        }}
-      />
-    </>
+    <TheoryContent
+      lessonContent={lessonWithContent?.lesson_content}
+      courseId={course.id}
+      lessonId={lessonId}
+      courseTitle={course.title}
+      courseSlug={slug}
+      unitTitle={unitTitle}
+      lessonTitle={lessonWithContent?.title || ""}
+      currentStep="theory"
+      availableSteps={availableSteps}
+      allLessons={allLessons}
+    />
   );
 }
