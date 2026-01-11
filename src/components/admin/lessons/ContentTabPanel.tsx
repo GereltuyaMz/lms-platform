@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { VideoUrlInput } from "./VideoUrlInput";
 import { RichTextEditor } from "./RichTextEditor";
 import { Label } from "@/components/ui/label";
@@ -31,6 +31,7 @@ export const ContentTabPanel = ({
       const result = await upsertLessonContent(lessonId, contentType, {
         title: contentType === "theory" ? "Онол" : "Жишээ",
         video_url: url,
+        lesson_video_id: null,
         content: content || null,
         duration_seconds: null,
       });
@@ -56,6 +57,7 @@ export const ContentTabPanel = ({
       const result = await upsertLessonContent(lessonId, contentType, {
         title: contentType === "theory" ? "Онол" : "Жишээ",
         video_url: videoUrl,
+        lesson_video_id: null,
         content: html || null,
         duration_seconds: null,
       });

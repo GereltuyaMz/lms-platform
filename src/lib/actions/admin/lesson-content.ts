@@ -9,6 +9,7 @@ type ContentType = "theory" | "example";
 type LessonContentData = {
   title: string;
   video_url: string | null;
+  lesson_video_id: string | null; // FK to lesson_videos (Bunny Stream)
   content: string | null;
   duration_seconds: number | null;
 };
@@ -62,11 +63,14 @@ export async function upsertLessonContent(
 
     if (existing) {
       // Update existing content
+      // If lesson_video_id is set, clear video_url (Bunny takes precedence)
+      // If video_url is set, clear lesson_video_id (external URL takes precedence)
       const { data: updated, error } = await supabase
         .from("lesson_content")
         .update({
           title,
-          video_url: data.video_url,
+          video_url: data.lesson_video_id ? null : data.video_url,
+          lesson_video_id: data.video_url ? null : data.lesson_video_id,
           content: data.content,
           duration_seconds: data.duration_seconds,
           updated_at: new Date().toISOString(),
@@ -87,13 +91,16 @@ export async function upsertLessonContent(
       };
     } else {
       // Create new content
+      // If lesson_video_id is set, clear video_url (Bunny takes precedence)
+      // If video_url is set, clear lesson_video_id (external URL takes precedence)
       const { data: created, error } = await supabase
         .from("lesson_content")
         .insert({
           lesson_id: lessonId,
           title,
           content_type: contentType,
-          video_url: data.video_url,
+          video_url: data.lesson_video_id ? null : data.video_url,
+          lesson_video_id: data.video_url ? null : data.lesson_video_id,
           content: data.content,
           duration_seconds: data.duration_seconds,
           order_index: orderIndex,

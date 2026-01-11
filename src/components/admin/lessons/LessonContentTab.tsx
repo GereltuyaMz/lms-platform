@@ -1,11 +1,13 @@
 "use client";
 
 import { Label } from "@/components/ui/label";
-import { VideoUrlInputControlled } from "./VideoUrlInputControlled";
+import { VideoInput } from "./VideoInput";
 import { RichTextEditorControlled } from "./RichTextEditorControlled";
+import type { LessonVideo } from "@/types/database/tables";
 
 type ContentState = {
   videoUrl: string | null;
+  lessonVideoId: string | null;
   content: string;
 };
 
@@ -35,11 +37,26 @@ export const LessonContentTab = ({
 }: LessonContentTabProps) => {
   const label = labels[type];
 
+  const handleLessonVideoChange = (videoId: string | null, _video: LessonVideo | null) => {
+    // Atomic update: when setting videoId, also clear videoUrl to prevent stale closure race condition
+    onChange({
+      ...value,
+      lessonVideoId: videoId,
+      videoUrl: videoId ? null : value.videoUrl,
+    });
+  };
+
   return (
     <div className="space-y-6">
-      <VideoUrlInputControlled
-        value={value.videoUrl || ""}
-        onChange={(url) => onChange({ ...value, videoUrl: url })}
+      <VideoInput
+        videoUrl={value.videoUrl}
+        lessonVideoId={value.lessonVideoId}
+        onVideoUrlChange={(url) => onChange({
+          ...value,
+          videoUrl: url,
+          lessonVideoId: url ? null : value.lessonVideoId,
+        })}
+        onLessonVideoChange={handleLessonVideoChange}
         label={label.video}
       />
 

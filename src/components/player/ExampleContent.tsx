@@ -1,11 +1,16 @@
 import { ContentItemRenderer } from "./ContentItemRenderer";
 import { LessonContentWrapper } from "./LessonContentWrapper";
-import type { LessonContent, Lesson } from "@/types/database/tables";
+import type { LessonContent, Lesson, LessonVideo } from "@/types/database/tables";
 import type { LessonStep } from "@/lib/lesson-step-utils";
 import type { LessonItem } from "@/lib/lesson-utils";
 
+// Extended type for content with joined video data
+type LessonContentWithVideo = LessonContent & {
+  lesson_videos?: LessonVideo | null;
+};
+
 type ExampleContentProps = {
-  lessonContent: LessonContent[] | undefined;
+  lessonContent: LessonContentWithVideo[] | undefined;
   courseId: string;
   lessonId: string;
   // Wrapper props
@@ -62,6 +67,7 @@ export const ExampleContent = ({
               content={content}
               lessonId={lessonId}
               courseId={courseId}
+              lessonVideo={content.lesson_videos}
             />
           ))}
         </div>

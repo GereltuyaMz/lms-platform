@@ -20,3 +20,4 @@ export { TooToolol } from "./TooToolol";
 export { TheoryIcon } from "./Theory";
 export { ExampleIcon } from "./Example";
 export { TestIcon } from "./Test";
+export { BadgeBackground } from "./BadgeBackground";

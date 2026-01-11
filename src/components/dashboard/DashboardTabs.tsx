@@ -8,13 +8,14 @@ import {
   TrophyIcon,
   BookBookmarkIcon,
   StorefrontIcon,
+  GearIcon,
 } from "@phosphor-icons/react";
 import { cn } from "@/lib/utils";
 import { AchievementsSidebar } from "./AchievementsSidebar";
 import { ProfileCompletionBanner } from "./ProfileCompletionBanner";
 import type { BadgeWithProgress } from "@/lib/actions/badges";
 
-type TabId = "courses" | "achievements" | "test-results" | "profile" | "shop";
+type TabId = "courses" | "achievements" | "test-results" | "profile" | "shop" | "settings";
 
 type Tab = {
   id: TabId;
@@ -29,6 +30,7 @@ type DashboardTabsProps = {
   achievementsContent: React.ReactNode;
   testResultsContent: React.ReactNode;
   shopContent: React.ReactNode;
+  settingsContent: React.ReactNode;
   // Data for right sidebar
   achievements: BadgeWithProgress[];
   isProfileComplete: boolean;
@@ -60,6 +62,11 @@ const tabs: Tab[] = [
     label: "Дэлгүүр",
     icon: <StorefrontIcon size={20} />,
   },
+  {
+    id: "settings",
+    label: "Тохиргоо",
+    icon: <GearIcon size={20} />,
+  },
 ];
 
 export const DashboardTabs = ({
@@ -68,19 +75,20 @@ export const DashboardTabs = ({
   achievementsContent,
   testResultsContent,
   shopContent,
+  settingsContent,
   achievements,
   isProfileComplete,
 }: DashboardTabsProps) => {
   const router = useRouter();
   const searchParams = useSearchParams();
 
+  // Valid tabs for URL validation
+  const validTabs = ["profile", "courses", "achievements", "test-results", "shop", "settings"];
+
   // Read tab from URL or default to "profile"
   const tabFromUrl = searchParams.get("tab") as TabId | null;
   const initialTab =
-    tabFromUrl &&
-    ["profile", "courses", "achievements", "test-results", "shop"].includes(
-      tabFromUrl
-    )
+    tabFromUrl && validTabs.includes(tabFromUrl)
       ? tabFromUrl
       : "profile";
 
@@ -89,14 +97,10 @@ export const DashboardTabs = ({
   // Sync with URL changes
   useEffect(() => {
     const urlTab = searchParams.get("tab") as TabId | null;
-    if (
-      urlTab &&
-      ["profile", "courses", "achievements", "test-results", "shop"].includes(
-        urlTab
-      )
-    ) {
+    if (urlTab && validTabs.includes(urlTab)) {
       setActiveTab(urlTab);
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [searchParams]);
 
   const handleTabChange = (tabId: TabId) => {
@@ -111,6 +115,7 @@ export const DashboardTabs = ({
     achievements: achievementsContent,
     "test-results": testResultsContent,
     shop: shopContent,
+    settings: settingsContent,
   };
 
   // Show right sidebar on profile and courses tabs only

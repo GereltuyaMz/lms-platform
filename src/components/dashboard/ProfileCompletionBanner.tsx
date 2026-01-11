@@ -28,7 +28,7 @@ export const ProfileCompletionBanner = ({
       <div className="space-y-2">
         <Button
           className="w-full font-semibold rounded-lg bg-[#29CC57] hover:bg-[#16A34A] shadow-[0_4px_0_0_#16A34A]"
-          onClick={() => router.push("/onboarding")}
+          onClick={() => router.push("/dashboard?tab=settings")}
         >
           Одоо бөглөх
         </Button>

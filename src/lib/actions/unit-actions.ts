@@ -247,6 +247,7 @@ export const getUnitProgress = async (
 
 /**
  * Fetch a lesson with its content items (theory, examples)
+ * Includes lesson_videos join for Bunny Stream videos
  */
 export const getLessonWithContent = async (
   lessonId: string
@@ -263,10 +264,20 @@ export const getLessonWithContent = async (
         title,
         content_type,
         video_url,
+        lesson_video_id,
         content,
         description,
         duration_seconds,
-        order_index
+        order_index,
+        lesson_videos (
+          id,
+          bunny_video_id,
+          bunny_library_id,
+          title,
+          duration_seconds,
+          thumbnail_url,
+          status
+        )
       )
     `
     )
@@ -290,6 +301,7 @@ export const getLessonWithContent = async (
 
 /**
  * Fetch a lesson with content and quiz questions
+ * Includes lesson_videos join for Bunny Stream videos
  */
 export const getLessonComplete = async (
   lessonId: string
@@ -307,10 +319,20 @@ export const getLessonComplete = async (
         title,
         content_type,
         video_url,
+        lesson_video_id,
         content,
         description,
         duration_seconds,
-        order_index
+        order_index,
+        lesson_videos (
+          id,
+          bunny_video_id,
+          bunny_library_id,
+          title,
+          duration_seconds,
+          thumbnail_url,
+          status
+        )
       )
     `
     )

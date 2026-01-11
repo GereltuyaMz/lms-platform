@@ -17,7 +17,7 @@ type CourseCardProps = {
     description: string | null;
     thumbnail_url: string | null;
     level: CourseLevel;
-    duration_hours?: number | null;
+    total_duration_seconds?: number | null;
     lessons?: { count: number }[];
   };
   enrollment?: {
@@ -33,16 +33,19 @@ export const CourseCard = ({ course, enrollment }: CourseCardProps) => {
   // Get lesson count from the nested array
   const lessonCount = course.lessons?.[0]?.count ?? 0;
 
-  // Format duration
-  const formatDuration = (hours: number | null | undefined) => {
-    if (!hours) return null;
-    if (hours < 1) {
-      return `${Math.round(hours * 60)} мин`;
+  // Format duration from seconds
+  const formatDuration = (seconds: number | null | undefined): string | null => {
+    if (!seconds || seconds === 0) return null;
+    const hours = Math.floor(seconds / 3600);
+    const minutes = Math.ceil((seconds % 3600) / 60);
+    if (hours > 0) {
+      return minutes > 0 ? `${hours} цаг ${minutes} мин` : `${hours} цаг`;
     }
-    return `${hours} цаг`;
+    return `${minutes} мин`;
   };
 
-  const duration = formatDuration(course.duration_hours);
+  // Prefer calculated total_duration_seconds over manually set duration_hours
+  const duration = formatDuration(course.total_duration_seconds);
 
   // Determine if course is completed
   const isCompleted =

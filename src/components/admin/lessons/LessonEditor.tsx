@@ -29,7 +29,7 @@ type UnitOption = {
   course_title: string;
 };
 
-type ContentState = { videoUrl: string | null; content: string };
+type ContentState = { videoUrl: string | null; lessonVideoId: string | null; content: string };
 
 type LessonEditorProps = {
   lesson?: LessonWithRelations | null;
@@ -66,11 +66,13 @@ export const LessonEditor = ({
 
   const [theory, setTheory] = useState<ContentState>({
     videoUrl: theoryContent?.video_url || null,
+    lessonVideoId: theoryContent?.lesson_video_id || null,
     content: theoryContent?.content || "",
   });
 
   const [example, setExample] = useState<ContentState>({
     videoUrl: exampleContent?.video_url || null,
+    lessonVideoId: exampleContent?.lesson_video_id || null,
     content: exampleContent?.content || "",
   });
 
@@ -124,15 +126,23 @@ export const LessonEditor = ({
 
       // Save content only if there's content and we have a lesson ID
       if (lessonId) {
-        if (theory.videoUrl || theory.content) {
+        if (theory.videoUrl || theory.lessonVideoId || theory.content) {
           await upsertLessonContent(lessonId, "theory", {
-            title: "Онол", video_url: theory.videoUrl, content: theory.content || null, duration_seconds: null,
+            title: "Онол",
+            video_url: theory.videoUrl,
+            lesson_video_id: theory.lessonVideoId,
+            content: theory.content || null,
+            duration_seconds: null,
           });
         }
 
-        if (example.videoUrl || example.content) {
+        if (example.videoUrl || example.lessonVideoId || example.content) {
           await upsertLessonContent(lessonId, "example", {
-            title: "Жишээ", video_url: example.videoUrl, content: example.content || null, duration_seconds: null,
+            title: "Жишээ",
+            video_url: example.videoUrl,
+            lesson_video_id: example.lessonVideoId,
+            content: example.content || null,
+            duration_seconds: null,
           });
         }
       }

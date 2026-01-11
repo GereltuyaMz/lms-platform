@@ -7,6 +7,7 @@ import {
   ShopTab,
   TestResultsTab,
   ProfileOverview,
+  ProfileTab,
 } from "@/components/dashboard";
 import {
   getUserEnrollments,
@@ -73,16 +74,38 @@ export default async function DashboardPage() {
     } | null;
   }>;
 
-  // Fetch last accessed lesson for each enrollment
+  // Fetch course durations from courses_with_stats view (includes Bunny video durations)
+  const courseIds = rawEnrollments
+    .map((e) => e.courses?.id)
+    .filter((id): id is string => !!id);
+
+  const courseDurations: Record<string, number> = {};
+  if (courseIds.length > 0) {
+    const { data: courseStats } = await supabase
+      .from("courses_with_stats")
+      .select("id, total_duration_seconds")
+      .in("id", courseIds);
+
+    courseStats?.forEach((cs) => {
+      courseDurations[cs.id] = cs.total_duration_seconds || 0;
+    });
+  }
+
+  // Fetch last accessed lesson for each enrollment and merge duration data
   const enrollmentsWithLastLesson = await Promise.all(
     rawEnrollments.map(async (enrollment) => {
       if (!enrollment.courses) return { ...enrollment, lastLessonId: null };
 
       const lastLessonId = await getLastAccessedLesson(enrollment.courses.id);
+      const totalDurationSeconds = courseDurations[enrollment.courses.id] || 0;
 
       return {
         ...enrollment,
         lastLessonId,
+        courses: {
+          ...enrollment.courses,
+          total_duration_seconds: totalDurationSeconds,
+        },
       };
     })
   );
@@ -102,7 +125,7 @@ export default async function DashboardPage() {
   const isProfileComplete = profileCompletionResult.isComplete || false;
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen bg-white">
       {/* Dashboard Tabs with 3-column layout */}
       <DashboardTabs
         profileOverviewContent={
@@ -128,6 +151,16 @@ export default async function DashboardPage() {
           <TestResultsTab attempts={mockTestAttempts.data || []} />
         }
         shopContent={<ShopTab orders={userOrders} />}
+        settingsContent={
+          <ProfileTab
+            username={userStats.username}
+            email={user.email || ""}
+            avatarUrl={userStats.avatarUrl}
+            dateOfBirth={userProfile?.date_of_birth || ""}
+            phoneNumber={userProfile?.phone_number || ""}
+            learningGoals={userProfile?.learning_goals || ""}
+          />
+        }
         achievements={badgeProgress}
         isProfileComplete={isProfileComplete}
       />

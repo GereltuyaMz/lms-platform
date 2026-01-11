@@ -1,20 +1,25 @@
 "use client";
 
 import { VideoPlayer } from "./VideoPlayer";
-import type { LessonContent } from "@/types/database/tables";
+import { BunnyVideoPlayer } from "./BunnyVideoPlayer";
+import type { LessonContent, LessonVideo } from "@/types/database/tables";
 
 type ContentItemRendererProps = {
   content: LessonContent;
   lessonId: string;
   courseId: string;
+  lessonVideo?: LessonVideo | null; // Bunny video data if available
 };
 
 export const ContentItemRenderer = ({
   content,
   lessonId,
   courseId,
+  lessonVideo,
 }: ContentItemRendererProps) => {
-  const hasVideo = !!content.video_url;
+  const hasBunnyVideo = !!lessonVideo && lessonVideo.status === "ready";
+  const hasUrlVideo = !!content.video_url;
+  const hasVideo = hasBunnyVideo || hasUrlVideo;
   const hasText = !!content.content;
   const hasDescription = !!content.description;
 
@@ -22,8 +27,19 @@ export const ContentItemRenderer = ({
 
   return (
     <div>
-      {/* Video content */}
-      {hasVideo && (
+      {/* Bunny video (priority) */}
+      {hasBunnyVideo && (
+        <BunnyVideoPlayer
+          bunnyVideoId={lessonVideo.bunny_video_id}
+          bunnyLibraryId={lessonVideo.bunny_library_id}
+          lessonId={lessonId}
+          courseId={courseId}
+          duration={lessonVideo.duration_seconds || undefined}
+        />
+      )}
+
+      {/* Fallback to URL video (YouTube/Vimeo) */}
+      {!hasBunnyVideo && hasUrlVideo && (
         <VideoPlayer
           videoUrl={content.video_url!}
           lessonId={lessonId}
@@ -43,14 +59,20 @@ export const ContentItemRenderer = ({
       {/* Text content (for text-only content items) */}
       {hasText && !hasVideo && (
         <div className="bg-white rounded-lg border p-6">
-          <div className="prose max-w-none">{content.content}</div>
+          <div
+            className="prose max-w-none"
+            dangerouslySetInnerHTML={{ __html: content.content! }}
+          />
         </div>
       )}
 
       {/* Additional text below video (if content field is also used) */}
       {hasText && hasVideo && (
         <div className="bg-gray-50 rounded-lg border p-4 mt-3">
-          <div className="prose prose-sm max-w-none">{content.content}</div>
+          <div
+            className="prose prose-sm max-w-none"
+            dangerouslySetInnerHTML={{ __html: content.content! }}
+          />
         </div>
       )}
     </div>
