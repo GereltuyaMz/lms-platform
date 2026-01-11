@@ -62,30 +62,63 @@ const SignInForm = () => {
     });
   };
 
-  return (
-    <div className="min-h-screen flex items-center justify-center bg-white">
-      <div className="w-full max-w-lg space-y-8 flex flex-col items-center justify-center">
-        <Image src="/assets/log-in.png" alt="login" width={206} height={142} />
-        <h1 className="text-h1 font-bold text-foreground text-center">
-          Нэвтрэх
-        </h1>
+  const handleForgotPassword = () => {
+    // TODO: Implement forgot password functionality
+    alert("Тун удахгүй! (Coming soon)");
+  };
 
-        <form onSubmit={handleSubmit(onSubmit)} className="space-y-6 w-10/12">
+  return (
+    <div className="min-h-screen flex items-center justify-center bg-white relative overflow-hidden">
+      {/* Decorative background elements */}
+      <div className="absolute -top-20 -left-20 w-[400px] h-[400px] pointer-events-none">
+        <Image
+          src="/assets/auth/green-star.svg"
+          alt=""
+          fill
+          className="object-contain"
+          aria-hidden="true"
+        />
+      </div>
+      <div className="absolute -bottom-32 -right-32 w-[550px] h-[550px] pointer-events-none">
+        <Image
+          src="/assets/auth/orange-blob.svg"
+          alt=""
+          fill
+          className="object-contain"
+          aria-hidden="true"
+        />
+      </div>
+
+      {/* Main card container */}
+      <div className="w-full max-w-[410px] p-6 border border-[#cac4d0] rounded-2xl bg-white flex flex-col gap-6 relative z-10">
+        {/* Title section */}
+        <div className="flex flex-col gap-1 items-center text-center">
+          <h1 className="text-2xl font-semibold text-black font-[family-name:var(--font-nunito)]">
+            Нэвтрэх
+          </h1>
+          <p className="text-sm text-[#737373] leading-5">
+            Өөрийн бүртгэлтэй имэйл хаягаар нэвтэрнэ
+          </p>
+        </div>
+
+        {/* Form */}
+        <form onSubmit={handleSubmit(onSubmit)} className="flex flex-col gap-5">
           {serverError && (
             <div className="p-3 rounded-lg bg-red-50 border border-red-200">
               <p className="text-sm text-red-600">{serverError}</p>
             </div>
           )}
 
-          <div className="space-y-2">
-            <Label htmlFor="email" className="sr-only">
-              Имэйл
+          {/* Email field */}
+          <div className="flex flex-col gap-3">
+            <Label htmlFor="email" className="text-sm font-medium text-[#0a0a0a]">
+              И-мэйл
             </Label>
             <Input
               id="email"
               type="email"
-              placeholder="Имэйл"
-              className="h-14 rounded-lg border-gray-300"
+              placeholder="boldoo@gmail.com"
+              className="h-12 px-3 py-3 rounded-lg border-[#e5e5e5] shadow-sm text-base placeholder:text-[#737373]"
               {...register("email")}
             />
             {errors.email && (
@@ -93,53 +126,75 @@ const SignInForm = () => {
             )}
           </div>
 
-          <div className="space-y-2">
-            <Label htmlFor="password" className="sr-only">
+          {/* Password field */}
+          <div className="flex flex-col gap-3">
+            <Label htmlFor="password" className="text-sm font-medium text-[#0a0a0a]">
               Нууц үг
             </Label>
             <Input
               id="password"
               type="password"
-              placeholder="Нууц үг"
-              className="h-14 rounded-lg border-gray-300"
+              placeholder="Нууц үгээ оруулна уу"
+              className="h-12 px-3 py-3 rounded-lg border-[#e5e5e5] shadow-sm text-base placeholder:text-[#737373]"
               {...register("password")}
             />
             {errors.password && (
               <p className="text-sm text-red-600">{errors.password.message}</p>
             )}
+            {/* Forgot password link */}
+            <div className="flex justify-end">
+              <button
+                type="button"
+                onClick={handleForgotPassword}
+                className="text-sm text-[#737373] hover:text-[#29cc57] transition-colors cursor-pointer"
+              >
+                Нууц үг сэргээх?
+              </button>
+            </div>
           </div>
 
+          {/* Submit button with 3D effect */}
           <Button
             type="submit"
             disabled={isPending}
-            className="w-full h-12 rounded-3xl bg-primary hover:bg-primary/90 text-white font-medium disabled:opacity-50 cursor-pointer"
+            className="w-full h-[46px] rounded-lg bg-[#29cc57] hover:bg-[#24b84e] text-white font-bold text-base shadow-[0px_4px_0px_0px_#1f9941] hover:shadow-[0px_2px_0px_0px_#1f9941] hover:translate-y-[2px] active:shadow-none active:translate-y-1 transition-all disabled:opacity-50 font-[family-name:var(--font-nunito)]"
           >
-            <p className="text-medium">
-              {isPending ? "Нэвтэрч байна..." : "Нэвтрэх"}
-            </p>
+            {isPending ? "Нэвтэрч байна..." : "Нэвтрэх"}
           </Button>
         </form>
 
+        {/* Divider */}
+        <div className="flex items-center gap-1">
+          <div className="flex-1 h-px bg-gradient-to-r from-transparent to-[#cac4d0]" />
+          <span className="text-base text-[#737373] px-2 font-[family-name:var(--font-nunito)]">
+            Эсвэл
+          </span>
+          <div className="flex-1 h-px bg-gradient-to-l from-transparent to-[#cac4d0]" />
+        </div>
+
+        {/* Google sign-in button with 3D effect */}
         <Button
           type="button"
           variant="outline"
           disabled={isPending}
           onClick={handleGoogleSignIn}
-          className="w-10/12 h-12 rounded-lg border-gray-300 hover:bg-gray-50 disabled:opacity-50 cursor-pointer"
+          className="w-full h-[46px] rounded-lg border-[#e5e5e5] bg-white hover:bg-gray-50 shadow-[0px_4px_0px_0px_#e5e5e5] hover:shadow-[0px_2px_0px_0px_#e5e5e5] hover:translate-y-[2px] active:shadow-none active:translate-y-1 transition-all disabled:opacity-50 font-bold text-base text-black font-[family-name:var(--font-nunito)]"
         >
-          <GoogleIcon fill="#10b981" width={32} height={32} />
+          <GoogleIcon fill="#29cc57" width={20} height={20} />
+          Continue with Google
         </Button>
 
-        <div className="text-center">
-          <p className="text-small text-muted-foreground">
-            Шинэ хэрэглэгч үү?{" "}
-            <Link
-              href="/signup"
-              className="text-primary underline hover:no-underline font-medium"
-            >
-              Бүртгүүлэх
-            </Link>
-          </p>
+        {/* Sign up link */}
+        <div className="flex items-center justify-center gap-2">
+          <span className="text-base text-[#737373] font-[family-name:var(--font-nunito)]">
+            Шинэ хэрэглэгч үү?
+          </span>
+          <Link
+            href="/signup"
+            className="text-sm text-[#29cc57] font-medium underline underline-offset-2 hover:no-underline"
+          >
+            Бүртгүүлэх
+          </Link>
         </div>
       </div>
     </div>
