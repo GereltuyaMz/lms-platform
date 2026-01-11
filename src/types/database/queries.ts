@@ -23,6 +23,7 @@ export interface CourseWithCategories extends Course {
     categories: Category | null
   }[]
   lesson_count?: number
+  total_duration_seconds?: number
   teacher?: {
     id: string
     full_name: string

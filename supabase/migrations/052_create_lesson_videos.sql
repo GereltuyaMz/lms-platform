@@ -99,3 +99,41 @@ CREATE INDEX idx_lesson_content_lesson_video ON lesson_content(lesson_video_id);
 
 -- Comment
 COMMENT ON COLUMN lesson_content.lesson_video_id IS 'Reference to uploaded Bunny Stream video. Takes precedence over video_url when set.';
+
+-- =====================================================
+-- UPDATE COURSES_WITH_STATS VIEW
+-- =====================================================
+-- Fixes duration calculation to include Bunny video durations
+-- Previously tried to sum lessons.duration_seconds which doesn't exist
+-- Now properly joins lesson_content and lesson_videos
+
+DROP VIEW IF EXISTS courses_with_stats;
+
+CREATE VIEW courses_with_stats AS
+SELECT
+  c.*,
+  COALESCE(stats.lesson_count, 0)::INTEGER as lesson_count,
+  COALESCE(stats.total_duration_seconds, 0)::INTEGER as total_duration_seconds
+FROM courses c
+LEFT JOIN (
+  SELECT
+    l.course_id,
+    COUNT(DISTINCT l.id) as lesson_count,
+    SUM(
+      CASE
+        -- Use Bunny video duration when lesson_video_id is set and video is ready
+        WHEN lc.lesson_video_id IS NOT NULL AND lv.status = 'ready' THEN lv.duration_seconds
+        -- Otherwise use lesson_content duration (for URL videos)
+        ELSE lc.duration_seconds
+      END
+    ) as total_duration_seconds
+  FROM lessons l
+  LEFT JOIN lesson_content lc ON l.id = lc.lesson_id
+  LEFT JOIN lesson_videos lv ON lc.lesson_video_id = lv.id
+  GROUP BY l.course_id
+) stats ON c.id = stats.course_id;
+
+-- =====================================================
+-- COMMENT
+-- =====================================================
+COMMENT ON VIEW courses_with_stats IS 'Courses with lesson count and total duration. Includes Bunny video durations from lesson_videos table.';

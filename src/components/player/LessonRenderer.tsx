@@ -1,10 +1,15 @@
 import { ContentItemRenderer } from "./ContentItemRenderer";
 import { QuizPlayer } from "./quiz/QuizPlayer";
-import type { Lesson, LessonContent } from "@/types/database/tables";
+import type { Lesson, LessonContent, LessonVideo } from "@/types/database/tables";
 import type { QuizData } from "@/types/quiz";
 
+// Extended type for content with joined video data
+type LessonContentWithVideo = LessonContent & {
+  lesson_videos?: LessonVideo | null;
+};
+
 type LessonRendererProps = {
-  lesson: Lesson & { lesson_content?: LessonContent[] };
+  lesson: Lesson & { lesson_content?: LessonContentWithVideo[] };
   courseId: string;
   quizData?: QuizData | null;
 };
@@ -27,6 +32,7 @@ export const LessonRenderer = ({
             content={content}
             lessonId={lesson.id}
             courseId={courseId}
+            lessonVideo={content.lesson_videos}
           />
         ))}
 

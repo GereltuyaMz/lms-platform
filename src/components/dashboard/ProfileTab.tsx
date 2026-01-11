@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
+import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -15,7 +15,15 @@ import { createClient } from "@/lib/supabase/client";
 import { ShippingAddressForm } from "@/components/shop/ShippingAddressForm";
 import type { ShippingAddress } from "@/types/shop";
 import { toast } from "sonner";
-import { Upload, Loader2, Package } from "lucide-react";
+import {
+  CameraIcon,
+  SpinnerGapIcon,
+  UserIcon,
+  CalendarIcon,
+  PhoneIcon,
+  TargetIcon,
+  MapPinIcon,
+} from "@phosphor-icons/react";
 
 type ProfileTabProps = {
   username: string;
@@ -105,7 +113,7 @@ export const ProfileTab = ({
       if (result.success) {
         // Check if XP was awarded (updateUserProfile already calls checkAndAwardProfileCompletionXP)
         if (result.xpAwarded && result.xpAwarded > 0) {
-          toast.success(`🎉 +${result.xpAwarded} XP`, {
+          toast.success(`+${result.xpAwarded} XP`, {
             description: "Профайл бөглөгдсөн!",
             duration: 5000,
           });
@@ -133,186 +141,216 @@ export const ProfileTab = ({
   };
 
   return (
-    <div>
-      <h2 className="text-2xl md:text-3xl font-bold mb-6">Профайл тохиргоо</h2>
-
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-        {/* Avatar Section */}
-        <Card className="lg:col-span-1">
-          <CardHeader>
-            <CardTitle>Профайл зураг</CardTitle>
-          </CardHeader>
-          <CardContent className="flex flex-col items-center gap-4">
-            <Avatar className="w-32 h-32 bg-emerald-500">
-              {avatarUrl ? (
-                <AvatarImage src={avatarUrl} alt={username} />
-              ) : (
-                <AvatarFallback className="bg-emerald-500 text-white text-4xl">
-                  {getInitials(username)}
-                </AvatarFallback>
-              )}
-            </Avatar>
-
-            <Label
-              htmlFor="avatar-upload"
-              className={`w-full inline-flex items-center justify-center gap-2 px-4 py-2 border border-input rounded-md transition-colors ${
-                isUploading
-                  ? "opacity-50 cursor-not-allowed"
-                  : "cursor-pointer hover:bg-accent hover:text-white"
-              }`}
-            >
-              {isUploading ? (
-                <>
-                  <Loader2 className="w-4 h-4 animate-spin" />
-                  Байршуулж байна...
-                </>
-              ) : (
-                <>
-                  <Upload className="w-4 h-4" />
-                  Зураг байршуулах
-                </>
-              )}
-            </Label>
-            <Input
-              id="avatar-upload"
-              type="file"
-              accept="image/*"
-              className="hidden"
-              onChange={handleAvatarChange}
-              disabled={isUploading}
-            />
-            <p className="text-xs text-muted-foreground text-center">
-              JPG, PNG, GIF, WEBP. Хамгийн ихдээ 2MB.
-            </p>
-          </CardContent>
-        </Card>
-
-        {/* Profile Form */}
-        <Card className="lg:col-span-2">
-          <CardHeader>
-            <CardTitle>Хувийн мэдээлэл</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <form onSubmit={handleSubmit} className="space-y-6">
-              {/* Username */}
-              <div className="space-y-2">
-                <Label htmlFor="username">Хэрэглэгчийн нэр</Label>
-                <Input
-                  id="username"
-                  value={username}
-                  onChange={(e) => setUsername(e.target.value)}
-                  placeholder="Хэрэглэгчийн нэрээ оруулна уу"
-                />
-              </div>
-
-              {/* Email (read-only) */}
-              <div className="space-y-2">
-                <Label htmlFor="email">Имэйл</Label>
-                <Input
-                  id="email"
-                  type="email"
-                  value={email}
-                  disabled
-                  className="bg-gray-50"
-                />
-                <p className="text-xs text-muted-foreground">
-                  Имэйл хаягийг өөрчлөх боломжгүй
-                </p>
-              </div>
-
-              {/* Date of Birth */}
-              <div className="space-y-2">
-                <Label htmlFor="dateOfBirth">Төрсөн огноо</Label>
-                <Input
-                  id="dateOfBirth"
-                  type="date"
-                  value={dateOfBirth}
-                  onChange={(e) => setDateOfBirth(e.target.value)}
-                  max={new Date().toISOString().split("T")[0]}
-                />
-              </div>
-
-              {/* Phone Number */}
-              <div className="space-y-2">
-                <Label htmlFor="phoneNumber">Утасны дугаар</Label>
-                <Input
-                  id="phoneNumber"
-                  type="tel"
-                  value={phoneNumber}
-                  onChange={(e) => setPhoneNumber(e.target.value)}
-                  placeholder="Жишээ: 99119911"
-                />
-              </div>
-
-              {/* Learning Goals */}
-              <div className="space-y-2">
-                <Label htmlFor="learningGoals">Суралцах зорилго</Label>
-                <Textarea
-                  id="learningGoals"
-                  value={learningGoals}
-                  onChange={(e) => setLearningGoals(e.target.value)}
-                  placeholder="Жишээ: Математикийн мэдлэгээ сайжруулах, Программчлал сурах, Англи хэл дээршүүлэх&#10;&#10;(Таслалаар тусгаарлана уу)"
-                  rows={4}
-                />
-                <p className="text-xs text-muted-foreground">
-                  Таслал (,) эсвэл шинэ мөрөөр тусгаарлана уу •{" "}
-                  {learningGoals.length} / 500 тэмдэгт
-                </p>
-              </div>
-
-              {/* Action Buttons */}
-              <div className="flex gap-3">
-                <Button
-                  type="submit"
-                  disabled={isSaving}
-                  className="cursor-pointer hover:text-white"
-                >
-                  {isSaving ? (
-                    <>
-                      <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                      Хадгалж байна...
-                    </>
-                  ) : (
-                    "Xадгалах"
-                  )}
-                </Button>
-                <Button
-                  type="button"
-                  variant="outline"
-                  onClick={() => {
-                    setUsername(initialUsername);
-                    setAvatarUrl(initialAvatarUrl);
-                    setDateOfBirth(initialDateOfBirth);
-                    setPhoneNumber(initialPhoneNumber);
-                    setLearningGoals(initialLearningGoals);
-                  }}
-                  className="cursor-pointer"
-                >
-                  Цуцлах
-                </Button>
-              </div>
-            </form>
-          </CardContent>
-        </Card>
+    <div className="space-y-6">
+      {/* Header */}
+      <div>
+        <h2 className="text-2xl font-bold text-gray-900">Профайл тохиргоо</h2>
+        <p className="text-sm text-gray-500 mt-1">
+          Хувийн мэдээллээ шинэчилж, профайлаа бүрэн бөглөнө үү
+        </p>
       </div>
 
-      {/* Shipping Address Section */}
-      <Card className="mt-6">
-        <CardHeader>
-          <div className="flex items-center gap-2">
-            <Package className="w-5 h-5 text-muted-foreground" />
-            <div>
-              <CardTitle>Хүргэлтийн хаяг</CardTitle>
-              <CardDescription>
-                XP дэлгүүрээс физик бараа захиалах үед ашиглагдана
-              </CardDescription>
+      {/* Avatar Section Card */}
+      <Card className="rounded-2xl border-0 overflow-hidden bg-[var(--dashboard-tab-active)]">
+        <CardContent className="p-6">
+          <div className="flex items-center gap-6">
+            {/* Avatar with upload overlay */}
+            <div className="relative group">
+              <Avatar className="w-24 h-24 ring-4 ring-white shadow-lg">
+                {avatarUrl ? (
+                  <AvatarImage src={avatarUrl} alt={username} />
+                ) : (
+                  <AvatarFallback className="bg-[var(--dashboard-text-active)] text-white text-2xl font-semibold">
+                    {getInitials(username)}
+                  </AvatarFallback>
+                )}
+              </Avatar>
+
+              {/* Upload overlay */}
+              <label
+                htmlFor="avatar-upload"
+                className={`
+                  absolute inset-0 rounded-full flex items-center justify-center
+                  bg-black/50 opacity-0 group-hover:opacity-100 transition-opacity cursor-pointer
+                  ${isUploading ? "opacity-100 cursor-wait" : ""}
+                `}
+              >
+                {isUploading ? (
+                  <SpinnerGapIcon size={28} className="text-white animate-spin" />
+                ) : (
+                  <CameraIcon size={28} className="text-white" />
+                )}
+              </label>
+              <Input
+                id="avatar-upload"
+                type="file"
+                accept="image/*"
+                className="hidden"
+                onChange={handleAvatarChange}
+                disabled={isUploading}
+              />
+            </div>
+
+            {/* User info */}
+            <div className="flex-1 min-w-0">
+              <h3 className="text-xl font-bold text-gray-900 truncate">{username}</h3>
+              <p className="text-sm text-[var(--dashboard-text-primary)]">{email}</p>
+              <p className="text-xs text-gray-500 mt-2">
+                JPG, PNG, GIF, WEBP. Хамгийн ихдээ 2MB.
+              </p>
             </div>
           </div>
-        </CardHeader>
-        <CardContent>
+        </CardContent>
+      </Card>
+
+      {/* Profile Form */}
+      <Card className="rounded-2xl">
+        <CardContent className="p-6">
+          <form onSubmit={handleSubmit} className="space-y-5">
+            {/* Username */}
+            <div className="space-y-2">
+              <Label htmlFor="username" className="flex items-center gap-2 text-gray-700">
+                <span className="w-8 h-8 rounded-full bg-[var(--dashboard-icon-bg)] flex items-center justify-center">
+                  <UserIcon size={16} className="text-[var(--dashboard-text-active)]" />
+                </span>
+                Хэрэглэгчийн нэр
+              </Label>
+              <Input
+                id="username"
+                value={username}
+                onChange={(e) => setUsername(e.target.value)}
+                placeholder="Хэрэглэгчийн нэрээ оруулна уу"
+                className="rounded-xl border-gray-200 focus:border-[var(--dashboard-text-active)] focus:ring-[var(--dashboard-text-active)]"
+              />
+            </div>
+
+            {/* Email (read-only) */}
+            <div className="space-y-2">
+              <Label htmlFor="email" className="text-gray-700">
+                Имэйл
+              </Label>
+              <Input
+                id="email"
+                type="email"
+                value={email}
+                disabled
+                className="rounded-xl bg-gray-50 border-gray-200"
+              />
+              <p className="text-xs text-gray-400">
+                Имэйл хаягийг өөрчлөх боломжгүй
+              </p>
+            </div>
+
+            {/* Date of Birth */}
+            <div className="space-y-2">
+              <Label htmlFor="dateOfBirth" className="flex items-center gap-2 text-gray-700">
+                <span className="w-8 h-8 rounded-full bg-[var(--dashboard-icon-bg)] flex items-center justify-center">
+                  <CalendarIcon size={16} className="text-[var(--dashboard-text-active)]" />
+                </span>
+                Төрсөн огноо
+              </Label>
+              <Input
+                id="dateOfBirth"
+                type="date"
+                value={dateOfBirth}
+                onChange={(e) => setDateOfBirth(e.target.value)}
+                max={new Date().toISOString().split("T")[0]}
+                className="rounded-xl border-gray-200 focus:border-[var(--dashboard-text-active)] focus:ring-[var(--dashboard-text-active)]"
+              />
+            </div>
+
+            {/* Phone Number */}
+            <div className="space-y-2">
+              <Label htmlFor="phoneNumber" className="flex items-center gap-2 text-gray-700">
+                <span className="w-8 h-8 rounded-full bg-[var(--dashboard-icon-bg)] flex items-center justify-center">
+                  <PhoneIcon size={16} className="text-[var(--dashboard-text-active)]" />
+                </span>
+                Утасны дугаар
+              </Label>
+              <Input
+                id="phoneNumber"
+                type="tel"
+                value={phoneNumber}
+                onChange={(e) => setPhoneNumber(e.target.value)}
+                placeholder="Жишээ: 99119911"
+                className="rounded-xl border-gray-200 focus:border-[var(--dashboard-text-active)] focus:ring-[var(--dashboard-text-active)]"
+              />
+            </div>
+
+            {/* Learning Goals */}
+            <div className="space-y-2">
+              <Label htmlFor="learningGoals" className="flex items-center gap-2 text-gray-700">
+                <span className="w-8 h-8 rounded-full bg-[var(--dashboard-icon-bg)] flex items-center justify-center">
+                  <TargetIcon size={16} className="text-[var(--dashboard-text-active)]" />
+                </span>
+                Суралцах зорилго
+              </Label>
+              <Textarea
+                id="learningGoals"
+                value={learningGoals}
+                onChange={(e) => setLearningGoals(e.target.value)}
+                placeholder="Жишээ: Математикийн мэдлэгээ сайжруулах, Программчлал сурах, Англи хэл дээршүүлэх&#10;&#10;(Таслалаар тусгаарлана уу)"
+                rows={4}
+                className="rounded-xl border-gray-200 focus:border-[var(--dashboard-text-active)] focus:ring-[var(--dashboard-text-active)] resize-none"
+              />
+              <p className="text-xs text-gray-400">
+                Таслал (,) эсвэл шинэ мөрөөр тусгаарлана уу • {learningGoals.length} / 500 тэмдэгт
+              </p>
+            </div>
+
+            {/* Action Buttons */}
+            <div className="flex gap-3 pt-2">
+              <Button
+                type="submit"
+                disabled={isSaving}
+                className="rounded-xl font-semibold bg-[#29CC57] hover:bg-[#16A34A] shadow-[0_4px_0_0_#16A34A] transition-all active:translate-y-[2px] active:shadow-[0_2px_0_0_#16A34A]"
+              >
+                {isSaving ? (
+                  <>
+                    <SpinnerGapIcon className="mr-2 h-4 w-4 animate-spin" />
+                    Хадгалж байна...
+                  </>
+                ) : (
+                  "Хадгалах"
+                )}
+              </Button>
+              <Button
+                type="button"
+                variant="outline"
+                onClick={() => {
+                  setUsername(initialUsername);
+                  setAvatarUrl(initialAvatarUrl);
+                  setDateOfBirth(initialDateOfBirth);
+                  setPhoneNumber(initialPhoneNumber);
+                  setLearningGoals(initialLearningGoals);
+                }}
+                className="rounded-xl border-gray-200"
+              >
+                Цуцлах
+              </Button>
+            </div>
+          </form>
+        </CardContent>
+      </Card>
+
+      {/* Shipping Address Section */}
+      <Card className="rounded-2xl">
+        <CardContent className="p-6">
+          <div className="flex items-center gap-3 mb-5">
+            <span className="w-10 h-10 rounded-full bg-[var(--dashboard-icon-bg)] flex items-center justify-center">
+              <MapPinIcon size={20} className="text-[var(--dashboard-text-active)]" />
+            </span>
+            <div>
+              <h3 className="font-semibold text-gray-900">Хүргэлтийн хаяг</h3>
+              <p className="text-sm text-gray-500">
+                XP дэлгүүрээс физик бараа захиалах үед ашиглагдана
+              </p>
+            </div>
+          </div>
+
           {isLoadingAddress ? (
             <div className="flex items-center justify-center py-8">
-              <Loader2 className="w-6 h-6 animate-spin text-muted-foreground" />
+              <SpinnerGapIcon className="w-6 h-6 animate-spin text-[var(--dashboard-text-active)]" />
             </div>
           ) : (
             <ShippingAddressForm
@@ -323,33 +361,6 @@ export const ProfileTab = ({
           )}
         </CardContent>
       </Card>
-
-      {/* Account Stats */}
-      {/* <Card className="mt-6">
-        <CardHeader>
-          <CardTitle>Хэрэглэгчийн статистик</CardTitle>
-        </CardHeader>
-        <CardContent>
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-            <div className="text-center p-4 bg-gray-50 rounded-lg">
-              <p className="text-2xl font-bold">0</p>
-              <p className="text-sm text-muted-foreground">Элссэн хичээл</p>
-            </div>
-            <div className="text-center p-4 bg-gray-50 rounded-lg">
-              <p className="text-2xl font-bold">0</p>
-              <p className="text-sm text-muted-foreground">Дууссан хичээл</p>
-            </div>
-            <div className="text-center p-4 bg-gray-50 rounded-lg">
-              <p className="text-2xl font-bold">0ц</p>
-              <p className="text-sm text-muted-foreground">Суралцсан цаг</p>
-            </div>
-            <div className="text-center p-4 bg-gray-50 rounded-lg">
-              <p className="text-2xl font-bold">0</p>
-              <p className="text-sm text-muted-foreground">Сертификат</p>
-            </div>
-          </div>
-        </CardContent>
-      </Card> */}
     </div>
   );
 };

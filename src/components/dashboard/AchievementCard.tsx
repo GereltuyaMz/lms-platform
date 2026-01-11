@@ -1,34 +1,30 @@
 import type { BadgeWithProgress } from "@/lib/actions/badges";
+import { BadgeCard } from "@/components/badges";
 
 type AchievementCardSize = "default" | "large";
 
 type AchievementCardProps = {
   achievement: BadgeWithProgress;
-  index: number;
+  index?: number;
   size?: AchievementCardSize;
   showBorder?: boolean;
   alwaysShowProgress?: boolean;
 };
 
-// Alternating background colors for badge icons
-const badgeColors = ["#FFD93D", "#C4A7E7"] as const;
-
 const sizeConfig = {
   default: {
     padding: "p-4",
     gap: "gap-3",
-    badgeSize: "w-14 h-14",
-    iconSize: "text-2xl",
-    titleSize: 18,
-    descriptionSize: 14,
+    badgeSize: "small" as const,
+    titleSize: 16,
+    descriptionSize: 13,
     progressHeight: "h-1.5",
     progressBg: "bg-gray-100",
   },
   large: {
     padding: "p-5",
     gap: "gap-4",
-    badgeSize: "w-16 h-16",
-    iconSize: "text-3xl",
+    badgeSize: "medium" as const,
     titleSize: 18,
     descriptionSize: 14,
     progressHeight: "h-2",
@@ -38,41 +34,33 @@ const sizeConfig = {
 
 export const AchievementCard = ({
   achievement,
-  index,
   size = "default",
   showBorder = true,
   alwaysShowProgress = false,
 }: AchievementCardProps) => {
-  const badgeColor = badgeColors[index % 2];
   const config = sizeConfig[size];
   const hasProgress =
     !achievement.is_unlocked && achievement.progress_percentage > 0;
 
-  // Show progress bar based on prop or if achievement has progress
   const showProgressBar = alwaysShowProgress || hasProgress;
 
   return (
     <div
-      className={`${config.padding} flex items-start ${config.gap} ${showBorder ? "border-b last:border-b-0" : ""}`}
+      className={`${config.padding} flex items-center ${config.gap} ${showBorder ? "border-b border-gray-100 last:border-b-0" : ""} transition-colors hover:bg-gray-50/50`}
     >
-      {/* Badge Icon */}
-      <div
-        className={`${config.badgeSize} flex-shrink-0 rounded-xl flex items-center justify-center shadow-sm`}
-        style={{ backgroundColor: badgeColor }}
-      >
-        <span className={config.iconSize}>{achievement.icon}</span>
-      </div>
+      {/* Badge */}
+      <BadgeCard badge={achievement} size={config.badgeSize} />
 
       {/* Content */}
       <div className="flex-1 min-w-0">
         <h4
-          className="font-semibold text-gray-900"
+          className={`font-semibold text-gray-900 leading-tight ${!achievement.is_unlocked ? "text-gray-500" : ""}`}
           style={{ fontSize: config.titleSize }}
         >
           {achievement.name_mn}
         </h4>
         <p
-          className={`text-gray-600 line-clamp-2 ${showProgressBar ? "mb-2" : ""}`}
+          className={`text-gray-500 line-clamp-2 leading-snug mt-0.5 ${showProgressBar ? "mb-2" : ""}`}
           style={{ fontSize: config.descriptionSize }}
         >
           {achievement.description_mn}
@@ -84,11 +72,11 @@ export const AchievementCard = ({
             className={`${config.progressHeight} ${config.progressBg} rounded-full overflow-hidden`}
           >
             <div
-              className="h-full rounded-full"
+              className="h-full rounded-full transition-all duration-500 ease-out"
               style={{
                 width: `${achievement.progress_percentage}%`,
                 background:
-                  "linear-gradient(180deg, #FFC500 0%, #FFEBA7 50.55%, #FFC500 100%)",
+                  "linear-gradient(90deg, #FFB800 0%, #FF9500 100%)",
               }}
             />
           </div>
