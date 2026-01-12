@@ -124,9 +124,9 @@ export const LessonEditor = ({
         lessonId = lessonResult.data.id;
       }
 
-      // Save content only if there's content and we have a lesson ID
+      // Save content if there's content OR if there was existing content that needs updating
       if (lessonId) {
-        if (theory.videoUrl || theory.lessonVideoId || theory.content) {
+        if (theory.videoUrl || theory.lessonVideoId || theory.content || theoryContent) {
           await upsertLessonContent(lessonId, "theory", {
             title: "Онол",
             video_url: theory.videoUrl,
@@ -136,7 +136,7 @@ export const LessonEditor = ({
           });
         }
 
-        if (example.videoUrl || example.lessonVideoId || example.content) {
+        if (example.videoUrl || example.lessonVideoId || example.content || exampleContent) {
           await upsertLessonContent(lessonId, "example", {
             title: "Жишээ",
             video_url: example.videoUrl,

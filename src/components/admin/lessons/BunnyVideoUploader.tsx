@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useCallback, useRef, useEffect } from "react";
-import { uploadVideoToBunny } from "@/lib/bunny/client-upload";
+import { uploadVideoWithTus, type UploadControl } from "@/lib/bunny/client-upload";
 import {
   createBunnyVideo,
   getVideoStatus,
@@ -35,10 +35,12 @@ export const BunnyVideoUploader = ({
   const [error, setError] = useState<string | null>(null);
   const [isDeleting, setIsDeleting] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
+  const [uploadingFile, setUploadingFile] = useState<{ name: string; size: number } | null>(null);
 
   const pollIntervalRef = useRef<NodeJS.Timeout | null>(null);
   const currentBunnyVideoIdRef = useRef<string | null>(null);
   const currentDbIdRef = useRef<string | null>(null);
+  const uploadControlRef = useRef<UploadControl | null>(null);
 
   useEffect(() => {
     // Only load if we have a lessonVideoId AND it's different from what we already have
@@ -57,6 +59,11 @@ export const BunnyVideoUploader = ({
       if (pollIntervalRef.current) {
         clearInterval(pollIntervalRef.current);
         pollIntervalRef.current = null;
+      }
+      // Abort any in-progress upload
+      if (uploadControlRef.current) {
+        uploadControlRef.current.abort();
+        uploadControlRef.current = null;
       }
       // Reset refs on unmount so that remount triggers reload
       // (refs persist across unmount but state resets, causing mismatch)
@@ -118,31 +125,42 @@ export const BunnyVideoUploader = ({
     setIsUploading(true);
     setUploadProgress(0);
     setStatus("created");
+    setUploadingFile({ name: file.name, size: file.size });
 
     try {
       const createResult = await createBunnyVideo(file.name, file.name);
-      if (!createResult.success || !createResult.bunnyVideoId) {
+      if (!createResult.success || !createResult.bunnyVideoId || !createResult.tusAuth) {
         throw new Error(createResult.error || "Видео үүсгэж чадсангүй");
       }
 
       currentBunnyVideoIdRef.current = createResult.bunnyVideoId;
       setStatus("uploading");
-      setUploadProgress(10);
+      setUploadProgress(5);
 
-      const uploadResult = await uploadVideoToBunny(
-        createResult.bunnyVideoId,
+      // Use TUS for direct upload to Bunny
+      uploadControlRef.current = uploadVideoWithTus(
+        createResult.tusAuth,
         file,
-        (progress) => setUploadProgress(10 + progress * 0.8)
+        (percent) => {
+          // Map 0-100% to 5-95% for visual feedback
+          setUploadProgress(5 + percent * 0.9);
+        },
+        () => {
+          // Success callback
+          setUploadProgress(100);
+          setStatus("processing");
+          setIsUploading(false);
+          uploadControlRef.current = null;
+          startPolling(createResult.bunnyVideoId!);
+        },
+        (err) => {
+          // Error callback
+          setError(err.message || "Видео байршуулж чадсангүй");
+          setIsUploading(false);
+          setStatus(null);
+          uploadControlRef.current = null;
+        }
       );
-
-      if (!uploadResult.success) {
-        throw new Error(uploadResult.error || "Видео байршуулж чадсангүй");
-      }
-
-      setUploadProgress(100);
-      setStatus("processing");
-      setIsUploading(false);
-      startPolling(createResult.bunnyVideoId);
     } catch (err) {
       setError(err instanceof Error ? err.message : "Алдаа гарлаа");
       setIsUploading(false);
@@ -184,6 +202,8 @@ export const BunnyVideoUploader = ({
         uploadProgress={uploadProgress}
         isUploading={isUploading}
         label={label}
+        fileName={uploadingFile?.name}
+        fileSize={uploadingFile?.size}
       />
     );
   }

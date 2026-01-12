@@ -39,7 +39,13 @@ export const useVideoProgress = ({
   }, [lessonId, courseId]);
 
   // Save progress to database
-  const saveProgress = async (position: number, completed: boolean) => {
+  const saveProgress = async (
+    position: number,
+    completed: boolean,
+    durationOverride?: number
+  ) => {
+    const effectiveDuration = durationOverride || videoDuration;
+
     // Optimistic UI: Update state and show loading toast immediately
     if (completed && !xpAwarded.current) {
       setIsCompleted(true);
@@ -56,7 +62,7 @@ export const useVideoProgress = ({
         courseId,
         position,
         completed,
-        videoDuration
+        effectiveDuration
       );
 
       // Dismiss loading toast

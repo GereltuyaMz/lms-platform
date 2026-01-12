@@ -119,6 +119,13 @@ export const ProfileTab = ({
           });
         } else {
           toast.success("Профайл амжилттай шинэчлэгдлээ!");
+          // Show info if profile is still incomplete
+          if (result.isComplete === false) {
+            toast.info("150 XP авахын тулд профайлаа бүрэн бөглөнө үү", {
+              description: "Зураг, төрсөн огноо, утас, суралцах зорилго бүгдийг бөглөнө үү",
+              duration: 6000,
+            });
+          }
         }
       } else {
         toast.error(result.message || "Профайл шинэчлэхэд алдаа гарлаа");

@@ -1,57 +1,72 @@
-import { createClient } from "@/lib/supabase/client";
-
-const SUPABASE_URL = process.env.NEXT_PUBLIC_SUPABASE_URL!;
+import * as tus from "tus-js-client";
 
 /**
- * Upload video file to Bunny Stream via edge function (client-side)
- * This must be called from the client because ArrayBuffer doesn't serialize for server actions
+ * TUS authentication data from edge function
  */
-export async function uploadVideoToBunny(
-  bunnyVideoId: string,
+export type TusAuthData = {
+  signature: string;
+  expirationTime: number;
+  libraryId: string;
+  videoId: string;
+  endpoint: string;
+};
+
+/**
+ * Upload control handle for pause/resume/abort
+ */
+export type UploadControl = {
+  abort: () => void;
+};
+
+/**
+ * Upload video file directly to Bunny Stream using TUS protocol
+ * This provides resumable uploads with real progress tracking
+ */
+export function uploadVideoWithTus(
+  tusAuth: TusAuthData,
   file: File,
-  onProgress?: (progress: number) => void
-): Promise<{ success: boolean; error?: string }> {
-  const supabase = createClient();
+  onProgress?: (percent: number, bytesUploaded: number, bytesTotal: number) => void,
+  onSuccess?: () => void,
+  onError?: (error: Error) => void
+): UploadControl {
+  const upload = new tus.Upload(file, {
+    endpoint: tusAuth.endpoint,
+    retryDelays: [0, 1000, 3000, 5000, 10000], // Retry with increasing delays
+    chunkSize: 5 * 1024 * 1024, // 5MB chunks for better resume granularity
+    headers: {
+      AuthorizationSignature: tusAuth.signature,
+      AuthorizationExpire: tusAuth.expirationTime.toString(),
+      VideoId: tusAuth.videoId,
+      LibraryId: tusAuth.libraryId,
+    },
+    metadata: {
+      filetype: file.type,
+      title: file.name,
+    },
+    onProgress: (bytesUploaded, bytesTotal) => {
+      const percent = (bytesUploaded / bytesTotal) * 100;
+      onProgress?.(percent, bytesUploaded, bytesTotal);
+    },
+    onSuccess: () => {
+      onSuccess?.();
+    },
+    onError: (error) => {
+      console.error("TUS upload error:", error);
+      onError?.(error);
+    },
+  });
 
-  const {
-    data: { session },
-    error: sessionError,
-  } = await supabase.auth.getSession();
-
-  if (sessionError || !session) {
-    return { success: false, error: "Unauthorized" };
-  }
-
-  try {
-    // Read file as ArrayBuffer
-    const fileBuffer = await file.arrayBuffer();
-
-    // Call edge function to upload
-    const response = await fetch(
-      `${SUPABASE_URL}/functions/v1/bunny-video-upload?action=upload&videoId=${bunnyVideoId}`,
-      {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/octet-stream",
-          Authorization: `Bearer ${session.access_token}`,
-        },
-        body: fileBuffer,
-      }
-    );
-
-    if (!response.ok) {
-      const error = await response.json();
-      return { success: false, error: error.error || "Upload failed" };
+  // Check for previous uploads to resume
+  upload.findPreviousUploads().then((previousUploads) => {
+    if (previousUploads.length > 0) {
+      // Resume the most recent upload
+      upload.resumeFromPreviousUpload(previousUploads[0]);
     }
+    // Start the upload
+    upload.start();
+  });
 
-    // Upload complete, video is now processing
-    onProgress?.(100);
-    return { success: true };
-  } catch (error) {
-    console.error("Error uploading video:", error);
-    return {
-      success: false,
-      error: error instanceof Error ? error.message : "Upload failed",
-    };
-  }
+  return {
+    abort: () => upload.abort(),
+  };
 }

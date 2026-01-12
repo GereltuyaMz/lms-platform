@@ -1,7 +1,38 @@
 "use server";
 
+import { SupabaseClient } from "@supabase/supabase-js";
 import { getAuthenticatedUser } from "./helpers";
 import type { RecommendedCourse } from "@/types/database/queries";
+
+// Helper to fetch course durations from the courses_with_stats view
+async function getCourseDurations(
+  supabase: SupabaseClient,
+  courseIds: string[]
+): Promise<Record<string, number>> {
+  if (courseIds.length === 0) return {};
+
+  const { data } = await supabase
+    .from("courses_with_stats")
+    .select("id, total_duration_seconds")
+    .in("id", courseIds);
+
+  const durations: Record<string, number> = {};
+  data?.forEach((c) => {
+    durations[c.id] = c.total_duration_seconds || 0;
+  });
+  return durations;
+}
+
+// Helper to merge duration data into courses
+function mergeDurations<T extends { id: string }>(
+  courses: T[],
+  durations: Record<string, number>
+): (T & { total_duration_seconds: number })[] {
+  return courses.map((course) => ({
+    ...course,
+    total_duration_seconds: durations[course.id] || 0,
+  }));
+}
 
 /**
  * Get personalized course recommendations based on user's learning goals
@@ -23,6 +54,14 @@ export async function getRecommendedCourses(): Promise<{
       };
     }
 
+    // Get user's enrolled course IDs to exclude from recommendations
+    const { data: enrollments } = await supabase
+      .from("enrollments")
+      .select("course_id")
+      .eq("user_id", user.id);
+
+    const enrolledCourseIds = enrollments?.map((e) => e.course_id) || [];
+
     // Get user's learning goals from profile
     const { data: profile } = await supabase
       .from("user_profiles")
@@ -34,6 +73,12 @@ export async function getRecommendedCourses(): Promise<{
     const hasLearningGoals =
       learningGoals && Array.isArray(learningGoals) && learningGoals.length > 0;
 
+    // Query includes lesson count and duration
+    const courseSelect = `
+      id, title, slug, description, thumbnail_url, level,
+      lessons (count)
+    `;
+
     // If user has learning goals, search for relevant courses
     if (hasLearningGoals) {
       // Build search query from learning goals
@@ -41,46 +86,69 @@ export async function getRecommendedCourses(): Promise<{
       const searchTerms = learningGoals.join(" ");
 
       // Search courses by title and description matching learning goals
-      const { data: courses, error } = await supabase
+      let query = supabase
         .from("courses")
-        .select("id, title, slug, description, thumbnail_url, level")
+        .select(courseSelect)
         .or(
           `title.ilike.%${searchTerms}%,description.ilike.%${searchTerms}%`
         )
-        .eq("is_published", true)
-        .limit(4);
+        .eq("is_published", true);
+
+      // Exclude enrolled courses
+      if (enrolledCourseIds.length > 0) {
+        query = query.not("id", "in", `(${enrolledCourseIds.join(",")})`);
+      }
+
+      const { data: courses, error } = await query.limit(4);
 
       if (error) {
         // Fallback to random courses if search fails
-        const { data: randomCourses } = await supabase
+        let fallbackQuery = supabase
           .from("courses")
-          .select("id, title, slug, description, thumbnail_url, level")
-          .eq("is_published", true)
-          .limit(4);
+          .select(courseSelect)
+          .eq("is_published", true);
+
+        if (enrolledCourseIds.length > 0) {
+          fallbackQuery = fallbackQuery.not("id", "in", `(${enrolledCourseIds.join(",")})`);
+        }
+
+        const { data: randomCourses } = await fallbackQuery.limit(4);
+
+        // Fetch durations from courses_with_stats view
+        const courseIds = randomCourses?.map((c) => c.id) || [];
+        const durations = await getCourseDurations(supabase, courseIds);
 
         return {
           success: true,
-          courses: randomCourses || [],
+          courses: mergeDurations(randomCourses || [], durations),
           isPersonalized: false,
         };
       }
 
-      // If we found matching courses, return them
+      // If we found matching courses, return them with durations
       if (courses && courses.length > 0) {
+        const courseIds = courses.map((c) => c.id);
+        const durations = await getCourseDurations(supabase, courseIds);
+
         return {
           success: true,
-          courses,
+          courses: mergeDurations(courses, durations),
           isPersonalized: true,
         };
       }
     }
 
     // Fallback: Get random popular courses
-    const { data: randomCourses, error: randomError } = await supabase
+    let randomQuery = supabase
       .from("courses")
-      .select("id, title, slug, description, thumbnail_url, level")
-      .eq("is_published", true)
-      .limit(4);
+      .select(courseSelect)
+      .eq("is_published", true);
+
+    if (enrolledCourseIds.length > 0) {
+      randomQuery = randomQuery.not("id", "in", `(${enrolledCourseIds.join(",")})`);
+    }
+
+    const { data: randomCourses, error: randomError } = await randomQuery.limit(4);
 
     if (randomError) {
       return {
@@ -90,9 +158,13 @@ export async function getRecommendedCourses(): Promise<{
       };
     }
 
+    // Fetch durations for fallback courses
+    const courseIds = randomCourses?.map((c) => c.id) || [];
+    const durations = await getCourseDurations(supabase, courseIds);
+
     return {
       success: true,
-      courses: randomCourses || [],
+      courses: mergeDurations(randomCourses || [], durations),
       isPersonalized: false,
     };
   } catch {

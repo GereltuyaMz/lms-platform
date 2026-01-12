@@ -17,6 +17,24 @@ const corsHeaders = {
   "Access-Control-Allow-Methods": "POST, GET, OPTIONS",
 };
 
+/**
+ * Generate SHA256 signature for TUS upload authentication
+ * Formula: SHA256(library_id + api_key + expiration_time + video_id)
+ */
+async function generateTusSignature(
+  libraryId: string,
+  apiKey: string,
+  expirationTime: number,
+  videoId: string
+): Promise<string> {
+  const message = `${libraryId}${apiKey}${expirationTime}${videoId}`;
+  const data = new TextEncoder().encode(message);
+  const hashBuffer = await crypto.subtle.digest("SHA-256", data);
+  return Array.from(new Uint8Array(hashBuffer))
+    .map((b) => b.toString(16).padStart(2, "0"))
+    .join("");
+}
+
 serve(async (req: Request) => {
   // Handle CORS preflight
   if (req.method === "OPTIONS") {
@@ -111,16 +129,26 @@ serve(async (req: Request) => {
           throw dbError;
         }
 
-        // 3. Return video info with upload URL
-        // Direct upload URL pattern for Bunny Stream
-        const uploadUrl = `https://video.bunnycdn.com/library/${BUNNY_LIBRARY_ID}/videos/${bunnyVideo.guid}`;
+        // 3. Generate TUS authentication for direct upload
+        const expirationTime = Math.floor(Date.now() / 1000) + 7200; // 2 hours
+        const signature = await generateTusSignature(
+          BUNNY_LIBRARY_ID,
+          BUNNY_API_KEY,
+          expirationTime,
+          bunnyVideo.guid
+        );
 
         return new Response(
           JSON.stringify({
             id: videoRecord.id,
             bunnyVideoId: bunnyVideo.guid,
-            uploadUrl,
-            // Client will use edge function's upload endpoint with this info
+            tusAuth: {
+              signature,
+              expirationTime,
+              libraryId: BUNNY_LIBRARY_ID,
+              videoId: bunnyVideo.guid,
+              endpoint: "https://video.bunnycdn.com/tusupload",
+            },
           }),
           { headers: { ...corsHeaders, "Content-Type": "application/json" } }
         );

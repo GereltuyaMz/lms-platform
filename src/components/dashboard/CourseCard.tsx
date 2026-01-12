@@ -151,7 +151,12 @@ export const CourseCard = ({ course, enrollment }: CourseCardProps) => {
                   </div>
                 </div>
               ) : (
-                <button className="w-fit px-6 py-2 rounded-full bg-[#22C55E] hover:bg-[#16A34A] text-white text-sm font-semibold transition-colors">
+                <button
+                  className="w-fit px-6 py-2.5 rounded-xl bg-[#22C55E] hover:bg-[#1EA34A] text-white text-sm font-semibold transition-all active:translate-y-0.5 active:shadow-none"
+                  style={{
+                    boxShadow: "0 4px 0 0 #16A34A",
+                  }}
+                >
                   Хичээл үзэх
                 </button>
               )}

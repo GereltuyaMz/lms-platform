@@ -1,25 +1,14 @@
 import { CourseCard } from "./CourseCard"
 import { EmptyCoursesState } from "./EmptyCoursesState"
-import type { DashboardEnrollment, RecommendedCourse } from "@/types/database/queries"
+import type { DashboardEnrollment } from "@/types/database/queries"
 
 type MyCoursesTabProps = {
   enrollments: DashboardEnrollment[]
-  recommendedCourses?: RecommendedCourse[]
-  isPersonalized?: boolean
 }
 
-export const MyCoursesTab = ({
-  enrollments,
-  recommendedCourses = [],
-  isPersonalized = false,
-}: MyCoursesTabProps) => {
+export const MyCoursesTab = ({ enrollments }: MyCoursesTabProps) => {
   if (enrollments.length === 0) {
-    return (
-      <EmptyCoursesState
-        recommendedCourses={recommendedCourses}
-        isPersonalized={isPersonalized}
-      />
-    )
+    return <EmptyCoursesState />
   }
 
   return (

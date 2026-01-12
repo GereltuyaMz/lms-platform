@@ -1,5 +1,8 @@
 import { createClient } from "@/lib/supabase/server";
 import { redirect } from "next/navigation";
+
+// Force dynamic rendering to always get fresh enrollment data
+export const dynamic = "force-dynamic";
 import {
   DashboardTabs,
   MyCoursesTab,
@@ -133,17 +136,10 @@ export default async function DashboardPage() {
             userStats={userStats}
             enrollments={userEnrollments}
             recommendedCourses={recommendedCoursesResult?.courses || []}
-            isPersonalized={recommendedCoursesResult?.isPersonalized || false}
             joinedDate={userProfile?.created_at}
           />
         }
-        coursesContent={
-          <MyCoursesTab
-            enrollments={userEnrollments}
-            recommendedCourses={recommendedCoursesResult?.courses || []}
-            isPersonalized={recommendedCoursesResult?.isPersonalized || false}
-          />
-        }
+        coursesContent={<MyCoursesTab enrollments={userEnrollments} />}
         achievementsContent={
           <AchievementsTab achievements={badgeProgress} />
         }
@@ -158,7 +154,7 @@ export default async function DashboardPage() {
             avatarUrl={userStats.avatarUrl}
             dateOfBirth={userProfile?.date_of_birth || ""}
             phoneNumber={userProfile?.phone_number || ""}
-            learningGoals={userProfile?.learning_goals || ""}
+            learningGoals={userProfile?.learning_goals?.join(", ") || ""}
           />
         }
         achievements={badgeProgress}

@@ -1,9 +1,9 @@
 "use client";
 
-import { useEffect, useRef, useState, useCallback } from "react";
-import { useRouter } from "next/navigation";
-import { saveVideoProgress, getLessonProgress } from "@/lib/actions";
-import { toast } from "sonner";
+import { useEffect, useRef, useCallback } from "react";
+import { useBunnyPlayer } from "@/hooks/useBunnyPlayer";
+import { useVideoProgress } from "@/hooks/useVideoProgress";
+import { useLessonPlayer } from "@/hooks/useLessonPlayer";
 
 type BunnyVideoPlayerProps = {
   bunnyVideoId: string;
@@ -18,103 +18,104 @@ export const BunnyVideoPlayer = ({
   bunnyLibraryId,
   lessonId,
   courseId,
-  duration,
 }: BunnyVideoPlayerProps) => {
-  const router = useRouter();
-  const iframeRef = useRef<HTMLIFrameElement>(null);
-  const [isCompleted, setIsCompleted] = useState(false);
-  const [lastSavedPosition, setLastSavedPosition] = useState(0);
-  const [progressLoaded, setProgressLoaded] = useState(false);
-  const xpAwarded = useRef(false);
-  const videoDuration = useRef(duration || 0);
-  const lastSaveTime = useRef(0);
+  const lastSaveTimeRef = useRef(0);
+  const isCompletedRef = useRef(false);
+  const saveProgressRef = useRef<
+    (position: number, completed: boolean, durationOverride?: number) => void
+  >(() => {});
+  const videoDurationRef = useRef(0);
+  const hasInitialSeeked = useRef(false);
+  const markLessonCompleteRef = useRef<(() => void) | null>(null);
 
-  const iframeUrl = `https://iframe.mediadelivery.net/embed/${bunnyLibraryId}/${bunnyVideoId}?autoplay=false&preload=true&responsive=true`;
+  // Get markLessonComplete from context to update UI immediately
+  const { markLessonComplete } = useLessonPlayer();
 
-  // Load saved progress
-  useEffect(() => {
-    const loadProgress = async () => {
-      setProgressLoaded(false);
-      xpAwarded.current = false;
-      const progress = await getLessonProgress(lessonId, courseId);
-      if (progress) {
-        setIsCompleted(progress.isCompleted);
-        setLastSavedPosition(progress.lastPosition);
+  const handleTimeUpdate = useCallback(
+    (currentTime: number, duration: number) => {
+      const played = currentTime / duration;
+
+      // Check for 90% completion
+      if (played >= 0.9 && !isCompletedRef.current) {
+        isCompletedRef.current = true;
+        saveProgressRef.current(currentTime, true, Math.floor(duration));
+        markLessonCompleteRef.current?.(); // Update UI immediately
       }
-      setProgressLoaded(true);
-    };
-    loadProgress();
-  }, [lessonId, courseId]);
 
-  const saveProgress = useCallback(
-    async (position: number, completed: boolean) => {
-      if (completed && !xpAwarded.current) {
-        setIsCompleted(true);
-        xpAwarded.current = true;
-
-        const loadingToast = toast.loading("Хадгалж байна...");
-        const result = await saveVideoProgress(lessonId, courseId, position, completed, videoDuration.current);
-        toast.dismiss(loadingToast);
-
-        if (result.success) {
-          setLastSavedPosition(position);
-          if (result.videoXpAwarded) {
-            toast.success(`🎉 +${result.videoXpAwarded} XP`, { description: "Хичээлээ амжилттай дуусгалаа!" });
-          }
-          result.milestoneResults?.forEach((m) => {
-            if (m.success && m.xpAwarded) toast.success(`🏆 +${m.xpAwarded} XP`, { description: m.message, duration: 5000 });
-          });
-          if (result.streakBonusAwarded) {
-            toast.success(`🔥 +${result.streakBonusAwarded} XP`, { description: result.streakBonusMessage, duration: 5000 });
-          } else if (result.currentStreak && result.currentStreak > 0) {
-            toast.success(`🔥 ${result.currentStreak} өдөр стрик!`, { description: "Ингээд үргэлжлээрэй!", duration: 3000 });
-          }
-          setTimeout(() => router.refresh(), 100);
-        } else {
-          setIsCompleted(false);
-          xpAwarded.current = false;
-          toast.error("Алдаа гарлаа", { description: result.message || "Дахин оролдоно уу" });
-        }
-      } else {
-        const result = await saveVideoProgress(lessonId, courseId, position, completed, undefined);
-        if (result.success) setLastSavedPosition(position);
+      // Save progress every 5 seconds
+      if (Math.abs(currentTime - lastSaveTimeRef.current) >= 5) {
+        lastSaveTimeRef.current = currentTime;
+        saveProgressRef.current(currentTime, false);
       }
     },
-    [lessonId, courseId, router]
+    []
   );
 
-  // Listen for Bunny iframe postMessage events
+  const handleEnded = useCallback(() => {
+    if (!isCompletedRef.current) {
+      isCompletedRef.current = true;
+      saveProgressRef.current(
+        videoDurationRef.current,
+        true,
+        videoDurationRef.current
+      );
+      markLessonCompleteRef.current?.(); // Update UI immediately
+    }
+  }, []);
+
+  const { iframeRef, isReady, videoDuration, setCurrentTime } = useBunnyPlayer({
+    lessonId,
+    bunnyVideoId,
+    onTimeUpdate: handleTimeUpdate,
+    onEnded: handleEnded,
+  });
+
+  const { isCompleted, lastSavedPosition, progressLoaded, saveProgress } =
+    useVideoProgress({ lessonId, courseId, videoDuration });
+
+  // Keep refs in sync with current values
   useEffect(() => {
-    const handleMessage = (event: MessageEvent) => {
-      if (!event.origin.includes("mediadelivery.net")) return;
-      const data = event.data;
-      if (!data || typeof data !== "object") return;
+    saveProgressRef.current = saveProgress;
+  }, [saveProgress]);
 
-      if (data.event === "videoProgress" || data.event === "timeupdate") {
-        const currentTime = data.currentTime || data.time || 0;
-        const totalDuration = data.duration || videoDuration.current;
-        if (totalDuration > 0) {
-          videoDuration.current = totalDuration;
-          const played = currentTime / totalDuration;
-          if (played >= 0.9 && !isCompleted) saveProgress(currentTime, true);
-          if (Math.abs(currentTime - lastSaveTime.current) >= 5) {
-            lastSaveTime.current = currentTime;
-            saveProgress(currentTime, false);
-          }
-        }
-      } else if (data.event === "ended" || data.event === "videoEnded") {
-        if (!isCompleted) saveProgress(videoDuration.current, true);
-      } else if (data.event === "ready" && data.duration) {
-        videoDuration.current = data.duration;
-        if (progressLoaded && lastSavedPosition > 0 && iframeRef.current?.contentWindow) {
-          iframeRef.current.contentWindow.postMessage({ event: "seek", time: lastSavedPosition }, "*");
-        }
-      }
-    };
+  useEffect(() => {
+    markLessonCompleteRef.current = () => markLessonComplete(lessonId);
+  }, [markLessonComplete, lessonId]);
 
-    window.addEventListener("message", handleMessage);
-    return () => window.removeEventListener("message", handleMessage);
-  }, [isCompleted, progressLoaded, lastSavedPosition, saveProgress]);
+  useEffect(() => {
+    videoDurationRef.current = videoDuration;
+  }, [videoDuration]);
+
+  // Sync completion ref with state
+  useEffect(() => {
+    isCompletedRef.current = isCompleted;
+  }, [isCompleted]);
+
+  // Reset refs when lesson or video changes
+  useEffect(() => {
+    lastSaveTimeRef.current = 0;
+    isCompletedRef.current = false;
+    hasInitialSeeked.current = false;
+  }, [lessonId, bunnyVideoId]);
+
+  // Seek to last saved position ONCE when ready
+  // Don't seek if already completed (user is re-watching) or if saved position exceeds video duration
+  useEffect(() => {
+    if (
+      progressLoaded &&
+      lastSavedPosition > 0 &&
+      isReady &&
+      !hasInitialSeeked.current &&
+      !isCompleted &&
+      videoDuration > 0 &&
+      lastSavedPosition < videoDuration
+    ) {
+      hasInitialSeeked.current = true;
+      setCurrentTime(lastSavedPosition);
+    }
+  }, [progressLoaded, lastSavedPosition, isReady, setCurrentTime, isCompleted, videoDuration]);
+
+  const iframeUrl = `https://iframe.mediadelivery.net/embed/${bunnyLibraryId}/${bunnyVideoId}?autoplay=false&preload=true&responsive=true`;
 
   return (
     <div className="bg-white rounded-lg border overflow-hidden mb-6">

@@ -18,7 +18,7 @@ export type UserProfile = {
   created_at: string;
   date_of_birth: string | null;
   phone_number: string | null;
-  learning_goals: string | null;
+  learning_goals: string[] | null;
   profile_completed_at: string | null;
   has_completed_onboarding: boolean;
 };

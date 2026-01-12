@@ -36,11 +36,12 @@ export async function getLessonCompletionCount(
 ): Promise<number> {
   const supabase = await createClient();
 
+  // Use !inner to ensure proper filtering on joined table
   const { count } = await supabase
     .from("lesson_progress")
-    .select("enrollment:enrollment_id(user_id)", { count: "exact", head: true })
+    .select("enrollment_id, enrollments!inner(user_id)", { count: "exact", head: true })
     .eq("is_completed", true)
-    .eq("enrollment.user_id", userId);
+    .eq("enrollments.user_id", userId);
 
   return count || 0;
 }
@@ -51,10 +52,11 @@ export async function getLessonCompletionCount(
 export async function getPerfectQuizCount(userId: string): Promise<number> {
   const supabase = await createClient();
 
+  // Use !inner to ensure proper filtering on joined table
   const { data } = await supabase
     .from("quiz_attempts")
-    .select("score, total_questions, enrollment:enrollment_id(user_id)")
-    .eq("enrollment.user_id", userId);
+    .select("score, total_questions, enrollments!inner(user_id)")
+    .eq("enrollments.user_id", userId);
 
   if (!data) return 0;
 
@@ -68,10 +70,11 @@ export async function getPerfectQuizCount(userId: string): Promise<number> {
 export async function getTotalQuizCount(userId: string): Promise<number> {
   const supabase = await createClient();
 
+  // Use !inner to ensure proper filtering on joined table
   const { count } = await supabase
     .from("quiz_attempts")
-    .select("enrollment:enrollment_id(user_id)", { count: "exact", head: true })
-    .eq("enrollment.user_id", userId);
+    .select("enrollment_id, enrollments!inner(user_id)", { count: "exact", head: true })
+    .eq("enrollments.user_id", userId);
 
   return count || 0;
 }

@@ -121,12 +121,16 @@ export async function updateUserProfile(
     // Check if profile is now complete and award XP
     const completionResult = await checkAndAwardProfileCompletionXP();
 
+    // Check completion status to return to frontend
+    const completionStatus = await checkProfileCompletion();
+
     revalidateUserPages();
 
     return {
       success: true,
       message: "Profile updated successfully",
       xpAwarded: completionResult.xpAwarded,
+      isComplete: completionStatus.isComplete,
     };
   } catch (error) {
     return handleActionError(error) as ProfileCompletionResult;
@@ -153,7 +157,11 @@ export async function checkAndAwardProfileCompletionXP(): Promise<ProfileComplet
       user_id: user.id,
     });
 
+    // Debug logging
+    console.log("[Profile XP] DB response:", { data, error });
+
     if (error) {
+      console.log("[Profile XP] DB error:", error.message);
       return {
         success: false,
         message: "Error processing XP",
@@ -162,6 +170,7 @@ export async function checkAndAwardProfileCompletionXP(): Promise<ProfileComplet
 
     // Parse result from database function
     const result = Array.isArray(data) && data.length > 0 ? data[0] : data;
+    console.log("[Profile XP] Parsed result:", result);
 
     if (result && result.success) {
       revalidateUserPages();

@@ -5,11 +5,19 @@ import type { LessonVideo, VideoStatus } from "@/types/database/tables";
 
 const SUPABASE_URL = process.env.NEXT_PUBLIC_SUPABASE_URL!;
 
+type TusAuthData = {
+  signature: string;
+  expirationTime: number;
+  libraryId: string;
+  videoId: string;
+  endpoint: string;
+};
+
 type CreateVideoResponse = {
   success: boolean;
   id?: string;
   bunnyVideoId?: string;
-  uploadUrl?: string;
+  tusAuth?: TusAuthData;
   error?: string;
 };
 
@@ -85,7 +93,7 @@ export async function createBunnyVideo(
       success: true,
       id: data.id,
       bunnyVideoId: data.bunnyVideoId,
-      uploadUrl: data.uploadUrl,
+      tusAuth: data.tusAuth,
     };
   } catch (error) {
     console.error("Error creating Bunny video:", error);

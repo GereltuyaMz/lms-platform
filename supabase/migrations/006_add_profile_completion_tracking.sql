@@ -102,3 +102,62 @@ $$;
 -- Grant execute permissions
 GRANT EXECUTE ON FUNCTION check_profile_completion(UUID) TO authenticated;
 GRANT EXECUTE ON FUNCTION award_profile_completion_xp(UUID) TO authenticated;
+
+-- Migration: Add phone_number to profile completion check
+-- Description: Update check_profile_completion function to require phone_number
+
+CREATE OR REPLACE FUNCTION check_profile_completion(user_id UUID)
+RETURNS BOOLEAN
+LANGUAGE plpgsql
+SECURITY DEFINER
+AS $$
+DECLARE
+  profile_record RECORD;
+BEGIN
+  SELECT
+    avatar_url,
+    date_of_birth,
+    phone_number,
+    learning_goals
+  INTO profile_record
+  FROM user_profiles
+  WHERE id = user_id;
+
+  -- Profile is complete if all four fields are filled:
+  -- 1. Avatar URL is not empty
+  -- 2. Date of birth is set
+  -- 3. Phone number is not empty
+  -- 4. Learning goals array has at least one element
+  RETURN (
+    profile_record.avatar_url IS NOT NULL AND
+    profile_record.avatar_url != '' AND
+    profile_record.date_of_birth IS NOT NULL AND
+    profile_record.phone_number IS NOT NULL AND
+    profile_record.phone_number != '' AND
+    profile_record.learning_goals IS NOT NULL AND
+    array_length(profile_record.learning_goals, 1) > 0
+  );
+END;
+$$;
+
+
+  -- Drop the existing CHECK constraint
+  ALTER TABLE xp_transactions
+    DROP CONSTRAINT IF EXISTS xp_transactions_source_type_check;
+
+  -- Add updated CHECK constraint with profile_completion
+  ALTER TABLE xp_transactions
+    ADD CONSTRAINT xp_transactions_source_type_check
+    CHECK (
+      source_type IN (
+        'lesson_complete',
+        'quiz_complete',
+        'unit_quiz_complete',
+        'mock_test_complete',
+        'milestone',
+        'streak',
+        'achievement',
+        'shop_purchase',
+        'profile_completion'
+      )
+    );
