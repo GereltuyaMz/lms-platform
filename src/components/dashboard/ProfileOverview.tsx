@@ -17,7 +17,6 @@ type ProfileOverviewProps = {
   userStats: UserStats;
   enrollments: DashboardEnrollment[];
   recommendedCourses: RecommendedCourse[];
-  isPersonalized: boolean;
   joinedDate?: string;
 };
 
@@ -25,7 +24,6 @@ export const ProfileOverview = ({
   userStats,
   enrollments,
   recommendedCourses,
-  isPersonalized,
   joinedDate,
 }: ProfileOverviewProps) => {
   const router = useRouter();
@@ -186,15 +184,14 @@ export const ProfileOverview = ({
                     description: course.description,
                     thumbnail_url: course.thumbnail_url,
                     level: course.level,
+                    total_duration_seconds: course.total_duration_seconds,
+                    lessons: course.lessons,
                   }}
                 />
               ))}
             </div>
           ) : (
-            <EmptyCoursesState
-              recommendedCourses={recommendedCourses}
-              isPersonalized={isPersonalized}
-            />
+            <EmptyCoursesState />
           )
         ) : (
           <div className="grid grid-cols-1 gap-4">

@@ -39,14 +39,22 @@ export const AchievementCard = ({
   alwaysShowProgress = false,
 }: AchievementCardProps) => {
   const config = sizeConfig[size];
-  const hasProgress =
-    !achievement.is_unlocked && achievement.progress_percentage > 0;
 
+  // Ensure progress percentage is a valid number between 0 and 100
+  const progressValue = Math.max(
+    0,
+    Math.min(100, Number(achievement.progress_percentage) || 0)
+  );
+
+  // Only show progress if badge is locked AND has actual progress > 0
+  const hasProgress = !achievement.is_unlocked && progressValue > 0;
   const showProgressBar = alwaysShowProgress || hasProgress;
 
   return (
     <div
-      className={`${config.padding} flex items-center ${config.gap} ${showBorder ? "border-b border-gray-100 last:border-b-0" : ""} transition-colors hover:bg-gray-50/50`}
+      className={`${config.padding} flex items-center ${config.gap} ${
+        showBorder ? "border-b border-gray-100 last:border-b-0" : ""
+      } transition-colors hover:bg-gray-50/50`}
     >
       {/* Badge */}
       <BadgeCard badge={achievement} size={config.badgeSize} />
@@ -54,29 +62,32 @@ export const AchievementCard = ({
       {/* Content */}
       <div className="flex-1 min-w-0">
         <h4
-          className={`font-semibold text-gray-900 leading-tight ${!achievement.is_unlocked ? "text-gray-500" : ""}`}
+          className={`font-semibold text-gray-900 leading-tight ${
+            !achievement.is_unlocked ? "text-gray-500" : ""
+          }`}
           style={{ fontSize: config.titleSize }}
         >
           {achievement.name_mn}
         </h4>
         <p
-          className={`text-gray-500 line-clamp-2 leading-snug mt-0.5 ${showProgressBar ? "mb-2" : ""}`}
+          className={`text-gray-500 line-clamp-2 leading-snug mt-0.5 ${
+            showProgressBar && progressValue > 0 ? "mb-2" : ""
+          }`}
           style={{ fontSize: config.descriptionSize }}
         >
           {achievement.description_mn}
         </p>
 
-        {/* Progress Bar */}
-        {showProgressBar && (
+        {/* Progress Bar - Only shown when there's actual progress */}
+        {showProgressBar && progressValue > 0 && (
           <div
             className={`${config.progressHeight} ${config.progressBg} rounded-full overflow-hidden`}
           >
             <div
               className="h-full rounded-full transition-all duration-500 ease-out"
               style={{
-                width: `${achievement.progress_percentage}%`,
-                background:
-                  "linear-gradient(90deg, #FFB800 0%, #FF9500 100%)",
+                width: `${progressValue}%`,
+                background: "linear-gradient(90deg, #FFB800 0%, #FF9500 100%)",
               }}
             />
           </div>

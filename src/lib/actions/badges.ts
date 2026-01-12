@@ -61,7 +61,6 @@ export async function getUserBadgeProgress(): Promise<BadgeWithProgress[]> {
       .from("user_badges")
       .select("*")
       .eq("user_id", user.id);
-
     const userBadgeMap = new Map(
       userBadges?.map((ub) => [ub.badge_id, ub]) || []
     );
@@ -73,7 +72,8 @@ export async function getUserBadgeProgress(): Promise<BadgeWithProgress[]> {
 
         // If no user_badge record, calculate current progress
         let progressCurrent = userBadge?.progress_current || 0;
-        let progressTarget = userBadge?.progress_target || badge.requirement_value;
+        let progressTarget =
+          userBadge?.progress_target || badge.requirement_value;
 
         if (!userBadge) {
           const progress = await calculateBadgeProgress(user.id, badge);
@@ -147,10 +147,12 @@ export async function getUserBadgeStats(): Promise<BadgeStats> {
     // Get unlocked badges with rarity info
     const { data: unlockedBadges } = await supabase
       .from("user_badges")
-      .select(`
+      .select(
+        `
         unlocked_at,
         badge:badge_id(rarity)
-      `)
+      `
+      )
       .eq("user_id", user.id)
       .not("unlocked_at", "is", null);
 
@@ -163,7 +165,9 @@ export async function getUserBadgeStats(): Promise<BadgeStats> {
 
     unlockedBadges?.forEach((ub) => {
       const badge = ub.badge as Badge | Badge[] | null;
-      const rarity = (Array.isArray(badge) ? badge[0]?.rarity : badge?.rarity) as string | undefined;
+      const rarity = (
+        Array.isArray(badge) ? badge[0]?.rarity : badge?.rarity
+      ) as string | undefined;
       if (rarity && rarity in rarityCounts) {
         rarityCounts[rarity as keyof typeof rarityCounts]++;
       }
@@ -237,7 +241,10 @@ export async function checkAndAwardBadges(
     if (awardedBadges.length > 0) {
       revalidateUserPages();
 
-      const totalXP = awardedBadges.reduce((sum, badge) => sum + badge.xp_bonus, 0);
+      const totalXP = awardedBadges.reduce(
+        (sum, badge) => sum + badge.xp_bonus,
+        0
+      );
 
       return {
         success: true,
@@ -330,7 +337,9 @@ export async function updateBadgeProgress(
 /**
  * Get recently unlocked badges for user (last 10)
  */
-export async function getRecentlyUnlockedBadges(): Promise<BadgeWithProgress[]> {
+export async function getRecentlyUnlockedBadges(): Promise<
+  BadgeWithProgress[]
+> {
   try {
     const { user, error: authError } = await getAuthenticatedUser();
 
@@ -342,10 +351,12 @@ export async function getRecentlyUnlockedBadges(): Promise<BadgeWithProgress[]> 
 
     const { data } = await supabase
       .from("user_badges")
-      .select(`
+      .select(
+        `
         *,
         badge:badge_id(*)
-      `)
+      `
+      )
       .eq("user_id", user.id)
       .not("unlocked_at", "is", null)
       .order("unlocked_at", { ascending: false })

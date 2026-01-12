@@ -123,6 +123,7 @@ export async function checkEnrollment(
 
 /**
  * Get all enrollments for the authenticated user with course details
+ * Progress is calculated to include both lessons AND unit quizzes
  * @returns Array of enrollments with course information
  */
 export async function getUserEnrollments() {
@@ -133,7 +134,7 @@ export async function getUserEnrollments() {
       return { data: null, error: authError };
     }
 
-    // Get enrollments with course details including duration and lesson count
+    // Get enrollments with course details, lessons, units, and lesson progress
     const { data: enrollments, error: enrollmentError } = await supabase
       .from("enrollments")
       .select(
@@ -150,7 +151,14 @@ export async function getUserEnrollments() {
           thumbnail_url,
           level,
           duration_hours,
-          lessons (count)
+          lessons (count),
+          units (
+            id
+          )
+        ),
+        lesson_progress (
+          lesson_id,
+          is_completed
         )
       `
       )
@@ -161,7 +169,74 @@ export async function getUserEnrollments() {
       return { data: null, error: "Error fetching enrollments" };
     }
 
-    return { data: enrollments, error: null };
+    // Get course IDs for enrolled courses
+    const courseIds =
+      enrollments
+        ?.map((e) => {
+          const course = e.courses as unknown as { id: string } | null;
+          return course?.id;
+        })
+        .filter((id): id is string => !!id) || [];
+
+    // Get completed unit quizzes for all enrolled courses
+    type CompletedQuiz = { unit_id: string; units: { course_id: string } };
+    let completedQuizzes: CompletedQuiz[] = [];
+    if (courseIds.length > 0) {
+      const { data: quizData } = await supabase
+        .from("quiz_attempts")
+        .select("unit_id, units!inner(course_id)")
+        .eq("user_id", user.id)
+        .eq("passed", true)
+        .not("unit_id", "is", null)
+        .in("units.course_id", courseIds);
+
+      completedQuizzes = (quizData || []) as unknown as CompletedQuiz[];
+    }
+
+    // Calculate progress for each enrollment (including unit quizzes)
+    const enrollmentsWithProgress = enrollments?.map((enrollment) => {
+      const course = enrollment.courses as unknown as {
+        id: string;
+        title: string;
+        slug: string;
+        description: string | null;
+        thumbnail_url: string | null;
+        level: string;
+        duration_hours: number | null;
+        lessons: { count: number }[];
+        units: { id: string }[];
+      } | null;
+
+      if (!course) return enrollment;
+
+      // Count total lessons
+      const totalLessons = course.lessons?.[0]?.count ?? 0;
+
+      // Count completed lessons
+      const completedLessons =
+        enrollment.lesson_progress?.filter((p) => p.is_completed).length ?? 0;
+
+      // Count total units (each unit may have a quiz)
+      const totalUnits = course.units?.length ?? 0;
+
+      // Count completed unit quizzes for this course
+      const completedUnitQuizzes = completedQuizzes.filter(
+        (q) => q.units?.course_id === course.id
+      ).length;
+
+      // Calculate progress including unit quizzes
+      const totalItems = totalLessons + totalUnits;
+      const completedItems = completedLessons + completedUnitQuizzes;
+      const calculatedProgress =
+        totalItems > 0 ? Math.round((completedItems / totalItems) * 100) : 0;
+
+      return {
+        ...enrollment,
+        progress_percentage: calculatedProgress,
+      };
+    });
+
+    return { data: enrollmentsWithProgress, error: null };
   } catch {
     return { data: null, error: "An unexpected error occurred" };
   }

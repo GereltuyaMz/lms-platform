@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { Nunito } from "next/font/google";
+import Script from "next/script";
 import "../styles/globals.css";
 import "lenis/dist/lenis.css";
 import { Toaster } from "sonner";
@@ -22,6 +23,12 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en" suppressHydrationWarning className="scroll-smooth">
+      <head>
+        <Script
+          src="https://assets.mediadelivery.net/playerjs/playerjs-latest.min.js"
+          strategy="beforeInteractive"
+        />
+      </head>
       <body className={`${nunito.variable} antialiased`}>
         {children}
         <Toaster position="top-right" richColors />
