@@ -127,3 +127,54 @@ export const signOutAction = async () => {
   revalidatePath("/", "layout");
   return { success: true };
 };
+
+export const resetPasswordAction = async (formData: FormData) => {
+  const supabase = await createClient();
+  const email = formData.get("email") as string;
+
+  if (!email) {
+    return { error: "И-мэйл хаяг оруулна уу" };
+  }
+
+  const origin = (await headers()).get("origin");
+
+  const { error } = await supabase.auth.resetPasswordForEmail(email, {
+    redirectTo: `${origin}/api/auth/callback?next=/reset-password`,
+  });
+
+  if (error) {
+    return { error: error.message };
+  }
+
+  return {
+    success: true,
+    message: "Нууц үг сэргээх холбоосыг имэйл хаяг руу илгээлээ",
+  };
+};
+
+export const updatePasswordAction = async (formData: FormData) => {
+  const supabase = await createClient();
+  const password = formData.get("password") as string;
+  const confirmPassword = formData.get("confirmPassword") as string;
+
+  if (!password || !confirmPassword) {
+    return { error: "Бүх талбарыг бөглөнө үү" };
+  }
+
+  if (password !== confirmPassword) {
+    return { error: "Нууц үг таарахгүй байна" };
+  }
+
+  if (password.length < 6) {
+    return { error: "Нууц үг хамгийн багадаа 6 тэмдэгт байх ёстой" };
+  }
+
+  const { error } = await supabase.auth.updateUser({ password });
+
+  if (error) {
+    return { error: error.message };
+  }
+
+  revalidatePath("/", "layout");
+  return { success: true };
+};

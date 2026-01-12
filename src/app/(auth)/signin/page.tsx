@@ -62,10 +62,6 @@ const SignInForm = () => {
     });
   };
 
-  const handleForgotPassword = () => {
-    // TODO: Implement forgot password functionality
-    alert("Тун удахгүй! (Coming soon)");
-  };
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-white relative overflow-hidden">
@@ -143,13 +139,12 @@ const SignInForm = () => {
             )}
             {/* Forgot password link */}
             <div className="flex justify-end">
-              <button
-                type="button"
-                onClick={handleForgotPassword}
-                className="text-sm text-[#737373] hover:text-[#29cc57] transition-colors cursor-pointer"
+              <Link
+                href="/forgot-password"
+                className="text-sm text-[#737373] hover:text-[#29cc57] transition-colors"
               >
                 Нууц үг сэргээх?
-              </button>
+              </Link>
             </div>
           </div>
 

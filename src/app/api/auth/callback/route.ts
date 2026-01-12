@@ -53,8 +53,9 @@ export async function GET(request: Request) {
       }
 
       // Existing user - check if onboarding is complete
+      // Password reset flow should always go to /reset-password
       let redirectPath = next;
-      if (!existingProfile.has_completed_onboarding) {
+      if (next !== "/reset-password" && !existingProfile.has_completed_onboarding) {
         redirectPath = "/onboarding";
       }
 
