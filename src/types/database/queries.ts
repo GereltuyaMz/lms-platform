@@ -24,6 +24,7 @@ export interface CourseWithCategories extends Course {
   }[]
   lesson_count?: number
   total_duration_seconds?: number
+  total_xp?: number
   teacher?: {
     id: string
     full_name: string
@@ -130,6 +131,8 @@ export interface DashboardEnrollment {
     thumbnail_url: string | null
     level: CourseLevel
     duration_hours: number | null
+    total_duration_seconds?: number | null
+    total_xp?: number
     lessons: { count: number }[]
   } | null
 }

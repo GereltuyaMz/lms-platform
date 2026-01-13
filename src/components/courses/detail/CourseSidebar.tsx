@@ -61,43 +61,45 @@ export const CourseSidebar = ({
           </div>
 
           {/* Title, Price, Stats & CTA - Right side on tablet */}
-          <div className="flex flex-col gap-3 sm:flex-1 lg:gap-4">
+          <div className={`flex flex-col sm:flex-1 ${hasPurchased ? "gap-2 lg:gap-3" : "gap-3 lg:gap-4"}`}>
             {/* Course Title */}
             <p className="font-semibold text-sm sm:text-base leading-5 text-[#1a1a1a] whitespace-pre-wrap line-clamp-2 sm:line-clamp-3">
               {title}
             </p>
 
-            {/* Price & Stats Row - Inline on tablet */}
-            <div className="flex flex-col sm:flex-row sm:items-center sm:gap-4 lg:flex-col lg:items-start gap-2">
-              {/* Price */}
-              <div className="flex gap-[10px] items-center leading-4">
-                {(applicableCoupon || originalPrice) && (
-                  <p className="font-normal text-sm text-[#878787] line-through">
+            {/* Price & Stats Row - Inline on tablet - Hidden when purchased */}
+            {!hasPurchased && (
+              <div className="flex flex-col sm:flex-row sm:items-center sm:gap-4 lg:flex-col lg:items-start gap-2">
+                {/* Price */}
+                <div className="flex gap-[10px] items-center leading-4">
+                  {(applicableCoupon || originalPrice) && (
+                    <p className="font-normal text-sm text-[#878787] line-through">
+                      {applicableCoupon
+                        ? price.toLocaleString()
+                        : originalPrice?.toLocaleString()}
+                      ₮
+                    </p>
+                  )}
+                  <p className="font-semibold text-base text-[#1a1a1a]">
                     {applicableCoupon
-                      ? price.toLocaleString()
-                      : originalPrice?.toLocaleString()}
+                      ? finalPrice.toLocaleString()
+                      : price.toLocaleString()}
                     ₮
                   </p>
-                )}
-                <p className="font-semibold text-base text-[#1a1a1a]">
-                  {applicableCoupon
-                    ? finalPrice.toLocaleString()
-                    : price.toLocaleString()}
-                  ₮
-                </p>
-              </div>
+                </div>
 
-              {/* Stats - Inline on tablet */}
-              <div className="hidden sm:flex sm:items-center sm:gap-3 lg:hidden text-xs text-[#878787]">
-                <span>{videoDuration}</span>
-                <span>•</span>
-                <span>{lessonCount} хичээл</span>
-                <span>•</span>
-                <span>{exerciseCount} дасгал</span>
-                <span>•</span>
-                <span>{totalXP} XP</span>
+                {/* Stats - Inline on tablet */}
+                <div className="hidden sm:flex sm:items-center sm:gap-3 lg:hidden text-xs text-[#878787]">
+                  <span>{videoDuration}</span>
+                  <span>•</span>
+                  <span>{lessonCount} хичээл</span>
+                  <span>•</span>
+                  <span>{exerciseCount} дасгал</span>
+                  <span>•</span>
+                  <span>{totalXP} XP</span>
+                </div>
               </div>
-            </div>
+            )}
 
             {/* CTA Button - Only show here on tablet */}
             <div className="hidden sm:block lg:hidden">
@@ -113,8 +115,8 @@ export const CourseSidebar = ({
           </div>
         </div>
 
-        {/* Coupon Alert */}
-        {applicableCoupon && (
+        {/* Coupon Alert - Only show when not yet purchased */}
+        {applicableCoupon && !hasPurchased && (
           <Alert className="bg-emerald-50 border-emerald-200 dark:bg-emerald-950 dark:border-emerald-800">
             <CheckCircle className="h-4 w-4 text-emerald-600 dark:text-emerald-400" />
             <AlertTitle className="text-emerald-900 dark:text-emerald-100">

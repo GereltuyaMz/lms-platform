@@ -14,7 +14,7 @@ type CourseCardProps = {
   duration: string;
   lessons: number;
   level: CourseLevel;
-  xpReward?: number;
+  xpReward: number;
   thumbnail?: string;
 };
 
@@ -24,8 +24,7 @@ export const CourseCard = ({
   description,
   duration,
   lessons,
-  level,
-  xpReward = 1500,
+  xpReward,
   thumbnail,
 }: CourseCardProps) => {
   return (

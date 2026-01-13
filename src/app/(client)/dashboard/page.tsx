@@ -82,32 +82,36 @@ export default async function DashboardPage() {
     .map((e) => e.courses?.id)
     .filter((id): id is string => !!id);
 
-  const courseDurations: Record<string, number> = {};
+  const courseStats: Record<string, { duration: number; xp: number }> = {};
   if (courseIds.length > 0) {
-    const { data: courseStats } = await supabase
+    const { data: stats } = await supabase
       .from("courses_with_stats")
-      .select("id, total_duration_seconds")
+      .select("id, total_duration_seconds, total_xp")
       .in("id", courseIds);
 
-    courseStats?.forEach((cs) => {
-      courseDurations[cs.id] = cs.total_duration_seconds || 0;
+    stats?.forEach((cs) => {
+      courseStats[cs.id] = {
+        duration: cs.total_duration_seconds || 0,
+        xp: cs.total_xp || 0,
+      };
     });
   }
 
-  // Fetch last accessed lesson for each enrollment and merge duration data
+  // Fetch last accessed lesson for each enrollment and merge stats data
   const enrollmentsWithLastLesson = await Promise.all(
     rawEnrollments.map(async (enrollment) => {
       if (!enrollment.courses) return { ...enrollment, lastLessonId: null };
 
       const lastLessonId = await getLastAccessedLesson(enrollment.courses.id);
-      const totalDurationSeconds = courseDurations[enrollment.courses.id] || 0;
+      const stats = courseStats[enrollment.courses.id] || { duration: 0, xp: 0 };
 
       return {
         ...enrollment,
         lastLessonId,
         courses: {
           ...enrollment.courses,
-          total_duration_seconds: totalDurationSeconds,
+          total_duration_seconds: stats.duration,
+          total_xp: stats.xp,
         },
       };
     })

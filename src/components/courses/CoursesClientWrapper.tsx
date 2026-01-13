@@ -2,6 +2,7 @@
 
 import { useState, useTransition } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
+import { ChevronDown, SlidersHorizontal } from "lucide-react";
 import {
   FilterCourses,
   type FilterState,
@@ -9,6 +10,12 @@ import {
 import { CoursesList } from "@/components/courses/CoursesList";
 import { CoursesPagination } from "@/components/courses/CoursesPagination";
 import { CourseCardSkeleton } from "@/components/courses/CourseCardSkeleton";
+import {
+  Collapsible,
+  CollapsibleContent,
+  CollapsibleTrigger,
+} from "@/components/ui/collapsible";
+import { Button } from "@/components/ui/button";
 import type { Category, CourseWithCategories } from "@/types/database";
 
 type CoursesClientWrapperProps = {
@@ -32,12 +39,12 @@ export const CoursesClientWrapper = ({
   const router = useRouter();
   const searchParams = useSearchParams();
   const [isPending, startTransition] = useTransition();
+  const [isFilterOpen, setIsFilterOpen] = useState(false);
 
   const [filters, setFilters] = useState<FilterState>(() => {
     const examSlug = searchParams.get("exam");
     const subjectSlugs = searchParams.get("subjects");
 
-    // Convert slugs to IDs for internal state
     const examId = examTypes.find((e) => e.slug === examSlug)?.id || null;
     const subjectIds = subjectSlugs
       ? subjectCategories
@@ -51,12 +58,14 @@ export const CoursesClientWrapper = ({
     };
   });
 
+  const activeFilterCount =
+    (filters.examType ? 1 : 0) + filters.subjects.length;
+
   const handleFilterChange = (newFilters: FilterState) => {
     setFilters(newFilters);
 
     const params = new URLSearchParams();
 
-    // Add exam type filter (using slug)
     if (newFilters.examType) {
       const examSlug = examTypes.find(
         (e) => e.id === newFilters.examType
@@ -64,7 +73,6 @@ export const CoursesClientWrapper = ({
       if (examSlug) params.set("exam", examSlug);
     }
 
-    // Add subject filters if any (using slugs)
     if (newFilters.subjects.length > 0) {
       const subjectSlugs = newFilters.subjects
         .map((id) => subjectCategories.find((s) => s.id === id)?.slug)
@@ -73,7 +81,6 @@ export const CoursesClientWrapper = ({
       if (subjectSlugs) params.set("subjects", subjectSlugs);
     }
 
-    // Reset to page 1 when filters change
     params.set("page", "1");
 
     const queryString = params.toString();
@@ -94,9 +101,44 @@ export const CoursesClientWrapper = ({
   };
 
   return (
-    <div className="flex gap-6 items-start  ">
-      {/* Filters Sidebar */}
-      <aside className="w-64 shrink-0 sticky top-24 ">
+    <div className="flex flex-col lg:flex-row gap-6 items-start">
+      {/* Mobile Filter Dropdown */}
+      <div className="lg:hidden w-full">
+        <Collapsible open={isFilterOpen} onOpenChange={setIsFilterOpen}>
+          <CollapsibleTrigger asChild>
+            <Button
+              variant="outline"
+              className="w-full justify-between rounded-xl h-12"
+            >
+              <span className="flex items-center gap-2">
+                <SlidersHorizontal className="h-4 w-4" />
+                Шүүлтүүр
+                {activeFilterCount > 0 && (
+                  <span className="bg-primary text-primary-foreground text-xs px-2 py-0.5 rounded-full">
+                    {activeFilterCount}
+                  </span>
+                )}
+              </span>
+              <ChevronDown
+                className={`h-4 w-4 transition-transform duration-200 ${
+                  isFilterOpen ? "rotate-180" : ""
+                }`}
+              />
+            </Button>
+          </CollapsibleTrigger>
+          <CollapsibleContent className="mt-3 rounded-xl border bg-white p-4">
+            <FilterCourses
+              examTypes={examTypes}
+              subjectCategories={subjectCategories}
+              onFilterChange={handleFilterChange}
+              initialFilters={filters}
+            />
+          </CollapsibleContent>
+        </Collapsible>
+      </div>
+
+      {/* Desktop Filters Sidebar */}
+      <aside className="hidden lg:block w-64 shrink-0 sticky top-24">
         <FilterCourses
           examTypes={examTypes}
           subjectCategories={subjectCategories}
@@ -106,9 +148,9 @@ export const CoursesClientWrapper = ({
       </aside>
 
       {/* Course List */}
-      <main className="flex-1">
+      <main className="flex-1 w-full">
         {isPending ? (
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+          <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-4 md:gap-6">
             {[1, 2, 3, 4, 5, 6].map((i) => (
               <CourseCardSkeleton key={i} />
             ))}

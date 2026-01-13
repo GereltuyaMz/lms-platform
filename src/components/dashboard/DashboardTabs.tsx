@@ -15,7 +15,13 @@ import { AchievementsSidebar } from "./AchievementsSidebar";
 import { ProfileCompletionBanner } from "./ProfileCompletionBanner";
 import type { BadgeWithProgress } from "@/lib/actions/badges";
 
-type TabId = "courses" | "achievements" | "test-results" | "profile" | "shop" | "settings";
+type TabId =
+  | "courses"
+  | "achievements"
+  | "test-results"
+  | "profile"
+  | "shop"
+  | "settings";
 
 type Tab = {
   id: TabId;
@@ -83,14 +89,19 @@ export const DashboardTabs = ({
   const searchParams = useSearchParams();
 
   // Valid tabs for URL validation
-  const validTabs = ["profile", "courses", "achievements", "test-results", "shop", "settings"];
+  const validTabs = [
+    "profile",
+    "courses",
+    "achievements",
+    "test-results",
+    "shop",
+    "settings",
+  ];
 
   // Read tab from URL or default to "profile"
   const tabFromUrl = searchParams.get("tab") as TabId | null;
   const initialTab =
-    tabFromUrl && validTabs.includes(tabFromUrl)
-      ? tabFromUrl
-      : "profile";
+    tabFromUrl && validTabs.includes(tabFromUrl) ? tabFromUrl : "profile";
 
   const [activeTab, setActiveTab] = useState<TabId>(initialTab);
 
