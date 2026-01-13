@@ -1,6 +1,7 @@
 // Mock Test Components
 export { BestScoreCard } from "./BestScoreCard";
 export { IncompleteAttemptWarning } from "./IncompleteAttemptWarning";
+export { RecentCompletionProtection } from "./RecentCompletionProtection";
 export { MockTestDetailedResults } from "./MockTestDetailedResults";
 export { MockTestPlayer } from "./MockTestPlayer";
 export { MockTestProblemGroup } from "./MockTestProblemGroup";

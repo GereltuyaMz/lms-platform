@@ -85,8 +85,9 @@ export const EnrollButton = ({
   return (
     <>
       <Button
+        variant="landing"
         onClick={handleClick}
-        className="w-full bg-[#29cc57] hover:bg-[#24b34d] text-white h-9 text-[15px] leading-[1.4] tracking-[-0.075px] font-bold rounded-lg shadow-[0px_4px_0px_0px_#1f9941] cursor-pointer px-6 py-0"
+        className="w-full h-9 text-[15px] leading-[1.4] tracking-[-0.075px] px-6 py-0"
         disabled={isLoading || (!continueButtonUrl && isFree && !isEnrolled)}
       >
         {isLoading && <Loader2 className="w-4 h-4 mr-2 animate-spin" />}
@@ -100,7 +101,7 @@ export const EnrollButton = ({
 
           <DialogFooter className="mt-4 flex justify-center gap-3">
             <Link href="/signin">
-              <Button className="bg-primary text-white font-semibold rounded-lg px-4 cursor-pointer">
+              <Button variant="landing" className="px-4">
                 Нэвтрэх
               </Button>
             </Link>

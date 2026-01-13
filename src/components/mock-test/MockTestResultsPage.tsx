@@ -66,7 +66,7 @@ export const MockTestResultsPage = ({
   };
 
   const handleRetake = () => {
-    router.push(`/mock-test/${test.id}`);
+    router.push(`/mock-test/${test.category}/${test.id}`);
   };
 
   return (
@@ -119,7 +119,7 @@ export const MockTestResultsPage = ({
 
         {/* Retake Button */}
         <div className="mb-8 flex justify-center">
-          <Button onClick={handleRetake} size="lg" className="gap-2">
+          <Button variant="landing" onClick={handleRetake} size="lg" className="gap-2">
             <RotateCcw className="w-5 h-5" />
             Дахин турших
           </Button>

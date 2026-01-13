@@ -57,8 +57,6 @@ export async function claimUnitContentMilestoneXP(
     return { success: false, xpAwarded: 0, message: "Бүртгэл олдсонгүй" };
   }
 
-  console.log("Enrollment found:", enrollment.id);
-
   // Check if this unit_content group already claimed
   const claimedGroups = (enrollment.unit_content_completed as string[]) || [];
   if (claimedGroups.includes(unitContent)) {
@@ -83,8 +81,6 @@ export async function claimUnitContentMilestoneXP(
       message: `Алдаа гарлаа: ${rpcError.message}`,
     };
   }
-
-  console.log("isComplete:", isComplete);
 
   if (!isComplete) {
     return {
@@ -116,12 +112,6 @@ export async function claimUnitContentMilestoneXP(
   }
 
   // Award XP
-  console.log("Inserting XP transaction:", {
-    userId: user.id,
-    xpAmount,
-    sourceType: "unit_content_milestone",
-    sourceId,
-  });
 
   const xpSuccess = await insertXPTransaction(
     user.id,
@@ -136,8 +126,6 @@ export async function claimUnitContentMilestoneXP(
       group_number: completedCount + 1,
     }
   );
-
-  console.log("XP transaction result:", xpSuccess);
 
   if (!xpSuccess) {
     return {

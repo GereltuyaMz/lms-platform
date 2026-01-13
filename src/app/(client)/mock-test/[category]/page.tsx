@@ -110,7 +110,7 @@ export default async function CategoryPage({ params }: PageProps) {
                     {/* Action Button */}
                     <div className="shrink-0">
                       <Link href={`/mock-test/${category}/${test.id}`}>
-                        <Button size="lg" className="w-full md:w-auto">
+                        <Button variant="landing" size="lg" className="w-full md:w-auto">
                           {bestAttempt ? "Дахин турших" : "Эхлэх"}
                         </Button>
                       </Link>
@@ -128,7 +128,7 @@ export default async function CategoryPage({ params }: PageProps) {
                 Одоогоор {categoryTitles[category]} тест байхгүй байна
               </p>
               <Link href="/mock-test" className="mt-4 inline-block">
-                <Button variant="outline">Буцах</Button>
+                <Button variant="landingOutline">Буцах</Button>
               </Link>
             </div>
           )}

@@ -1,11 +1,19 @@
 "use client";
 
+import { useState } from "react";
 import Link from "next/link";
 import Image from "next/image";
 import { usePathname } from "next/navigation";
 import { Menu } from "lucide-react";
 import { Button } from "../ui/button";
 import { UserNav } from "./UserNav";
+import {
+  Sheet,
+  SheetTrigger,
+  SheetContent,
+  SheetHeader,
+  SheetTitle,
+} from "../ui/sheet";
 import type { User } from "@supabase/supabase-js";
 
 type ClientHeaderProps = {
@@ -20,6 +28,7 @@ const activeTheme = {
 };
 
 export const ClientHeader = ({ initialUser }: ClientHeaderProps) => {
+  const [isOpen, setIsOpen] = useState(false);
   const homeLink = initialUser ? "/dashboard" : "/";
   const pathname = usePathname();
 
@@ -119,9 +128,72 @@ export const ClientHeader = ({ initialUser }: ClientHeaderProps) => {
             )}
           </div>
 
-          <Button variant="outline" size="icon" className="lg:hidden cursor-pointer">
-            <Menu />
-          </Button>
+          <div className="flex lg:hidden items-center gap-2">
+            {initialUser && <UserNav user={initialUser} />}
+            <Sheet open={isOpen} onOpenChange={setIsOpen}>
+              <SheetTrigger asChild>
+                <Button variant="outline" size="icon" className="cursor-pointer">
+                  <Menu />
+                </Button>
+              </SheetTrigger>
+              <SheetContent side="right" className="w-[280px] p-0">
+                <SheetHeader className="p-6 pb-4 border-b">
+                  <SheetTitle className="text-left">Цэс</SheetTitle>
+                </SheetHeader>
+                <nav className="flex flex-col p-4">
+                  <Link
+                    href="/courses"
+                    onClick={() => setIsOpen(false)}
+                    {...getLinkProps("/courses")}
+                  >
+                    Сургалтууд
+                  </Link>
+                  <Link
+                    href="/mock-test"
+                    onClick={() => setIsOpen(false)}
+                    {...getLinkProps("/mock-test")}
+                  >
+                    ЭЕШ Тест
+                  </Link>
+                  <Link
+                    href="/guide"
+                    onClick={() => setIsOpen(false)}
+                    {...getLinkProps("/guide")}
+                  >
+                    Заавар
+                  </Link>
+                  <Link
+                    href="/shop"
+                    onClick={() => setIsOpen(false)}
+                    {...getLinkProps("/shop")}
+                  >
+                    Дэлгүүр
+                  </Link>
+                </nav>
+                {!initialUser && (
+                  <div className="mt-auto p-4 border-t">
+                    <div className="flex flex-col gap-3">
+                      <Link href="/signin" onClick={() => setIsOpen(false)}>
+                        <Button
+                          variant="outline"
+                          className="w-full px-6 py-3 rounded-lg border-[#ccc] text-[#1a1a1a] text-base font-normal hover:bg-gray-50 cursor-pointer"
+                        >
+                          Нэвтрэх
+                        </Button>
+                      </Link>
+                      <Link href="/signup" onClick={() => setIsOpen(false)}>
+                        <Button
+                          className="w-full px-6 py-3 rounded-lg bg-[#29cc57] text-white text-base font-normal hover:bg-[#24b34d] cursor-pointer"
+                        >
+                          Эхлэх
+                        </Button>
+                      </Link>
+                    </div>
+                  </div>
+                )}
+              </SheetContent>
+            </Sheet>
+          </div>
         </nav>
       </header>
 

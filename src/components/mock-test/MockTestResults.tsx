@@ -76,7 +76,7 @@ export const MockTestResults = ({
           {onRetry && (
             <Button
               onClick={onRetry}
-              variant="outline"
+              variant="landingOutline"
               size="lg"
               className="flex-1"
             >
@@ -85,6 +85,7 @@ export const MockTestResults = ({
           )}
           {detailedResults && (
             <Button
+              variant="landing"
               onClick={() => setShowDetails(!showDetails)}
               size="lg"
               className="flex-1"
