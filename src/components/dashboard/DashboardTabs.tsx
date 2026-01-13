@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { useSearchParams, useRouter } from "next/navigation";
+import { useSearchParams } from "next/navigation";
 import {
   UserIcon,
   VideoIcon,
@@ -88,7 +88,6 @@ export const DashboardTabs = ({
   achievements,
   isProfileComplete,
 }: DashboardTabsProps) => {
-  const router = useRouter();
   const searchParams = useSearchParams();
 
   // Use server-provided initialTab to prevent hydration flash
@@ -104,8 +103,8 @@ export const DashboardTabs = ({
 
   const handleTabChange = (tabId: TabId) => {
     setActiveTab(tabId);
-    // Update URL without page reload
-    router.push(`/dashboard?tab=${tabId}`, { scroll: false });
+    // Update URL without triggering Next.js navigation (prevents flash)
+    window.history.pushState(null, "", `/dashboard?tab=${tabId}`);
   };
 
   const contentMap: Record<TabId, React.ReactNode> = {
