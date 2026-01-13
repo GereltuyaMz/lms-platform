@@ -59,7 +59,7 @@ export const NavigationControls = ({
       const nextStep = availableSteps[currentIndex + 1];
       return `/courses/${courseSlug}/learn/lesson/${lessonId}/${nextStep}`;
     } else if (nextLesson) {
-      return getLessonRoute(nextLesson);
+      return getLessonRoute(nextLesson, "theory");
     }
     return null;
   };

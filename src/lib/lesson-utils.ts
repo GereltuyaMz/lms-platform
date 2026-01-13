@@ -4,7 +4,7 @@ import type { QuizData } from "@/types/quiz";
 import type { LessonType } from "@/types/database/enums";
 import { formatTime } from "./utils";
 import type { SupabaseClient } from "@supabase/supabase-js";
-import { getCourseXPEarned } from "./actions/xp-actions";
+import { getCourseXPEarned, getUserTotalXP } from "./actions/xp-actions";
 import { getUserStreak } from "./actions/streak-actions";
 import { createClient } from "./supabase/server";
 import type { LessonStep } from "./lesson-step-utils";
@@ -212,9 +212,10 @@ export const calculateCourseProgress = async (
     data: { user },
   } = await supabase.auth.getUser();
 
-  // Fetch total XP and streak in parallel
-  const [totalXp, streakData] = await Promise.all([
+  // Fetch course XP, total platform XP, and streak in parallel
+  const [totalXp, totalPlatformXp, streakData] = await Promise.all([
     getCourseXPEarned(courseId),
+    getUserTotalXP(),
     user ? getUserStreak(user.id) : Promise.resolve({ currentStreak: 0 }),
   ]);
 
@@ -223,6 +224,7 @@ export const calculateCourseProgress = async (
     total: totalItems,
     percentage: progressPercentage,
     totalXp,
+    totalPlatformXp,
     streak: streakData.currentStreak,
   };
 };

@@ -1,14 +1,21 @@
 "use client";
 
 import { usePathname } from "next/navigation";
+import { useEffect } from "react";
 import { useLessonPlayer } from "@/hooks/useLessonPlayer";
 import { SidebarContent } from "./sidebar";
 import type { LessonStep } from "@/lib/lesson-step-utils";
 
 export const LessonSidebar = () => {
   const pathname = usePathname();
-  const { sidebarData, currentLessonId, availableSteps, isUnitQuiz } =
-    useLessonPlayer();
+  const {
+    sidebarData,
+    currentLessonId,
+    availableSteps,
+    isUnitQuiz,
+    completedStepsMap,
+    fetchStepCompletion,
+  } = useLessonPlayer();
 
   // Derive current step from URL pathname (more reliable than context for soft navigation)
   const currentStep: LessonStep = pathname.includes("/example")
@@ -17,7 +24,18 @@ export const LessonSidebar = () => {
     ? "test"
     : "theory";
 
-  // Don't render if no sidebar data
+  // Extract values safely (may be undefined before sidebar data loads)
+  const courseId = sidebarData?.courseId;
+
+  // Fetch step completion on mount if not cached (MUST be before early returns)
+  useEffect(() => {
+    if (!currentLessonId || !courseId || isUnitQuiz) return;
+
+    // fetchStepCompletion handles deduplication and caching internally
+    fetchStepCompletion(currentLessonId, courseId);
+  }, [currentLessonId, courseId, isUnitQuiz, fetchStepCompletion]);
+
+  // Don't render if no sidebar data (AFTER hooks)
   if (!sidebarData) {
     return null;
   }
@@ -35,6 +53,10 @@ export const LessonSidebar = () => {
   const unitQuizItem = currentUnitId
     ? allItems.find((item) => item.isUnitQuiz && item.unitId === currentUnitId)
     : null;
+
+  // Get cached completed steps (fetched via centralized hook)
+  const completedSteps =
+    completedStepsMap.get(currentLessonId || "") || new Set<LessonStep>();
 
   // Show loading state if lesson not yet set
   if (!currentLessonId) {
@@ -62,6 +84,7 @@ export const LessonSidebar = () => {
         isUnitQuiz={isUnitQuiz}
         unitId={currentUnitId}
         unitQuizCompleted={unitQuizItem?.completed ?? false}
+        completedSteps={completedSteps}
       />
     </aside>
   );

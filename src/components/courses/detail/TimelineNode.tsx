@@ -1,5 +1,6 @@
 "use client";
 
+import { Gift } from "lucide-react";
 import { getUnitCompletionState, getSubjectIcon } from "@/lib/utils";
 
 type TimelineNodeProps = {
@@ -12,6 +13,13 @@ type TimelineNodeProps = {
   isLastSection: boolean;
   verticalConnectorColor: string;
   badgeBorderColor: string;
+  canClaimReward?: boolean;
+  onClaimReward?: () => void;
+  isClaimingReward?: boolean;
+  // Unit content group milestone props
+  canClaimGroupMilestone?: boolean;
+  onClaimGroupMilestone?: () => void;
+  isClaimingGroupMilestone?: boolean;
 };
 
 const MEASUREMENTS = {
@@ -28,6 +36,12 @@ export const TimelineNode = ({
   isLastSection,
   verticalConnectorColor,
   badgeBorderColor,
+  canClaimReward = false,
+  onClaimReward,
+  isClaimingReward = false,
+  canClaimGroupMilestone = false,
+  onClaimGroupMilestone,
+  isClaimingGroupMilestone = false,
 }: TimelineNodeProps) => {
   const state = getUnitCompletionState(
     progress,
@@ -69,6 +83,20 @@ export const TimelineNode = ({
             style={{ borderColor: badgeBorderColor }}
           >
             {unitContent}
+            {/* Gift icon for claiming unit content group milestone */}
+            {canClaimGroupMilestone && (
+              <button
+                onClick={(e) => {
+                  e.stopPropagation();
+                  onClaimGroupMilestone?.();
+                }}
+                disabled={isClaimingGroupMilestone}
+                className="absolute -top-2 -right-2 w-5 h-5 sm:w-6 sm:h-6 rounded-full bg-green-500 border-2 border-white flex items-center justify-center shadow-md hover:bg-green-600 transition-colors animate-pulse cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
+                aria-label={`${unitContent} milestone XP авах`}
+              >
+                <Gift className="w-2.5 h-2.5 sm:w-3 sm:h-3 text-white" />
+              </button>
+            )}
           </div>
           <div
             className="absolute left-3 sm:left-3.5 md:left-4 w-0.5 top-0 -translate-y-full h-8 sm:h-8 md:h-16"
@@ -98,6 +126,21 @@ export const TimelineNode = ({
           style={{ color: iconColor }}
           aria-label={subjectName}
         />
+
+        {/* Gift icon for claiming unit completion reward */}
+        {canClaimReward && (
+          <button
+            onClick={(e) => {
+              e.stopPropagation();
+              onClaimReward?.();
+            }}
+            disabled={isClaimingReward}
+            className="absolute -top-2 -right-2 w-5 h-5 sm:w-6 sm:h-6 rounded-full bg-yellow-400 border-2 border-white flex items-center justify-center shadow-md hover:bg-yellow-500 transition-colors animate-pulse cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
+            aria-label="Unit XP авах"
+          >
+            <Gift className="w-2.5 h-2.5 sm:w-3 sm:h-3 text-white" />
+          </button>
+        )}
       </div>
 
       {/* Horizontal connector to content */}

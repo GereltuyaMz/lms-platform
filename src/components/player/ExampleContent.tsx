@@ -56,6 +56,7 @@ export const ExampleContent = ({
       currentStep={currentStep}
       availableSteps={availableSteps}
       allLessons={allLessons}
+      hideMarkComplete={true}
     >
       {!exampleContent || exampleContent.length === 0 ? (
         emptyState
@@ -68,6 +69,7 @@ export const ExampleContent = ({
               lessonId={lessonId}
               courseId={courseId}
               lessonVideo={content.lesson_videos}
+              showCompleteButton={true}
             />
           ))}
         </div>

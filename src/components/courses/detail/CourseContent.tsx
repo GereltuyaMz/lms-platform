@@ -1,8 +1,11 @@
 "use client";
 
-import { useMemo } from "react";
+import { useMemo, useState } from "react";
+import { toast } from "sonner";
 import { UnitSection } from "./UnitSection";
 import { calculateUnitProgress } from "@/lib/utils";
+import { claimUnitCompletionXP } from "@/lib/actions/unit-completion";
+import { claimUnitContentMilestoneXP } from "@/lib/actions/unit-content-milestone";
 import type { Lesson } from "@/types/database";
 import type { UnitWithLessons } from "@/types/database";
 
@@ -10,9 +13,12 @@ type CourseContentProps = {
   lessonsBySection?: Record<string, Lesson[]>;
   units?: UnitWithLessons[];
   courseSlug: string;
+  courseId: string;
   completedLessonIds?: string[];
   completedUnitQuizIds?: string[];
   unitQuizMap?: Map<string, boolean>;
+  claimedUnitIds?: string[];
+  claimedUnitContentGroups?: string[];
 };
 
 type SectionData = {
@@ -28,10 +34,58 @@ export const CourseContent = ({
   lessonsBySection,
   units,
   courseSlug,
+  courseId,
   completedLessonIds = [],
   completedUnitQuizIds = [],
   unitQuizMap = new Map(),
+  claimedUnitIds = [],
+  claimedUnitContentGroups = [],
 }: CourseContentProps) => {
+  const [claimingUnitId, setClaimingUnitId] = useState<string | null>(null);
+  const [localClaimedUnits, setLocalClaimedUnits] = useState<string[]>(claimedUnitIds);
+  const [claimingGroupName, setClaimingGroupName] = useState<string | null>(null);
+  const [localClaimedGroups, setLocalClaimedGroups] = useState<string[]>(claimedUnitContentGroups);
+
+  const handleClaimReward = async (unitId: string) => {
+    setClaimingUnitId(unitId);
+    try {
+      const result = await claimUnitCompletionXP(unitId, courseId);
+      if (result.success) {
+        toast.success(`🎁 +${result.xpAwarded} XP`, {
+          description: result.message,
+          duration: 5000,
+        });
+        setLocalClaimedUnits((prev) => [...prev, unitId]);
+      } else {
+        toast.error(result.message);
+      }
+    } catch {
+      toast.error("Алдаа гарлаа");
+    } finally {
+      setClaimingUnitId(null);
+    }
+  };
+
+  const handleClaimGroupMilestone = async (unitContent: string) => {
+    setClaimingGroupName(unitContent);
+    try {
+      const result = await claimUnitContentMilestoneXP(unitContent, courseId);
+      if (result.success) {
+        toast.success(`🏆 +${result.xpAwarded} XP`, {
+          description: result.message,
+          duration: 5000,
+        });
+        setLocalClaimedGroups((prev) => [...prev, unitContent]);
+      } else {
+        toast.error(result.message);
+      }
+    } catch {
+      toast.error("Алдаа гарлаа");
+    } finally {
+      setClaimingGroupName(null);
+    }
+  };
+
   const sections: SectionData[] = units?.length
     ? units.map((unit) => ({
         id: unit.id,
@@ -58,6 +112,30 @@ export const CourseContent = ({
     });
     return map;
   }, [sections, completedLessonIds]);
+
+  // Calculate which unit_content groups have all units claimed
+  const completedUnitContentGroups = useMemo(() => {
+    // Group units by unit_content
+    const groupedUnits = new Map<string, string[]>();
+    sections.forEach((section) => {
+      const unitContent = section.unit?.unit_content;
+      if (unitContent) {
+        const existing = groupedUnits.get(unitContent) || [];
+        groupedUnits.set(unitContent, [...existing, section.id]);
+      }
+    });
+
+    // Check which groups have ALL units claimed
+    const completed = new Set<string>();
+    groupedUnits.forEach((unitIds, unitContent) => {
+      const allClaimed = unitIds.every((id) => localClaimedUnits.includes(id));
+      if (allClaimed) {
+        completed.add(unitContent);
+      }
+    });
+
+    return completed;
+  }, [sections, localClaimedUnits]);
 
   return (
     <>
@@ -102,6 +180,19 @@ export const CourseContent = ({
               ? "#415ff4"
               : "#e2e2e2";
 
+            // Check if unit can claim reward (fully complete but not yet claimed)
+            const canClaimReward =
+              isCurrentFullyComplete && !localClaimedUnits.includes(section.id);
+
+            // Check if this is the first unit of a unit_content group that can claim milestone
+            // Only show gift on badge (which appears on first unit of each group)
+            const unitContent = section.unit?.unit_content;
+            const canClaimGroupMilestone =
+              showBadge &&
+              !!unitContent &&
+              completedUnitContentGroups.has(unitContent) &&
+              !localClaimedGroups.includes(unitContent);
+
             return (
               <UnitSection
                 key={section.id}
@@ -114,6 +205,12 @@ export const CourseContent = ({
                 connectorColor={connectorColor}
                 badgeBorderColor={badgeBorderColor}
                 isLastSection={index === sections.length - 1}
+                canClaimReward={canClaimReward}
+                onClaimReward={() => handleClaimReward(section.id)}
+                isClaimingReward={claimingUnitId === section.id}
+                canClaimGroupMilestone={canClaimGroupMilestone}
+                onClaimGroupMilestone={() => unitContent && handleClaimGroupMilestone(unitContent)}
+                isClaimingGroupMilestone={claimingGroupName === unitContent}
               />
             );
           })}

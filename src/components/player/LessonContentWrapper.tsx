@@ -1,5 +1,6 @@
 "use client";
 
+import { useEffect } from "react";
 import { LessonContentHeader } from "./LessonContentHeader";
 import { MarkCompleteButton } from "./MarkCompleteButton";
 import { useLessonPlayer } from "@/hooks/useLessonPlayer";
@@ -36,7 +37,12 @@ export const LessonContentWrapper = ({
   allLessons,
   hideMarkComplete = false,
 }: LessonContentWrapperProps) => {
-  const { sidebarData, isUnitQuiz } = useLessonPlayer();
+  const {
+    sidebarData,
+    isUnitQuiz,
+    completedStepsMap,
+    fetchStepCompletion,
+  } = useLessonPlayer();
 
   // Get progress and completion data from context
   const progress = sidebarData?.progress ?? {
@@ -45,6 +51,7 @@ export const LessonContentWrapper = ({
     percentage: 0,
     streak: 0,
     totalXp: 0,
+    totalPlatformXp: 0,
   };
 
   // Find current lesson completion status
@@ -54,6 +61,16 @@ export const LessonContentWrapper = ({
   const unitQuizItem = currentUnitId
     ? allItems.find((item) => item.isUnitQuiz && item.unitId === currentUnitId)
     : null;
+
+  // Get cached completed steps (fetched via centralized hook)
+  const completedSteps =
+    completedStepsMap.get(lessonId) || new Set<LessonStep>();
+
+  // Fetch step completion on mount if not cached (centralized fetch via hook)
+  useEffect(() => {
+    // fetchStepCompletion handles deduplication and caching internally
+    fetchStepCompletion(lessonId, courseId);
+  }, [lessonId, courseId, fetchStepCompletion]);
 
   return (
     <div className="flex flex-col gap-4 md:gap-5">
@@ -72,6 +89,7 @@ export const LessonContentWrapper = ({
         isUnitQuiz={isUnitQuiz}
         unitId={currentUnitId}
         unitQuizCompleted={unitQuizItem?.completed ?? false}
+        completedSteps={completedSteps}
       />
 
       {/* Content Area */}

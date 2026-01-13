@@ -50,6 +50,7 @@ export const UnitQuizPageClient = ({
     percentage: 0,
     streak: 0,
     totalXp: 0,
+    totalPlatformXp: 0,
   };
 
   // Find unit quiz completion status

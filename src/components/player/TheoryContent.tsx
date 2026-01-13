@@ -1,6 +1,10 @@
 import { ContentItemRenderer } from "./ContentItemRenderer";
 import { LessonContentWrapper } from "./LessonContentWrapper";
-import type { LessonContent, Lesson, LessonVideo } from "@/types/database/tables";
+import type {
+  LessonContent,
+  Lesson,
+  LessonVideo,
+} from "@/types/database/tables";
 import type { LessonStep } from "@/lib/lesson-step-utils";
 import type { LessonItem } from "@/lib/lesson-utils";
 
@@ -42,7 +46,7 @@ export const TheoryContent = ({
   const emptyState = (
     <div className="bg-white rounded-lg border p-6">
       <p className="text-center text-muted-foreground">
-        Энэ хичээлд теорийн контент байхгүй байна.
+        Энэ хичээлд онолын контент байхгүй байна.
       </p>
     </div>
   );
@@ -58,6 +62,7 @@ export const TheoryContent = ({
       currentStep={currentStep}
       availableSteps={availableSteps}
       allLessons={allLessons}
+      hideMarkComplete={true}
     >
       {!theoryContent || theoryContent.length === 0 ? (
         emptyState
@@ -70,6 +75,7 @@ export const TheoryContent = ({
               lessonId={lessonId}
               courseId={courseId}
               lessonVideo={content.lesson_videos}
+              showCompleteButton={true}
             />
           ))}
         </div>

@@ -47,8 +47,8 @@ export const PageNavigationButtons = ({
       const nextStep = availableSteps[currentIndex + 1];
       return `/courses/${courseSlug}/learn/lesson/${lessonId}/${nextStep}`;
     } else if (nextLesson) {
-      // Go to next lesson (will redirect to its first step)
-      return `/courses/${courseSlug}/learn/lesson/${nextLesson.id}`;
+      // Go to next lesson's theory page
+      return `/courses/${courseSlug}/learn/lesson/${nextLesson.id}/theory`;
     }
     return null;
   };
