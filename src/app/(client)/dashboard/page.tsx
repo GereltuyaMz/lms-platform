@@ -1,5 +1,6 @@
 import { createClient } from "@/lib/supabase/server";
 import { redirect } from "next/navigation";
+import type { TabId } from "@/components/dashboard/DashboardTabs";
 
 // Force dynamic rendering to always get fresh enrollment data
 export const dynamic = "force-dynamic";
@@ -25,7 +26,27 @@ import { getUserBadgeProgress } from "@/lib/actions/badges";
 import { getUserOrders } from "@/lib/actions/shop-actions";
 import type { CourseLevel } from "@/types/database/enums";
 
-export default async function DashboardPage() {
+type DashboardPageProps = {
+  searchParams: Promise<{ tab?: string }>;
+};
+
+const VALID_TABS: TabId[] = [
+  "profile",
+  "courses",
+  "achievements",
+  "test-results",
+  "shop",
+  "settings",
+];
+
+export default async function DashboardPage({
+  searchParams,
+}: DashboardPageProps) {
+  // Get initial tab from URL (server-side) to prevent hydration flash
+  const params = await searchParams;
+  const tabFromUrl = params.tab as TabId | undefined;
+  const initialTab: TabId =
+    tabFromUrl && VALID_TABS.includes(tabFromUrl) ? tabFromUrl : "profile";
   const supabase = await createClient();
 
   // Get the authenticated user
@@ -135,6 +156,7 @@ export default async function DashboardPage() {
     <div className="min-h-screen bg-white">
       {/* Dashboard Tabs with 3-column layout */}
       <DashboardTabs
+        initialTab={initialTab}
         profileOverviewContent={
           <ProfileOverview
             userStats={userStats}
