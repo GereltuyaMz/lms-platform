@@ -28,6 +28,13 @@ type UnitSectionProps = {
   connectorColor: string;
   badgeBorderColor: string;
   isLastSection: boolean;
+  canClaimReward?: boolean;
+  onClaimReward?: () => void;
+  isClaimingReward?: boolean;
+  // Unit content group milestone props
+  canClaimGroupMilestone?: boolean;
+  onClaimGroupMilestone?: () => void;
+  isClaimingGroupMilestone?: boolean;
 };
 
 export const UnitSection = ({
@@ -40,6 +47,12 @@ export const UnitSection = ({
   connectorColor,
   badgeBorderColor,
   isLastSection,
+  canClaimReward = false,
+  onClaimReward,
+  isClaimingReward = false,
+  canClaimGroupMilestone = false,
+  onClaimGroupMilestone,
+  isClaimingGroupMilestone = false,
 }: UnitSectionProps) => {
   const router = useRouter();
   const scrollContainerRef = useRef<HTMLDivElement>(null);
@@ -77,6 +90,12 @@ export const UnitSection = ({
         isLastSection={isLastSection}
         verticalConnectorColor={connectorColor}
         badgeBorderColor={badgeBorderColor}
+        canClaimReward={canClaimReward}
+        onClaimReward={onClaimReward}
+        isClaimingReward={isClaimingReward}
+        canClaimGroupMilestone={canClaimGroupMilestone}
+        onClaimGroupMilestone={onClaimGroupMilestone}
+        isClaimingGroupMilestone={isClaimingGroupMilestone}
       />
 
       {/* Unit Content Container */}

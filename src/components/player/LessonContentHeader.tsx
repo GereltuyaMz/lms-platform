@@ -33,11 +33,13 @@ type LessonContentHeaderProps = {
     percentage: number;
     streak?: number;
     totalXp: number;
+    totalPlatformXp: number;
   };
   isCompleted: boolean;
   isUnitQuiz: boolean;
   unitId?: string;
   unitQuizCompleted?: boolean;
+  completedSteps?: Set<LessonStep>;
 };
 
 export const LessonContentHeader = ({
@@ -54,6 +56,7 @@ export const LessonContentHeader = ({
   isUnitQuiz,
   unitId,
   unitQuizCompleted,
+  completedSteps,
 }: LessonContentHeaderProps) => {
   const currentIndex = availableSteps.indexOf(currentStep);
   const isFirstStep = currentIndex === 0;
@@ -94,7 +97,7 @@ export const LessonContentHeader = ({
       const nextStep = availableSteps[currentIndex + 1];
       return `/courses/${courseSlug}/learn/lesson/${lessonId}/${nextStep}`;
     } else if (nextLesson) {
-      return getLessonRoute(nextLesson);
+      return getLessonRoute(nextLesson, "theory");
     }
     return null;
   };
@@ -130,6 +133,7 @@ export const LessonContentHeader = ({
             isUnitQuiz={isUnitQuiz}
             unitId={unitId}
             unitQuizCompleted={unitQuizCompleted}
+            completedSteps={completedSteps}
           />
           <LessonBreadcrumb
             courseTitle={courseTitle}

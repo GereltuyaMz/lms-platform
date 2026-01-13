@@ -9,7 +9,7 @@ import type {
   BestAttemptData,
   DetailedAnswer,
 } from "@/types/mock-test";
-import { insertXPTransaction } from "./xp-helpers";
+import { insertXPTransaction, hasXPBeenAwarded } from "./xp-helpers";
 
 type ActionResult<T = void> = {
   success: boolean;
@@ -287,6 +287,7 @@ export async function submitMockTestAttempt(
     // Calculate and award XP
     const xpAwarded = await awardMockTestXP(
       attemptId,
+      mockTestResults.percentage,
       mockTestResults.total_score,
       mockTestResults.total_questions
     );
@@ -364,6 +365,7 @@ export async function submitMockTestWithAnswers(
     try {
       xpAwarded = await awardMockTestXP(
         attemptId,
+        mockTestResults.percentage,
         mockTestResults.total_score,
         mockTestResults.total_questions
       );
@@ -400,10 +402,14 @@ export async function submitMockTestWithAnswers(
 }
 
 /**
- * Award XP for mock test completion
+ * Award XP for mock test completion (first attempt only)
+ * - Pass (≥80%): 80 XP
+ * - Fail (<80%): 10 XP
+ * - Retry: 0 XP
  */
 async function awardMockTestXP(
   attemptId: string,
+  percentage: number,
   score: number,
   totalQuestions: number
 ): Promise<number> {
@@ -415,7 +421,7 @@ async function awardMockTestXP(
     } = await supabase.auth.getUser();
     if (!user) return 0;
 
-    // Check if this is first attempt
+    // Get mock test ID from attempt
     const { data: attempt } = await supabase
       .from("mock_test_attempts")
       .select("mock_test_id")
@@ -424,47 +430,53 @@ async function awardMockTestXP(
 
     if (!attempt) return 0;
 
+    const mockTestId = attempt.mock_test_id;
+
+    // Idempotency check: prevent duplicate XP awards for same mock test
+    if (await hasXPBeenAwarded(user.id, "mock_test_complete", mockTestId)) {
+      return 0;
+    }
+
+    // Check if this is a retry (other completed attempts exist for this test)
     const { count } = await supabase
       .from("mock_test_attempts")
       .select("id", { count: "exact", head: true })
       .eq("user_id", user.id)
-      .eq("mock_test_id", attempt.mock_test_id)
-      .eq("is_completed", true);
+      .eq("mock_test_id", mockTestId)
+      .eq("is_completed", true)
+      .neq("id", attemptId);
 
-    const isFirstAttempt = (count || 0) === 0;
-    const percentage = (score / totalQuestions) * 100;
+    const isRetry = (count || 0) > 0;
 
-    // Calculate XP
-    const baseXP = score * 20; // 20 XP per correct answer
-    let bonusXP = 0;
+    // Calculate XP: 80 XP for pass (≥80%), 10 XP for fail, 0 XP for retry
+    let xpAmount = 0;
+    if (isRetry) {
+      xpAmount = 0;
+    } else if (percentage >= 80) {
+      xpAmount = 80;
+    } else {
+      xpAmount = 10;
+    }
 
-    // Mastery bonus
-    if (percentage >= 80 && percentage < 90) bonusXP = 200;
-    if (percentage >= 90 && percentage < 95) bonusXP = 400;
-    if (percentage >= 95 && percentage < 100) bonusXP = 600;
-    if (percentage === 100) bonusXP = 1000;
+    if (xpAmount === 0) return 0;
 
-    // First attempt bonus
-    const firstAttemptBonus = isFirstAttempt ? 500 : 0;
-
-    const totalXP = baseXP + bonusXP + firstAttemptBonus;
-
-    // Award XP using existing system
-    await insertXPTransaction(
+    // Insert XP transaction
+    const success = await insertXPTransaction(
       user.id,
-      totalXP,
+      xpAmount,
       "mock_test_complete",
-      attemptId,
-      `ЭЕШ тест: ${score}/${totalQuestions} оноо`,
+      mockTestId,
+      `ЭЕШ тест: ${Math.round(percentage)}% (${score}/${totalQuestions})`,
       {
+        attempt_id: attemptId,
         score,
         total_questions: totalQuestions,
         percentage,
-        is_first_attempt: isFirstAttempt,
+        is_retry: isRetry,
       }
     );
 
-    return totalXP;
+    return success ? xpAmount : 0;
   } catch {
     return 0;
   }

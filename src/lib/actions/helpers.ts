@@ -191,6 +191,24 @@ export async function checkAndAwardMilestones(
         enrollment.progress_percentage
       );
 
+      // Check for course completion XP (150 XP)
+      if (enrollment.progress_percentage === 100) {
+        const { checkAndAwardCourseCompletion } = await import("./xp-helpers");
+        const courseResult = await checkAndAwardCourseCompletion(
+          userId,
+          courseId,
+          enrollment.id
+        );
+
+        if (courseResult.awarded) {
+          results.push({
+            success: true,
+            message: `Course дууслаа! +${courseResult.xp} XP`,
+            xpAwarded: courseResult.xp,
+          });
+        }
+      }
+
       return results;
     }
 
@@ -226,8 +244,8 @@ export function calculateStreak(
   // Get today's date in YYYY-MM-DD format (local timezone)
   const now = new Date();
   const year = now.getFullYear();
-  const month = String(now.getMonth() + 1).padStart(2, '0');
-  const day = String(now.getDate()).padStart(2, '0');
+  const month = String(now.getMonth() + 1).padStart(2, "0");
+  const day = String(now.getDate()).padStart(2, "0");
   const todayStr = `${year}-${month}-${day}`;
 
   if (!lastActivityDate) {
@@ -242,7 +260,9 @@ export function calculateStreak(
   }
 
   // Calculate day difference using Date objects in local timezone
-  const [lastYear, lastMonth, lastDay] = lastActivityDate.split('-').map(Number);
+  const [lastYear, lastMonth, lastDay] = lastActivityDate
+    .split("-")
+    .map(Number);
   const lastActivityDate_obj = new Date(lastYear, lastMonth - 1, lastDay);
   const todayDate_obj = new Date(year, Number(month) - 1, Number(day));
 
@@ -279,10 +299,11 @@ export function checkStreakMilestone(newStreak: number): {
   xp: number;
   label: string;
 } | null {
+  // XP System V2: Updated streak milestone values
   const milestones = [
-    { days: 3, xp: 100, label: "3-day streak" },
-    { days: 7, xp: 250, label: "7-day streak" },
-    { days: 30, xp: 1000, label: "30-day streak" },
+    { days: 3, xp: 20, label: "3-day streak" }, // Changed from 100
+    { days: 7, xp: 50, label: "7-day streak" }, // Changed from 250
+    { days: 30, xp: 150, label: "30-day streak" }, // Changed from 1000
   ];
 
   const milestone = milestones.find((m) => m.days === newStreak);

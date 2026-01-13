@@ -8,6 +8,7 @@ type ProgressCardProps = {
     percentage: number;
     streak?: number;
     totalXp: number;
+    totalPlatformXp: number;
   };
 };
 
@@ -67,7 +68,7 @@ export const ProgressCard = ({ courseTitle, progress }: ProgressCardProps) => {
         {/* Streak and XP */}
         <div className="flex items-center justify-between text-sm text-[#737373]">
           <span>{progress.streak || 0} өдөр стрик</span>
-          <span>{progress.totalXp}XP</span>
+          <span>{progress.totalPlatformXp}XP</span>
         </div>
       </div>
     </div>

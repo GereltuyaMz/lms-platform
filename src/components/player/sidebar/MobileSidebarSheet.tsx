@@ -22,6 +22,7 @@ type MobileSidebarSheetProps = {
     percentage: number;
     streak?: number;
     totalXp: number;
+    totalPlatformXp: number;
   };
   currentLessonId: string;
   currentStep: LessonStep;
@@ -30,6 +31,7 @@ type MobileSidebarSheetProps = {
   isUnitQuiz: boolean;
   unitId?: string;
   unitQuizCompleted?: boolean;
+  completedSteps?: Set<LessonStep>;
 };
 
 export const MobileSidebarSheet = ({
@@ -43,6 +45,7 @@ export const MobileSidebarSheet = ({
   isUnitQuiz,
   unitId,
   unitQuizCompleted,
+  completedSteps,
 }: MobileSidebarSheetProps) => {
   const [open, setOpen] = useState(false);
 
@@ -73,6 +76,7 @@ export const MobileSidebarSheet = ({
             isUnitQuiz={isUnitQuiz}
             unitId={unitId}
             unitQuizCompleted={unitQuizCompleted}
+            completedSteps={completedSteps}
             onNavigate={() => setOpen(false)}
             showBackButton={false}
           />

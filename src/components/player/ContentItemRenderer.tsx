@@ -2,6 +2,7 @@
 
 import { VideoPlayer } from "./VideoPlayer";
 import { BunnyVideoPlayer } from "./BunnyVideoPlayer";
+import { ContentCompleteButton } from "./ContentCompleteButton";
 import type { LessonContent, LessonVideo } from "@/types/database/tables";
 
 type ContentItemRendererProps = {
@@ -9,6 +10,7 @@ type ContentItemRendererProps = {
   lessonId: string;
   courseId: string;
   lessonVideo?: LessonVideo | null; // Bunny video data if available
+  showCompleteButton?: boolean;
 };
 
 export const ContentItemRenderer = ({
@@ -16,6 +18,7 @@ export const ContentItemRenderer = ({
   lessonId,
   courseId,
   lessonVideo,
+  showCompleteButton = false,
 }: ContentItemRendererProps) => {
   const hasBunnyVideo = !!lessonVideo && lessonVideo.status === "ready";
   const hasUrlVideo = !!content.video_url;
@@ -32,9 +35,11 @@ export const ContentItemRenderer = ({
         <BunnyVideoPlayer
           bunnyVideoId={lessonVideo.bunny_video_id}
           bunnyLibraryId={lessonVideo.bunny_library_id}
+          contentId={content.id}
           lessonId={lessonId}
           courseId={courseId}
           duration={lessonVideo.duration_seconds || undefined}
+          contentType={content.content_type as "theory" | "example"}
         />
       )}
 
@@ -72,6 +77,19 @@ export const ContentItemRenderer = ({
           <div
             className="prose prose-sm max-w-none"
             dangerouslySetInnerHTML={{ __html: content.content! }}
+          />
+        </div>
+      )}
+
+      {/* Complete Button */}
+      {showCompleteButton && hasVideo && (
+        <div className="mt-3 flex justify-start">
+          <ContentCompleteButton
+            contentId={content.id}
+            lessonId={lessonId}
+            courseId={courseId}
+            contentTitle={content.title}
+            contentType={content.content_type as "theory" | "example"}
           />
         </div>
       )}

@@ -90,18 +90,25 @@ export const fetchUserProgress = async (
 ): Promise<{
   completedLessonIds: string[];
   completedUnitQuizIds: string[];
+  claimedUnitIds: string[];
+  claimedUnitContentGroups: string[];
 }> => {
   const supabase = await createClient();
 
   const { data: enrollment } = await supabase
     .from("enrollments")
-    .select("id")
+    .select("id, units_completed, unit_content_completed")
     .eq("user_id", userId)
     .eq("course_id", courseId)
     .single();
 
   if (!enrollment) {
-    return { completedLessonIds: [], completedUnitQuizIds: [] };
+    return {
+      completedLessonIds: [],
+      completedUnitQuizIds: [],
+      claimedUnitIds: [],
+      claimedUnitContentGroups: [],
+    };
   }
 
   const [{ data: lessonProgressData }, { data: unitQuizAttemptsData }] =
@@ -123,6 +130,8 @@ export const fetchUserProgress = async (
   return {
     completedLessonIds: lessonProgressData?.map((p) => p.lesson_id) || [],
     completedUnitQuizIds: unitQuizAttemptsData?.map((q) => q.unit_id!) || [],
+    claimedUnitIds: (enrollment.units_completed as string[]) || [],
+    claimedUnitContentGroups: (enrollment.unit_content_completed as string[]) || [],
   };
 };
 

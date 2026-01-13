@@ -1,10 +1,11 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { Check, Loader2 } from "lucide-react";
+import { Check, Loader2, AlertCircle } from "lucide-react";
 import { cn } from "@/lib/utils";
-import { saveVideoProgress, getLessonProgress } from "@/lib/actions/lesson-progress";
+import { getLessonProgress, checkLessonRequirements, markLessonCompleteIfReady } from "@/lib/actions/lesson-progress";
 import { useLessonPlayer } from "@/hooks/useLessonPlayer";
+import { toast } from "sonner";
 
 type MarkCompleteButtonProps = {
   lessonId: string;
@@ -19,13 +20,29 @@ export const MarkCompleteButton = ({
   const [isCompleted, setIsCompleted] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [isChecking, setIsChecking] = useState(true);
+  const [canComplete, setCanComplete] = useState(false);
+  const [missingRequirement, setMissingRequirement] = useState<string>("");
 
-  // Check if lesson is already completed on mount
+  // Check if lesson is already completed and requirements status
   useEffect(() => {
     const checkProgress = async () => {
       const progress = await getLessonProgress(lessonId, courseId);
       if (progress?.isCompleted) {
         setIsCompleted(true);
+        setCanComplete(true);
+      } else {
+        // Check requirements
+        const requirements = await checkLessonRequirements(lessonId, courseId);
+
+        if (!requirements.contentComplete) {
+          setMissingRequirement("Эхлээд бүх видео үзнэ үү");
+          setCanComplete(false);
+        } else if (!requirements.quizPassed) {
+          setMissingRequirement("Эхлээд хичээлийн тестийг өгнө үү");
+          setCanComplete(false);
+        } else {
+          setCanComplete(true);
+        }
       }
       setIsChecking(false);
     };
@@ -37,14 +54,33 @@ export const MarkCompleteButton = ({
 
     setIsLoading(true);
     try {
-      const result = await saveVideoProgress(lessonId, courseId, 0, true);
-      if (result.success) {
+      // Attempt to mark complete (validates requirements internally)
+      const result = await markLessonCompleteIfReady(lessonId, courseId);
+
+      if (result.success && result.lessonComplete) {
         setIsCompleted(true);
-        // Update sidebar progress via context
         markLessonComplete(lessonId);
+        toast.success("Хичээл амжилттай дууссан! 🎉");
+      } else if (result.missingRequirement === "content") {
+        toast.error("Бүх видео үзээгүй байна", {
+          description: "Хичээлийг дуусгахын тулд эхлээд бүх theory болон example видеог үзнэ үү",
+          icon: <AlertCircle className="size-4" />,
+        });
+      } else if (result.missingRequirement === "quiz") {
+        toast.error("Тест өгөөгүй байна", {
+          description: "Хичээлийг дуусгахын тулд эхлээд lesson quiz-ийг 80%-иас дээш оноотой өгнө үү",
+          icon: <AlertCircle className="size-4" />,
+        });
+      } else {
+        toast.error("Алдаа гарлаа", {
+          description: result.message || "Дахин оролдоно уу",
+        });
       }
     } catch (error) {
       console.error("Failed to mark lesson complete:", error);
+      toast.error("Алдаа гарлаа", {
+        description: "Дахин оролдоно уу",
+      });
     } finally {
       setIsLoading(false);
     }

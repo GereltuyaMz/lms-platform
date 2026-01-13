@@ -56,12 +56,16 @@ const CourseDetailPage = async ({ params }: PageProps) => {
 
   let completedLessonIds: string[] = [];
   let completedUnitQuizIds: string[] = [];
+  let claimedUnitIds: string[] = [];
+  let claimedUnitContentGroups: string[] = [];
   let unitQuizMap = new Map<string, boolean>();
 
   if (enrollmentStatus.isEnrolled && user) {
     const progress = await fetchUserProgress(user.id, course.id);
     completedLessonIds = progress.completedLessonIds;
     completedUnitQuizIds = progress.completedUnitQuizIds;
+    claimedUnitIds = progress.claimedUnitIds;
+    claimedUnitContentGroups = progress.claimedUnitContentGroups;
   }
 
   if (hasUnits) {
@@ -109,9 +113,12 @@ const CourseDetailPage = async ({ params }: PageProps) => {
               units={hasUnits ? units : undefined}
               lessonsBySection={undefined}
               courseSlug={course.slug}
+              courseId={course.id}
               completedLessonIds={completedLessonIds}
               completedUnitQuizIds={completedUnitQuizIds}
               unitQuizMap={unitQuizMap}
+              claimedUnitIds={claimedUnitIds}
+              claimedUnitContentGroups={claimedUnitContentGroups}
             />
 
             <div id="instructor" className="mt-12 sm:mt-14 md:mt-16 lg:mt-20">

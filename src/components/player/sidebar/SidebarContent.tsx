@@ -16,6 +16,7 @@ type SidebarContentProps = {
     percentage: number;
     streak?: number;
     totalXp: number;
+    totalPlatformXp: number;
   };
   currentLessonId: string;
   currentStep: LessonStep;
@@ -24,6 +25,7 @@ type SidebarContentProps = {
   isUnitQuiz: boolean;
   unitId?: string;
   unitQuizCompleted?: boolean;
+  completedSteps?: Set<LessonStep>;
   onNavigate?: () => void;
   showBackButton?: boolean;
 };
@@ -39,6 +41,7 @@ export const SidebarContent = ({
   isUnitQuiz,
   unitId,
   unitQuizCompleted,
+  completedSteps,
   onNavigate,
   showBackButton = true,
 }: SidebarContentProps) => {
@@ -78,6 +81,7 @@ export const SidebarContent = ({
             isUnitQuiz={isUnitQuiz}
             unitId={unitId}
             unitQuizCompleted={unitQuizCompleted}
+            completedSteps={completedSteps}
           />
         </div>
       </div>
