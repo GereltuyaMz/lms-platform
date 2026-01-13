@@ -4,33 +4,37 @@ import { SupabaseClient } from "@supabase/supabase-js";
 import { getAuthenticatedUser } from "./helpers";
 import type { RecommendedCourse } from "@/types/database/queries";
 
-// Helper to fetch course durations from the courses_with_stats view
-async function getCourseDurations(
+// Helper to fetch course stats (duration and XP) from the courses_with_stats view
+async function getCourseStats(
   supabase: SupabaseClient,
   courseIds: string[]
-): Promise<Record<string, number>> {
+): Promise<Record<string, { duration: number; xp: number }>> {
   if (courseIds.length === 0) return {};
 
   const { data } = await supabase
     .from("courses_with_stats")
-    .select("id, total_duration_seconds")
+    .select("id, total_duration_seconds, total_xp")
     .in("id", courseIds);
 
-  const durations: Record<string, number> = {};
+  const stats: Record<string, { duration: number; xp: number }> = {};
   data?.forEach((c) => {
-    durations[c.id] = c.total_duration_seconds || 0;
+    stats[c.id] = {
+      duration: c.total_duration_seconds || 0,
+      xp: c.total_xp || 0,
+    };
   });
-  return durations;
+  return stats;
 }
 
-// Helper to merge duration data into courses
-function mergeDurations<T extends { id: string }>(
+// Helper to merge stats (duration and XP) into courses
+function mergeCourseStats<T extends { id: string }>(
   courses: T[],
-  durations: Record<string, number>
-): (T & { total_duration_seconds: number })[] {
+  stats: Record<string, { duration: number; xp: number }>
+): (T & { total_duration_seconds: number; total_xp: number })[] {
   return courses.map((course) => ({
     ...course,
-    total_duration_seconds: durations[course.id] || 0,
+    total_duration_seconds: stats[course.id]?.duration || 0,
+    total_xp: stats[course.id]?.xp || 0,
   }));
 }
 
@@ -114,25 +118,25 @@ export async function getRecommendedCourses(): Promise<{
 
         const { data: randomCourses } = await fallbackQuery.limit(4);
 
-        // Fetch durations from courses_with_stats view
+        // Fetch stats from courses_with_stats view
         const courseIds = randomCourses?.map((c) => c.id) || [];
-        const durations = await getCourseDurations(supabase, courseIds);
+        const courseStats = await getCourseStats(supabase, courseIds);
 
         return {
           success: true,
-          courses: mergeDurations(randomCourses || [], durations),
+          courses: mergeCourseStats(randomCourses || [], courseStats),
           isPersonalized: false,
         };
       }
 
-      // If we found matching courses, return them with durations
+      // If we found matching courses, return them with stats
       if (courses && courses.length > 0) {
         const courseIds = courses.map((c) => c.id);
-        const durations = await getCourseDurations(supabase, courseIds);
+        const courseStats = await getCourseStats(supabase, courseIds);
 
         return {
           success: true,
-          courses: mergeDurations(courses, durations),
+          courses: mergeCourseStats(courses, courseStats),
           isPersonalized: true,
         };
       }
@@ -158,13 +162,13 @@ export async function getRecommendedCourses(): Promise<{
       };
     }
 
-    // Fetch durations for fallback courses
+    // Fetch stats for fallback courses
     const courseIds = randomCourses?.map((c) => c.id) || [];
-    const durations = await getCourseDurations(supabase, courseIds);
+    const courseStats = await getCourseStats(supabase, courseIds);
 
     return {
       success: true,
-      courses: mergeDurations(randomCourses || [], durations),
+      courses: mergeCourseStats(randomCourses || [], courseStats),
       isPersonalized: false,
     };
   } catch {

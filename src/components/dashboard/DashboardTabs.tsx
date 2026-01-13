@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { useSearchParams, useRouter } from "next/navigation";
+import { useSearchParams } from "next/navigation";
 import {
   UserIcon,
   VideoIcon,
@@ -15,7 +15,7 @@ import { AchievementsSidebar } from "./AchievementsSidebar";
 import { ProfileCompletionBanner } from "./ProfileCompletionBanner";
 import type { BadgeWithProgress } from "@/lib/actions/badges";
 
-type TabId =
+export type TabId =
   | "courses"
   | "achievements"
   | "test-results"
@@ -30,6 +30,8 @@ type Tab = {
 };
 
 type DashboardTabsProps = {
+  // Initial tab from server (prevents hydration flash)
+  initialTab: TabId;
   // Main content for each tab
   profileOverviewContent: React.ReactNode;
   coursesContent: React.ReactNode;
@@ -76,6 +78,7 @@ const tabs: Tab[] = [
 ];
 
 export const DashboardTabs = ({
+  initialTab,
   profileOverviewContent,
   coursesContent,
   achievementsContent,
@@ -85,39 +88,23 @@ export const DashboardTabs = ({
   achievements,
   isProfileComplete,
 }: DashboardTabsProps) => {
-  const router = useRouter();
   const searchParams = useSearchParams();
 
-  // Valid tabs for URL validation
-  const validTabs = [
-    "profile",
-    "courses",
-    "achievements",
-    "test-results",
-    "shop",
-    "settings",
-  ];
-
-  // Read tab from URL or default to "profile"
-  const tabFromUrl = searchParams.get("tab") as TabId | null;
-  const initialTab =
-    tabFromUrl && validTabs.includes(tabFromUrl) ? tabFromUrl : "profile";
-
+  // Use server-provided initialTab to prevent hydration flash
   const [activeTab, setActiveTab] = useState<TabId>(initialTab);
 
-  // Sync with URL changes
+  // Sync with URL changes (for client-side navigation like back/forward)
   useEffect(() => {
     const urlTab = searchParams.get("tab") as TabId | null;
-    if (urlTab && validTabs.includes(urlTab)) {
+    if (urlTab && urlTab !== activeTab) {
       setActiveTab(urlTab);
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [searchParams]);
+  }, [searchParams, activeTab]);
 
   const handleTabChange = (tabId: TabId) => {
     setActiveTab(tabId);
-    // Update URL without page reload
-    router.push(`/dashboard?tab=${tabId}`, { scroll: false });
+    // Update URL without triggering Next.js navigation (prevents flash)
+    window.history.pushState(null, "", `/dashboard?tab=${tabId}`);
   };
 
   const contentMap: Record<TabId, React.ReactNode> = {

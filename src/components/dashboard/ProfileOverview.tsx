@@ -185,6 +185,7 @@ export const ProfileOverview = ({
                     thumbnail_url: course.thumbnail_url,
                     level: course.level,
                     total_duration_seconds: course.total_duration_seconds,
+                    total_xp: course.total_xp,
                     lessons: course.lessons,
                   }}
                 />
