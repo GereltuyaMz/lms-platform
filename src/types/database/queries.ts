@@ -137,12 +137,13 @@ export interface DashboardEnrollment {
   } | null
 }
 
-// Recommended course (simplified Course type with duration and lesson count)
+// Recommended course (simplified Course type with duration, XP, and lesson count)
 export type RecommendedCourse = Pick<
   Course,
   'id' | 'title' | 'slug' | 'description' | 'thumbnail_url' | 'level'
 > & {
   total_duration_seconds?: number;
+  total_xp?: number;
   lessons?: { count: number }[];
 }
 
