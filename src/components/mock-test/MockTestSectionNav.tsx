@@ -8,6 +8,7 @@ type MockTestSectionNavProps = {
   currentSectionIndex: number;
   onSectionChange: (index: number) => void;
   userAnswers: UserAnswers;
+  testTitle: string;
 };
 
 export const MockTestSectionNav = ({
@@ -15,12 +16,8 @@ export const MockTestSectionNav = ({
   currentSectionIndex,
   onSectionChange,
   userAnswers,
+  testTitle,
 }: MockTestSectionNavProps) => {
-  // Hide navigation for single-section tests
-  if (sections.length === 1) {
-    return null;
-  }
-
   // Count answered questions per section
   const getAnsweredCount = (section: MockTestSection): number => {
     let count = 0;
@@ -42,50 +39,39 @@ export const MockTestSectionNav = ({
   };
 
   return (
-    <div className="border-b bg-white sticky top-0 z-10">
-      <div className="max-w-7xl mx-auto px-4">
-        {/* Desktop: Horizontal tabs */}
-        <div className="hidden md:flex gap-2 overflow-x-auto py-2">
-          {sections.map((section, index) => {
-            const answered = getAnsweredCount(section);
-            const total = getTotalQuestions(section);
-            const isActive = index === currentSectionIndex;
+    <div className="bg-white border-b shadow-sm sticky top-20 z-20">
+      <div className="max-w-7xl mx-auto px-4 py-2 md:py-4">
+        {/* Title */}
+        <h1 className="text-base md:text-2xl font-bold text-gray-900 mb-2 md:mb-3">
+          {testTitle}
+        </h1>
 
-            return (
-              <Button
-                key={section.id}
-                variant={isActive ? "default" : "outline"}
-                onClick={() => onSectionChange(index)}
-                className="flex-shrink-0 min-w-[120px] flex flex-col items-center gap-1 h-auto py-2"
-              >
-                <span className="font-bold">{section.title}</span>
-                <span className="text-xs">
-                  {answered}/{total}
-                </span>
-              </Button>
-            );
-          })}
-        </div>
-
-        {/* Mobile: Dropdown */}
-        <div className="md:hidden py-2">
-          <select
-            value={currentSectionIndex}
-            onChange={(e) => onSectionChange(Number(e.target.value))}
-            className="w-full p-2 border rounded-lg bg-white font-medium"
-          >
+        {/* Section Navigation Buttons - Fit to viewport */}
+        {sections.length > 1 && (
+          <div className="flex gap-2">
             {sections.map((section, index) => {
               const answered = getAnsweredCount(section);
               const total = getTotalQuestions(section);
+              const isActive = index === currentSectionIndex;
 
               return (
-                <option key={section.id} value={index}>
-                  {section.title} ({answered}/{total})
-                </option>
+                <Button
+                  key={section.id}
+                  variant={isActive ? "landing" : "landingOutline"}
+                  onClick={() => onSectionChange(index)}
+                  className="flex-1 flex flex-col items-center gap-0.5 h-auto py-1.5 px-2 md:py-2 md:px-4 text-xs md:text-base"
+                >
+                  <span className="font-bold truncate max-w-full text-[11px] md:text-sm">
+                    {section.title}
+                  </span>
+                  <span className="text-[10px] md:text-xs opacity-90">
+                    {answered}/{total}
+                  </span>
+                </Button>
               );
             })}
-          </select>
-        </div>
+          </div>
+        )}
       </div>
     </div>
   );

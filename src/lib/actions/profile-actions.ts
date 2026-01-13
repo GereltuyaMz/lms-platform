@@ -88,7 +88,7 @@ export async function updateUserProfile(
       // Handle both string and array inputs
       let goalsArray: string[] = [];
 
-      if (typeof profileData.learningGoals === 'string') {
+      if (typeof profileData.learningGoals === "string") {
         // Convert comma-separated string to array for database
         // Split by comma, newline, or semicolon, then trim and filter empty strings
         goalsArray = profileData.learningGoals
@@ -157,11 +157,7 @@ export async function checkAndAwardProfileCompletionXP(): Promise<ProfileComplet
       user_id: user.id,
     });
 
-    // Debug logging
-    console.log("[Profile XP] DB response:", { data, error });
-
     if (error) {
-      console.log("[Profile XP] DB error:", error.message);
       return {
         success: false,
         message: "Error processing XP",
@@ -170,7 +166,6 @@ export async function checkAndAwardProfileCompletionXP(): Promise<ProfileComplet
 
     // Parse result from database function
     const result = Array.isArray(data) && data.length > 0 ? data[0] : data;
-    console.log("[Profile XP] Parsed result:", result);
 
     if (result && result.success) {
       revalidateUserPages();

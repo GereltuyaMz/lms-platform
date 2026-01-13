@@ -9,6 +9,7 @@ import {
   BestScoreCard,
   IncompleteAttemptWarning,
   TestInstructions,
+  RecentCompletionProtection,
 } from "@/components/mock-test";
 
 // Disable caching to ensure fresh incomplete attempt check
@@ -41,7 +42,7 @@ export default async function MockTestOverviewPage({ params }: PageProps) {
           <h2 className="text-2xl font-bold mb-2">Тест олдсонгүй</h2>
           <p className="text-gray-600 mb-4">{testResult.message}</p>
           <Link href="/mock-test">
-            <Button>Буцах</Button>
+            <Button variant="landing">Буцах</Button>
           </Link>
         </div>
       </div>
@@ -63,6 +64,30 @@ export default async function MockTestOverviewPage({ params }: PageProps) {
     .order("started_at", { ascending: false })
     .limit(1)
     .single();
+
+  // Check for recently completed attempt (within 30 seconds)
+  const { data: recentlyCompleted } = await supabase
+    .from("mock_test_attempts")
+    .select("id, completed_at")
+    .eq("user_id", user.id)
+    .eq("mock_test_id", testId)
+    .eq("is_completed", true)
+    .gte("completed_at", new Date(Date.now() - 30000).toISOString())
+    .order("completed_at", { ascending: false })
+    .limit(1)
+    .single();
+
+  // Calculate protection remaining time (30 seconds from completion)
+  const protectionRemainingSeconds = recentlyCompleted?.completed_at
+    ? Math.max(
+        0,
+        Math.ceil(
+          30 -
+            (Date.now() - new Date(recentlyCompleted.completed_at).getTime()) /
+              1000
+        )
+      )
+    : 0;
 
   // Calculate remaining time from end_time
   const timeRemainingSeconds = incompleteAttempt?.end_time
@@ -95,7 +120,7 @@ export default async function MockTestOverviewPage({ params }: PageProps) {
         {test.sections.length > 1 && (
           <div className="bg-white rounded-lg border shadow-sm p-6 mb-6">
             <h2 className="text-xl font-bold text-gray-900 mb-4">
-              Хичээл бүрээр
+              Хэсэг бүрээр
             </h2>
             <div className="grid sm:grid-cols-2 gap-4">
               {test.sections.map((section) => {
@@ -110,8 +135,7 @@ export default async function MockTestOverviewPage({ params }: PageProps) {
                       {section.title}
                     </h3>
                     <p className="text-sm text-gray-600">
-                      {questionCount} асуулт • {section.problems.length} том
-                      асуулт
+                      {questionCount} асуулт
                     </p>
                   </div>
                 );
@@ -128,17 +152,34 @@ export default async function MockTestOverviewPage({ params }: PageProps) {
           />
         )}
 
+        {protectionRemainingSeconds > 0 && (
+          <RecentCompletionProtection
+            remainingSeconds={protectionRemainingSeconds}
+            attemptId={recentlyCompleted!.id}
+          />
+        )}
+
         <div className="flex flex-col sm:flex-row gap-4">
-          <Link
-            href={`/mock-test/${category}/${testId}/take`}
-            className="flex-1"
-          >
-            <Button size="lg" className="w-full">
-              {incompleteAttempt ? "Үргэлжлүүлэх" : "Тест эхлүүлэх"}
+          {protectionRemainingSeconds > 0 ? (
+            <Button variant="landing" size="lg" className="flex-1" disabled>
+              Хүлээнэ үү
             </Button>
-          </Link>
+          ) : (
+            <Link
+              href={`/mock-test/${category}/${testId}/take`}
+              className="flex-1"
+            >
+              <Button variant="landing" size="lg" className="w-full">
+                {incompleteAttempt ? "Үргэлжлүүлэх" : "Тест эхлүүлэх"}
+              </Button>
+            </Link>
+          )}
           <Link href={`/mock-test/${category}`}>
-            <Button variant="outline" size="lg" className="w-full sm:w-auto">
+            <Button
+              variant="landingOutline"
+              size="lg"
+              className="w-full sm:w-auto"
+            >
               Буцах
             </Button>
           </Link>

@@ -42,6 +42,7 @@ export type MockTest = {
   id: string;
   title: string;
   description: string | null;
+  category: MockTestCategory | null;
   time_limit_minutes: number;
   total_questions: number;
   sections: MockTestSection[];

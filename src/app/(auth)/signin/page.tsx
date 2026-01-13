@@ -176,7 +176,7 @@ const SignInForm = () => {
           className="w-full h-[46px] rounded-lg border-[#e5e5e5] bg-white hover:bg-gray-50 shadow-[0px_4px_0px_0px_#e5e5e5] hover:shadow-[0px_2px_0px_0px_#e5e5e5] hover:translate-y-[2px] active:shadow-none active:translate-y-1 transition-all disabled:opacity-50 font-bold text-base text-black font-[family-name:var(--font-nunito)]"
         >
           <GoogleIcon fill="#29cc57" width={20} height={20} />
-          Continue with Google
+          Google-ээр нэвтрэх
         </Button>
 
         {/* Sign up link */}

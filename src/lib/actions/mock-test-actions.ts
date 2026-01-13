@@ -380,9 +380,10 @@ export async function submitMockTestWithAnswers(
       // Submission still succeeded, XP will be 0
     }
 
-    // Force revalidate to clear any cached incomplete attempt data
-    revalidatePath("/mock-test", "layout");
-    revalidatePath("/dashboard", "layout");
+    // Revalidate specific pages that show attempt/results data
+    // IMPORTANT: Do NOT revalidate "/mock-test" broadly - it would cause /take page
+    // to re-run its server component and create a new attempt!
+    revalidatePath("/dashboard");
 
     return {
       success: true,

@@ -13,7 +13,7 @@ export const signUpAction = async (formData: FormData) => {
   const name = formData.get("name") as string;
 
   if (!email || !password || !name) {
-    return { error: "All fields are required" };
+    return { error: "Бүх талбарыг бөглөнө үү" };
   }
 
   const { data: signUpData, error: signUpError } = await supabase.auth.signUp({
@@ -30,7 +30,7 @@ export const signUpAction = async (formData: FormData) => {
   if (signUpData.user && signUpData.user.identities?.length === 0) {
     return {
       error:
-        "An account with this email already exists. Please log in instead.",
+        "Энэ имэйл хаягаар бүртгэл аль хэдийн үүссэн байна. Нэвтэрнэ үү.",
     };
   }
 
@@ -50,7 +50,7 @@ export const signUpAction = async (formData: FormData) => {
   if (signUpData.user && !signUpData.session) {
     return {
       success: true,
-      message: "Check your email to confirm your account",
+      message: "Бүртгэлээ баталгаажуулахын тулд имэйлээ шалгана уу",
     };
   }
 
@@ -85,7 +85,7 @@ export const signInAction = async (formData: FormData) => {
   const password = formData.get("password") as string;
 
   if (!email || !password) {
-    return { error: "Email and password are required" };
+    return { error: "Имэйл болон нууц үг шаардлагатай" };
   }
 
   const { data: profile } = await supabase
@@ -96,7 +96,7 @@ export const signInAction = async (formData: FormData) => {
 
   if (!profile) {
     return {
-      error: "No account found with this email. Please sign up first.",
+      error: "Энэ имэйл хаягаар бүртгэл олдсонгүй. Эхлээд бүртгүүлнэ үү.",
     };
   }
 
@@ -107,7 +107,7 @@ export const signInAction = async (formData: FormData) => {
 
   if (error) {
     if (error.message.includes("Invalid login credentials")) {
-      return { error: "Incorrect password. Please try again." };
+      return { error: "Нууц үг буруу байна. Дахин оролдоно уу." };
     }
     return { error: error.message };
   }

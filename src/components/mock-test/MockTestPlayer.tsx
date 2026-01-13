@@ -134,21 +134,13 @@ export const MockTestPlayer = ({
 
   return (
     <div className="min-h-screen bg-gray-50 pb-32 md:pb-24">
-      {/* Simple Header - No sticky */}
-      <div className="bg-white border-b">
-        <div className="max-w-7xl mx-auto px-4 py-4">
-          <h1 className="text-xl md:text-2xl font-bold text-gray-900">
-            {testData.title}
-          </h1>
-        </div>
-      </div>
-
-      {/* Section Navigation */}
+      {/* Unified Sticky Header with Title and Section Navigation */}
       <MockTestSectionNav
         sections={testData.sections}
         currentSectionIndex={currentSectionIndex}
         onSectionChange={setCurrentSectionIndex}
         userAnswers={userAnswers}
+        testTitle={testData.title}
       />
 
       {/* Main Content */}
@@ -159,7 +151,7 @@ export const MockTestPlayer = ({
             {currentSection.title}
           </h2>
           <p className="text-gray-600 mt-1">
-            {currentSection.problems.length} том асуулт
+            {currentSection.problems.length} асуулт
           </p>
         </div>
 
@@ -194,6 +186,7 @@ export const MockTestPlayer = ({
               onTimeExpired={handleTimeExpired}
             />
             <Button
+              variant="landing"
               onClick={() => setShowSubmitConfirm(true)}
               size="lg"
               disabled={isSubmitting}
@@ -225,13 +218,14 @@ export const MockTestPlayer = ({
 
             <div className="flex gap-3">
               <Button
-                variant="outline"
+                variant="landingOutline"
                 onClick={() => setShowSubmitConfirm(false)}
                 className="flex-1"
               >
                 Үргэлжлүүлэх
               </Button>
               <Button
+                variant="landing"
                 onClick={handleSubmit}
                 disabled={isSubmitting}
                 className="flex-1"

@@ -42,7 +42,7 @@ export default function LoginForm() {
     } else {
       setMessage({
         type: "success",
-        text: "Check your email for verification link!",
+        text: "Баталгаажуулах холбоосыг имэйлээс шалгана уу!",
       });
       setEmail("");
       setPassword("");
@@ -63,7 +63,7 @@ export default function LoginForm() {
     if (error) {
       setMessage({ type: "error", text: error.message });
     } else {
-      setMessage({ type: "success", text: "Logged in successfully!" });
+      setMessage({ type: "success", text: "Амжилттай нэвтэрлээ!" });
       window.location.href = "/dashboard";
     }
     setLoading(false);
@@ -72,27 +72,27 @@ export default function LoginForm() {
   return (
     <Card className="w-full max-w-md mx-auto">
       <CardHeader>
-        <CardTitle>Authentication</CardTitle>
+        <CardTitle>Нэвтрэх</CardTitle>
         <CardDescription>
-          Sign in to your account or create a new one
+          Бүртгэлдээ нэвтрэх эсвэл шинээр үүсгэх
         </CardDescription>
       </CardHeader>
       <CardContent>
         <form className="space-y-4">
           <div className="space-y-2">
-            <Label htmlFor="email">Email</Label>
+            <Label htmlFor="email">И-мэйл</Label>
             <Input
               id="email"
               type="email"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
-              placeholder="you@example.com"
+              placeholder="boldoo@gmail.com"
               required
             />
           </div>
 
           <div className="space-y-2">
-            <Label htmlFor="password">Password</Label>
+            <Label htmlFor="password">Нууц үг</Label>
             <Input
               id="password"
               type="password"
@@ -122,7 +122,7 @@ export default function LoginForm() {
               className="flex-1"
               type="button"
             >
-              {loading ? "Loading..." : "Sign In"}
+              {loading ? "Уншиж байна..." : "Нэвтрэх"}
             </Button>
 
             <Button
@@ -132,7 +132,7 @@ export default function LoginForm() {
               className="flex-1"
               type="button"
             >
-              {loading ? "Loading..." : "Sign Up"}
+              {loading ? "Уншиж байна..." : "Бүртгүүлэх"}
             </Button>
           </div>
         </form>

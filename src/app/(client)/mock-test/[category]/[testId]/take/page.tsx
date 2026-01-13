@@ -23,6 +23,23 @@ export default async function MockTestTakePage({ params }: PageProps) {
     redirect("/signin?redirect=/mock-test/" + testId + "/take");
   }
 
+  // Check if user has a recently completed attempt (within last 30 seconds)
+  // This prevents creating a new attempt when the page is re-rendered after submission
+  const { data: recentlyCompleted } = await supabase
+    .from("mock_test_attempts")
+    .select("id")
+    .eq("user_id", user.id)
+    .eq("mock_test_id", testId)
+    .eq("is_completed", true)
+    .gte("completed_at", new Date(Date.now() - 30000).toISOString())
+    .order("completed_at", { ascending: false })
+    .limit(1)
+    .single();
+
+  if (recentlyCompleted) {
+    redirect(`/mock-test/results/${recentlyCompleted.id}`);
+  }
+
   // Fetch test data
   const testResult = await getMockTestData(testId);
 
@@ -31,24 +48,6 @@ export default async function MockTestTakePage({ params }: PageProps) {
   }
 
   const testData = testResult.data;
-
-  // Check if user has a recent completed attempt (防止 double attempt creation)
-  // If there's a completed attempt in the last 2 minutes, redirect to results
-  const { data: recentCompletedAttempt } = await supabase
-    .from("mock_test_attempts")
-    .select("id, completed_at")
-    .eq("user_id", user.id)
-    .eq("mock_test_id", testId)
-    .eq("is_completed", true)
-    .gte("completed_at", new Date(Date.now() - 2 * 60 * 1000).toISOString())
-    .order("completed_at", { ascending: false })
-    .limit(1)
-    .single();
-
-  if (recentCompletedAttempt) {
-    // User just completed this test, redirect to results
-    redirect(`/mock-test/results/${recentCompletedAttempt.id}`);
-  }
 
   // Create or resume attempt
   const attemptResult = await createMockTestAttempt(testId);

@@ -57,44 +57,47 @@ export const UserNav = ({ user }: UserNavProps) => {
   return (
     <DropdownMenu>
       <DropdownMenuTrigger className="focus:outline-none">
-        <Avatar className="h-10 w-10 cursor-pointer hover:opacity-80 transition-opacity">
+        <Avatar className="h-10 w-10 cursor-pointer hover:opacity-80 transition-opacity ring-2 ring-[#29cc57]/20 hover:ring-[#29cc57]/40">
           <AvatarImage
             src={user.user_metadata?.avatar_url}
             alt={user.user_metadata?.full_name || "User"}
           />
-          <AvatarFallback className="bg-primary text-white font-semibold">
+          <AvatarFallback className="bg-[#29cc57] text-white font-semibold">
             {getInitials()}
           </AvatarFallback>
         </Avatar>
       </DropdownMenuTrigger>
-      <DropdownMenuContent align="end" className="w-56">
-        <DropdownMenuLabel>
+      <DropdownMenuContent
+        align="end"
+        className="w-60 rounded-xl p-2 shadow-[0_4px_20px_rgba(0,0,0,0.12)] border border-gray-100"
+      >
+        <DropdownMenuLabel className="px-3 py-3">
           <div className="flex flex-col space-y-1">
-            <p className="text-sm font-medium leading-none">
+            <p className="text-base font-semibold text-[#1a1a1a]">
               {user.user_metadata?.full_name || "User"}
             </p>
-            <p className="text-xs leading-none text-muted-foreground">
+            <p className="text-sm text-muted-foreground">
               {user.email}
             </p>
           </div>
         </DropdownMenuLabel>
-        <DropdownMenuSeparator />
+        <DropdownMenuSeparator className="bg-gray-100 my-1" />
         <DropdownMenuItem
           asChild
-          className="cursor-pointer data-[highlighted]:bg-secondary data-[highlighted]:text-white"
+          className="rounded-lg px-3 py-2.5 cursor-pointer transition-colors data-[highlighted]:bg-[#29cc57] data-[highlighted]:text-white focus:bg-[#29cc57] focus:text-white"
         >
           <Link href="/dashboard" className="flex items-center">
             <UserIcon className="mr-2 h-4 w-4" />
-            <span>Профайл</span>
+            <span className="font-medium">Профайл</span>
           </Link>
         </DropdownMenuItem>
         <DropdownMenuItem
           onClick={handleSignOut}
           disabled={isPending}
-          className="cursor-pointer text-red-600 focus:text-red-600"
+          className="rounded-lg px-3 py-2.5 cursor-pointer transition-colors text-red-600 data-[highlighted]:bg-red-50 data-[highlighted]:text-red-600 focus:bg-red-50 focus:text-red-600"
         >
           <LogOut className="mr-2 h-4 w-4" />
-          <span>{isPending ? "Гарч байна…" : "Гарах"}</span>
+          <span className="font-medium">{isPending ? "Гарч байна…" : "Гарах"}</span>
         </DropdownMenuItem>
       </DropdownMenuContent>
     </DropdownMenu>
