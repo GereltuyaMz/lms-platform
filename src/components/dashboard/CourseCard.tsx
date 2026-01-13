@@ -18,6 +18,7 @@ type CourseCardProps = {
     thumbnail_url: string | null;
     level: CourseLevel;
     total_duration_seconds?: number | null;
+    total_xp?: number;
     lessons?: { count: number }[];
   };
   enrollment?: {
@@ -89,7 +90,7 @@ export const CourseCard = ({ course, enrollment }: CourseCardProps) => {
                 ) : (
                   <span className="inline-flex items-center gap-1 bg-white/90 backdrop-blur-sm px-2.5 py-1.5 rounded-full text-xs font-semibold text-gray-700">
                     <SealCheckIcon size={14} />
-                    1500 XP
+                    {course.total_xp || 0} XP
                   </span>
                 )}
               </div>
@@ -115,7 +116,7 @@ export const CourseCard = ({ course, enrollment }: CourseCardProps) => {
                 {isCompleted && (
                   <span className="inline-flex items-center gap-1.5 text-xs bg-white px-3 py-1 rounded-full border border-[#D4D4D4]">
                     <SealCheckIcon size={14} />
-                    1500 XP
+                    {course.total_xp || 0} XP
                   </span>
                 )}
               </div>

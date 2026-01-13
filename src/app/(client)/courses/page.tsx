@@ -150,17 +150,17 @@ const CoursesPage = async ({ searchParams }: PageProps) => {
   return (
     <>
       {/* Hero Section */}
-      <section className="bg-[#efefef] py-12 ">
-        <div className="max-w-[1512px] mx-auto flex justify-between items-center px-8 lg:px-[120px] py-3">
-          <h1 className="text-[40px] font-semibold tracking-tight text-black ">
+      <section className="bg-[#efefef] py-6 md:py-12">
+        <div className="max-w-[1512px] mx-auto flex justify-between items-center px-4 sm:px-8 lg:px-[120px] py-2 md:py-3">
+          <h1 className="text-2xl sm:text-3xl md:text-[40px] font-semibold tracking-tight text-black">
             Боломжоо бүрэн нээе
           </h1>
         </div>
       </section>
 
       {/* Main Content */}
-      <div className="flex flex-col gap-[120px] items-center">
-        <div className="container mx-auto px-8 max-w-[1516px] py-12 lg:px-[120px] ">
+      <div className="flex flex-col gap-16 md:gap-[120px] items-center">
+        <div className="container mx-auto px-4 sm:px-8 max-w-[1516px] py-6 md:py-12 lg:px-[120px]">
           <CoursesClientWrapper
             examTypes={examTypes || []}
             subjectCategories={subjectCategories || []}

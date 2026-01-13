@@ -1,8 +1,22 @@
 import type { ReactElement } from "react";
-import { PlayIcon, NotebookIcon, DumbbellIcon, BookOpenIcon, LightbulbIcon, BrainIcon } from "@/icons";
+import {
+  PlayIcon,
+  NotebookIcon,
+  DumbbellIcon,
+  BookOpenIcon,
+  LightbulbIcon,
+  BrainIcon,
+} from "@/icons";
 import type { Lesson } from "@/types/database";
 
-export type LessonType = "video" | "text" | "quiz" | "assignment" | "theory" | "easy_example" | "hard_example";
+export type LessonType =
+  | "video"
+  | "text"
+  | "quiz"
+  | "assignment"
+  | "theory"
+  | "easy_example"
+  | "hard_example";
 
 type LessonConfig = {
   icon: ReactElement;
@@ -10,18 +24,23 @@ type LessonConfig = {
   displayXP: (xp: number) => string;
 };
 
+// XP System V2 values - matches 058_update_course_stats_xp_v2.sql
 export const LESSON_XP = {
-  VIDEO_BASE: 50,
-  VIDEO_DURATION_BONUS_PER_5MIN: 5,
-  QUIZ_MIN: 100,
-  QUIZ_MAX: 200,
-  ASSIGNMENT: 150,
-  TEXT_BASE: 30,
-  TEXT_LONG_FORM: 50,
-  // Unit lesson types XP
-  THEORY: 50,
-  EASY_EXAMPLE: 40,
-  HARD_EXAMPLE: 60,
+  // Content completion XP (per lesson_content item)
+  CONTENT_COMPLETE: 10,
+  // Quiz XP (score-based, these are maximums)
+  QUIZ_PERFECT: 22, // 100% score
+  QUIZ_EXCELLENT: 20, // 95-99% score
+  QUIZ_GOOD: 18, // 90-94% score
+  QUIZ_PASS: 15, // 80-89% score
+  // Unit/Course completion bonuses
+  UNIT_COMPLETE: 50,
+  COURSE_COMPLETE: 150,
+  // Milestones (25%, 50%, 75%, 100%)
+  MILESTONE_25: 30,
+  MILESTONE_50: 50,
+  MILESTONE_75: 70,
+  MILESTONE_100: 100,
 } as const;
 
 // NOTE: calculateXP functions now receive duration_seconds as parameter
@@ -29,38 +48,38 @@ export const LESSON_XP = {
 export const LESSON_CONFIG: Record<LessonType, LessonConfig> = {
   video: {
     icon: <PlayIcon width={20} height={20} fill="#3B82F6" />,
-    calculateXP: () => LESSON_XP.VIDEO_BASE,
+    calculateXP: () => LESSON_XP.CONTENT_COMPLETE,
     displayXP: (xp) => `${xp} XP`,
   },
   text: {
     icon: <NotebookIcon className="h-4 w-4 text-gray-600" />,
-    calculateXP: () => LESSON_XP.TEXT_BASE,
+    calculateXP: () => LESSON_XP.CONTENT_COMPLETE,
     displayXP: (xp) => `${xp} XP`,
   },
   quiz: {
     icon: <DumbbellIcon width={20} height={20} fill="#10B981" />,
-    calculateXP: () => LESSON_XP.QUIZ_MAX,
-    displayXP: () => `${LESSON_XP.QUIZ_MAX} XP`,
+    calculateXP: () => LESSON_XP.QUIZ_PERFECT,
+    displayXP: () => `${LESSON_XP.QUIZ_PERFECT} XP`,
   },
   assignment: {
     icon: <DumbbellIcon width={20} height={20} fill="#10B981" />,
-    calculateXP: () => LESSON_XP.ASSIGNMENT,
+    calculateXP: () => LESSON_XP.QUIZ_PERFECT,
     displayXP: (xp) => `${xp} XP`,
   },
-  // Unit-based lesson types
+  // Unit-based lesson types (all content items give 10 XP)
   theory: {
     icon: <BookOpenIcon className="h-4 w-4 text-blue-600" />,
-    calculateXP: () => LESSON_XP.THEORY,
+    calculateXP: () => LESSON_XP.CONTENT_COMPLETE,
     displayXP: (xp) => `${xp} XP`,
   },
   easy_example: {
     icon: <LightbulbIcon className="h-4 w-4 text-green-500" />,
-    calculateXP: () => LESSON_XP.EASY_EXAMPLE,
+    calculateXP: () => LESSON_XP.CONTENT_COMPLETE,
     displayXP: (xp) => `${xp} XP`,
   },
   hard_example: {
     icon: <BrainIcon className="h-4 w-4 text-orange-500" />,
-    calculateXP: () => LESSON_XP.HARD_EXAMPLE,
+    calculateXP: () => LESSON_XP.CONTENT_COMPLETE,
     displayXP: (xp) => `${xp} XP`,
   },
 };
@@ -74,6 +93,8 @@ export const getLessonIcon = (lessonType: string): ReactElement => {
 // DEPRECATED: This function assumed lesson.lesson_type exists
 // XP should now be calculated from lesson_content blocks
 export const getLessonXP = (lesson: Lesson): string | null => {
-  console.warn("getLessonXP is deprecated. Calculate XP from lesson_content blocks instead.");
+  console.warn(
+    "getLessonXP is deprecated. Calculate XP from lesson_content blocks instead."
+  );
   return null;
 };

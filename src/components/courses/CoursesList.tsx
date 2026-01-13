@@ -27,7 +27,7 @@ export const CoursesList = ({ courses, userCoupons }: CoursesListProps) => {
     );
   }
   return (
-    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+    <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-4 md:gap-6">
       {courses.map((course) => {
         const courseProps = {
           slug: course.slug,
@@ -37,6 +37,7 @@ export const CoursesList = ({ courses, userCoupons }: CoursesListProps) => {
           lessons: course.lesson_count || 0,
           level: course.level,
           thumbnail: course.thumbnail_url || undefined,
+          xpReward: course.total_xp || 0,
         };
 
         return <CourseCard key={course.id} {...courseProps} />;
