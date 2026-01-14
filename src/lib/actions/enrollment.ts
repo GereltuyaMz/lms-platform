@@ -220,13 +220,17 @@ export async function getUserEnrollments() {
     }
 
     // Get completed unit quizzes for all enrolled courses
-    type CompletedQuiz = { unit_id: string; units: { course_id: string } };
+    // Must join through enrollments since quiz_attempts doesn't have user_id directly
+    type CompletedQuiz = {
+      unit_id: string;
+      units: { course_id: string };
+    };
     let completedQuizzes: CompletedQuiz[] = [];
     if (courseIds.length > 0) {
       const { data: quizData } = await supabase
         .from("quiz_attempts")
-        .select("unit_id, units!inner(course_id)")
-        .eq("user_id", user.id)
+        .select("unit_id, units!inner(course_id), enrollments!inner(user_id)")
+        .eq("enrollments.user_id", user.id)
         .eq("passed", true)
         .not("unit_id", "is", null)
         .in("units.course_id", courseIds);
