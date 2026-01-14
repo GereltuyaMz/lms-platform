@@ -1,6 +1,5 @@
 "use client";
 
-import { useRouter } from "next/navigation";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Card, CardContent } from "@/components/ui/card";
 import { getInitials } from "@/lib/utils";
@@ -12,6 +11,7 @@ import type {
 import { CourseCard } from "./CourseCard";
 import { EmptyCoursesState } from "./EmptyCoursesState";
 import { PencilSimpleIcon } from "@phosphor-icons/react";
+import { useDashboardNav } from "./DashboardTabs";
 
 type ProfileOverviewProps = {
   userStats: UserStats;
@@ -26,7 +26,7 @@ export const ProfileOverview = ({
   recommendedCourses,
   joinedDate,
 }: ProfileOverviewProps) => {
-  const router = useRouter();
+  const { navigateToSettings } = useDashboardNav();
   const { username, avatarUrl, xp, streak, league } = userStats;
 
   // League icon mapping
@@ -99,9 +99,9 @@ export const ProfileOverview = ({
 
             {/* Edit Button */}
             <button
-              className="w-10 h-10 rounded-lg bg-[var(--dashboard-text-active)] flex items-center justify-center flex-shrink-0 hover:opacity-90 transition-opacity self-start"
+              onClick={navigateToSettings}
+              className="w-10 h-10 rounded-lg bg-[var(--dashboard-text-active)] flex items-center justify-center flex-shrink-0 hover:opacity-90 transition-opacity self-start cursor-pointer"
               aria-label="Edit profile"
-              onClick={() => router.push("/dashboard?tab=settings")}
             >
               <PencilSimpleIcon size={20} className="text-white" />
             </button>

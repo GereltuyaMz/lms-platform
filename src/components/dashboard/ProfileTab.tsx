@@ -310,7 +310,7 @@ export const ProfileTab = ({
               <Button
                 type="submit"
                 disabled={isSaving}
-                className="rounded-xl font-semibold bg-[#29CC57] hover:bg-[#16A34A] shadow-[0_4px_0_0_#16A34A] transition-all active:translate-y-[2px] active:shadow-[0_2px_0_0_#16A34A]"
+                className="cursor-pointer rounded-xl font-semibold bg-[#29CC57] hover:bg-[#16A34A] shadow-[0_4px_0_0_#16A34A] transition-all active:translate-y-[2px] active:shadow-[0_2px_0_0_#16A34A]"
               >
                 {isSaving ? (
                   <>
@@ -331,7 +331,7 @@ export const ProfileTab = ({
                   setPhoneNumber(initialPhoneNumber);
                   setLearningGoals(initialLearningGoals);
                 }}
-                className="rounded-xl border-gray-200"
+                className="cursor-pointer rounded-xl border-gray-200"
               >
                 Цуцлах
               </Button>

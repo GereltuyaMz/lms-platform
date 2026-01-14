@@ -1,0 +1,18 @@
+<svg width="64" height="64" viewBox="0 0 64 64" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <!-- ExpontMind Logo - Ascending Chevrons -->
+
+  <!-- Layer 1 - Bottom (Purple) -->
+  <path d="M6 46L32 58L58 46V52L32 64L6 52V46Z" fill="#4F378B"/>
+
+  <!-- Layer 2 (Green) -->
+  <path d="M6 34L32 46L58 34V40L32 52L6 40V34Z" fill="#29CC57"/>
+
+  <!-- Layer 3 (Purple) -->
+  <path d="M6 22L32 34L58 22V28L32 40L6 28V22Z" fill="#4F378B"/>
+
+  <!-- Layer 4 - Top (Green) -->
+  <path d="M6 10L32 22L58 10V16L32 28L6 16V10Z" fill="#29CC57"/>
+
+  <!-- Peak accent (Purple) -->
+  <path d="M27 4L32 0L37 4L32 9L27 4Z" fill="#4F378B"/>
+</svg>

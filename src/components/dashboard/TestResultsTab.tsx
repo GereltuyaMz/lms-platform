@@ -39,7 +39,7 @@ export const TestResultsTab = ({ attempts }: TestResultsTabProps) => {
           <p className="text-gray-600 mb-6">
             ЭЕШ-ийн сорилго өгч эхэлбэл үр дүн энд харагдана.
           </p>
-          <Button asChild>
+          <Button asChild variant="landing">
             <Link href="/mock-test">Сорилго өгөх</Link>
           </Button>
         </div>

@@ -1,17 +1,14 @@
-"use client";
-
-import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
 
 type ProfileCompletionBannerProps = {
   isProfileComplete: boolean;
+  onNavigateToSettings?: () => void;
 };
 
 export const ProfileCompletionBanner = ({
   isProfileComplete,
+  onNavigateToSettings,
 }: ProfileCompletionBannerProps) => {
-  const router = useRouter();
-
   if (isProfileComplete) {
     return null;
   }
@@ -24,8 +21,8 @@ export const ProfileCompletionBanner = ({
         <span className="font-bold">150 XP</span> цуглуулрай!
       </p>
       <Button
-        className="w-full font-semibold rounded-lg bg-[#29CC57] hover:bg-[#16A34A] shadow-[0_4px_0_0_#16A34A]"
-        onClick={() => router.push("/dashboard?tab=settings")}
+        className="cursor-pointer w-full font-semibold rounded-lg bg-[#29CC57] hover:bg-[#16A34A] shadow-[0_4px_0_0_#16A34A]"
+        onClick={onNavigateToSettings}
       >
         Одоо бөглөх
       </Button>
