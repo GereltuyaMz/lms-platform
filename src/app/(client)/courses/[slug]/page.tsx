@@ -119,6 +119,9 @@ const CourseDetailPage = async ({ params }: PageProps) => {
               unitQuizMap={unitQuizMap}
               claimedUnitIds={claimedUnitIds}
               claimedUnitContentGroups={claimedUnitContentGroups}
+              isAuthenticated={!!user}
+              hasAccess={enrollmentStatus.isEnrolled || hasPurchased}
+              price={course.price}
             />
 
             <div id="instructor" className="mt-12 sm:mt-14 md:mt-16 lg:mt-20">

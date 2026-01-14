@@ -1,14 +1,14 @@
-import { CourseCard } from "./CourseCard"
-import { EmptyCoursesState } from "./EmptyCoursesState"
-import type { DashboardEnrollment } from "@/types/database/queries"
+import { CourseCard } from "./CourseCard";
+import { EmptyCoursesState } from "./EmptyCoursesState";
+import type { DashboardEnrollment } from "@/types/database/queries";
 
 type MyCoursesTabProps = {
-  enrollments: DashboardEnrollment[]
-}
+  enrollments: DashboardEnrollment[];
+};
 
 export const MyCoursesTab = ({ enrollments }: MyCoursesTabProps) => {
   if (enrollments.length === 0) {
-    return <EmptyCoursesState />
+    return <EmptyCoursesState />;
   }
 
   return (
@@ -17,8 +17,8 @@ export const MyCoursesTab = ({ enrollments }: MyCoursesTabProps) => {
 
       <div className="grid grid-cols-1 gap-4">
         {enrollments.map((enrollment) => {
-          const course = enrollment.courses
-          if (!course) return null
+          const course = enrollment.courses;
+          if (!course) return null;
 
           return (
             <CourseCard
@@ -32,9 +32,9 @@ export const MyCoursesTab = ({ enrollments }: MyCoursesTabProps) => {
                 completed_at: enrollment.completed_at,
               }}
             />
-          )
+          );
         })}
       </div>
     </div>
-  )
-}
+  );
+};

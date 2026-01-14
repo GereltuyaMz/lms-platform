@@ -46,7 +46,11 @@ type CheckoutFormProps = {
 
 type PaymentMethod = "card" | "bank" | "qpay";
 
-export const CheckoutForm = ({ course, firstLessonId, applicableCoupon }: CheckoutFormProps) => {
+export const CheckoutForm = ({
+  course,
+  firstLessonId,
+  applicableCoupon,
+}: CheckoutFormProps) => {
   const router = useRouter();
   const [selectedMethod, setSelectedMethod] = useState<PaymentMethod>("card");
   const [isProcessing, setIsProcessing] = useState(false);
@@ -59,7 +63,11 @@ export const CheckoutForm = ({ course, firstLessonId, applicableCoupon }: Checko
     setIsProcessing(true);
 
     try {
-      const result = await simulatePurchase(course.id, selectedMethod, applicableCoupon?.id);
+      const result = await simulatePurchase(
+        course.id,
+        selectedMethod,
+        applicableCoupon?.id
+      );
 
       if (result.success) {
         toast.success(result.message);
@@ -67,7 +75,9 @@ export const CheckoutForm = ({ course, firstLessonId, applicableCoupon }: Checko
         // Redirect to first lesson or dashboard after 1.5 seconds
         setTimeout(() => {
           if (firstLessonId) {
-            router.push(`/courses/${course.slug}/learn/lesson/${firstLessonId}`);
+            router.push(
+              `/courses/${course.slug}/learn/lesson/${firstLessonId}`
+            );
           } else {
             router.push("/dashboard");
           }
@@ -216,7 +226,8 @@ export const CheckoutForm = ({ course, firstLessonId, applicableCoupon }: Checko
               <AlertDescription className="text-emerald-800 dark:text-emerald-200">
                 {discountPercentage === 100 ? (
                   <>
-                    Та энэ хичээлийг <strong>100% үнэгүй</strong> авах эрхтэй байна.
+                    Та энэ хичээлийг <strong>100% үнэгүй</strong> авах эрхтэй
+                    байна.
                     <br />
                     <span className="text-sm opacity-80">
                       XP дэлгүүрээс авсан таны купон ашиглагдана.
@@ -224,14 +235,20 @@ export const CheckoutForm = ({ course, firstLessonId, applicableCoupon }: Checko
                   </>
                 ) : (
                   <>
-                    Та <strong>{discountPercentage}% хямдралтай</strong> худалдан авна.
+                    Та <strong>{discountPercentage}% хямдралтай</strong>{" "}
+                    худалдан авна.
                     <br />
                     Хуучин үнэ: <del>{course.price.toLocaleString()}₮</del>
                     {" → "}
-                    <strong className="text-lg">{finalPrice.toLocaleString()}₮</strong>
+                    <strong className="text-lg">
+                      {finalPrice.toLocaleString()}₮
+                    </strong>
                     {applicableCoupon.expires_at && (
                       <p className="text-xs mt-1 opacity-70">
-                        Дуусах хугацаа: {new Date(applicableCoupon.expires_at).toLocaleDateString('mn-MN')}
+                        Дуусах хугацаа:{" "}
+                        {new Date(
+                          applicableCoupon.expires_at
+                        ).toLocaleDateString("mn-MN")}
                       </p>
                     )}
                   </>
@@ -250,7 +267,7 @@ export const CheckoutForm = ({ course, firstLessonId, applicableCoupon }: Checko
               onClick={() => setSelectedMethod("card")}
               className={`w-full p-4 border-2 rounded-lg text-left transition-all cursor-pointer ${
                 selectedMethod === "card"
-                  ? "border-primary bg-primary/5"
+                  ? "border-[#29cc57] bg-[#29cc57]/5"
                   : "border-gray-200 hover:border-gray-300"
               }`}
             >
@@ -258,12 +275,12 @@ export const CheckoutForm = ({ course, firstLessonId, applicableCoupon }: Checko
                 <div
                   className={`w-5 h-5 rounded-full border-2 flex items-center justify-center ${
                     selectedMethod === "card"
-                      ? "border-primary"
+                      ? "border-[#29cc57]"
                       : "border-gray-300"
                   }`}
                 >
                   {selectedMethod === "card" && (
-                    <div className="w-3 h-3 rounded-full bg-primary" />
+                    <div className="w-3 h-3 rounded-full bg-[#29cc57]" />
                   )}
                 </div>
                 <div className="flex-1">
@@ -281,7 +298,7 @@ export const CheckoutForm = ({ course, firstLessonId, applicableCoupon }: Checko
               onClick={() => setSelectedMethod("bank")}
               className={`w-full p-4 border-2 rounded-lg text-left transition-all cursor-pointer ${
                 selectedMethod === "bank"
-                  ? "border-primary bg-primary/5"
+                  ? "border-[#29cc57] bg-[#29cc57]/5"
                   : "border-gray-200 hover:border-gray-300"
               }`}
             >
@@ -289,12 +306,12 @@ export const CheckoutForm = ({ course, firstLessonId, applicableCoupon }: Checko
                 <div
                   className={`w-5 h-5 rounded-full border-2 flex items-center justify-center ${
                     selectedMethod === "bank"
-                      ? "border-primary"
+                      ? "border-[#29cc57]"
                       : "border-gray-300"
                   }`}
                 >
                   {selectedMethod === "bank" && (
-                    <div className="w-3 h-3 rounded-full bg-primary" />
+                    <div className="w-3 h-3 rounded-full bg-[#29cc57]" />
                   )}
                 </div>
                 <div className="flex-1">
@@ -312,7 +329,7 @@ export const CheckoutForm = ({ course, firstLessonId, applicableCoupon }: Checko
               onClick={() => setSelectedMethod("qpay")}
               className={`w-full p-4 border-2 rounded-lg text-left transition-all cursor-pointer ${
                 selectedMethod === "qpay"
-                  ? "border-primary bg-primary/5"
+                  ? "border-[#29cc57] bg-[#29cc57]/5"
                   : "border-gray-200 hover:border-gray-300"
               }`}
             >
@@ -320,12 +337,12 @@ export const CheckoutForm = ({ course, firstLessonId, applicableCoupon }: Checko
                 <div
                   className={`w-5 h-5 rounded-full border-2 flex items-center justify-center ${
                     selectedMethod === "qpay"
-                      ? "border-primary"
+                      ? "border-[#29cc57]"
                       : "border-gray-300"
                   }`}
                 >
                   {selectedMethod === "qpay" && (
-                    <div className="w-3 h-3 rounded-full bg-primary" />
+                    <div className="w-3 h-3 rounded-full bg-[#29cc57]" />
                   )}
                 </div>
                 <div className="flex-1">
@@ -361,6 +378,7 @@ export const CheckoutForm = ({ course, firstLessonId, applicableCoupon }: Checko
 
             {/* Purchase Button */}
             <Button
+              variant="landing"
               onClick={handlePurchase}
               disabled={isProcessing}
               className="w-full h-12 text-base font-semibold cursor-pointer"
