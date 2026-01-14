@@ -178,6 +178,27 @@ export async function getUserEnrollments() {
         })
         .filter((id): id is string => !!id) || [];
 
+    // Collect all unit IDs from enrolled courses
+    const allUnitIds =
+      enrollments?.flatMap((e) => {
+        const course = e.courses as unknown as { units: { id: string }[] } | null;
+        return course?.units?.map((u) => u.id) ?? [];
+      }) ?? [];
+
+    // Get units that have quizzes (only these count toward progress)
+    let unitsWithQuizSet = new Set<string>();
+    if (allUnitIds.length > 0) {
+      const { data: quizUnits } = await supabase
+        .from("quiz_questions")
+        .select("unit_id")
+        .in("unit_id", allUnitIds)
+        .not("unit_id", "is", null);
+
+      if (quizUnits) {
+        unitsWithQuizSet = new Set(quizUnits.map((q) => q.unit_id));
+      }
+    }
+
     // Get completed unit quizzes for all enrolled courses
     type CompletedQuiz = { unit_id: string; units: { course_id: string } };
     let completedQuizzes: CompletedQuiz[] = [];
@@ -216,8 +237,9 @@ export async function getUserEnrollments() {
       const completedLessons =
         enrollment.lesson_progress?.filter((p) => p.is_completed).length ?? 0;
 
-      // Count total units (each unit may have a quiz)
-      const totalUnits = course.units?.length ?? 0;
+      // Count only units that have quizzes (not all units)
+      const totalUnitQuizzes =
+        course.units?.filter((u) => unitsWithQuizSet.has(u.id)).length ?? 0;
 
       // Count completed unit quizzes for this course
       const completedUnitQuizzes = completedQuizzes.filter(
@@ -225,7 +247,7 @@ export async function getUserEnrollments() {
       ).length;
 
       // Calculate progress including unit quizzes
-      const totalItems = totalLessons + totalUnits;
+      const totalItems = totalLessons + totalUnitQuizzes;
       const completedItems = completedLessons + completedUnitQuizzes;
       const calculatedProgress =
         totalItems > 0 ? Math.round((completedItems / totalItems) * 100) : 0;
