@@ -14,7 +14,7 @@ type ProgressCardProps = {
 
 const statusConfig = {
   "not-started": { label: "Эхлээгүй", className: "bg-[#6750a4]" },
-  "in-progress": { label: "In progress", className: "bg-[#6750a4]" },
+  "in-progress": { label: "Хийгдэж байна", className: "bg-[#6750a4]" },
   completed: { label: "Дууссан", className: "bg-[#6750a4]" },
 } as const;
 
@@ -25,8 +25,8 @@ export const ProgressCard = ({ courseTitle, progress }: ProgressCardProps) => {
     progress.percentage === 0
       ? "not-started"
       : progress.percentage === 100
-        ? "completed"
-        : "in-progress";
+      ? "completed"
+      : "in-progress";
 
   return (
     <div className="bg-[#f8f2fa] border border-[#cac4d0] rounded-[20px] p-5 overflow-hidden">

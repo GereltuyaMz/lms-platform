@@ -1,0 +1,15 @@
+<svg width="32" height="32" viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <!-- ExpontMind Favicon - Simplified -->
+
+  <!-- Bottom chevron (Purple) -->
+  <path d="M4 22L16 28L28 22V25L16 31L4 25V22Z" fill="#4F378B"/>
+
+  <!-- Middle chevron (Green) -->
+  <path d="M4 14L16 20L28 14V17L16 23L4 17V14Z" fill="#29CC57"/>
+
+  <!-- Top chevron (Purple) -->
+  <path d="M4 6L16 12L28 6V9L16 15L4 9V6Z" fill="#4F378B"/>
+
+  <!-- Peak (Green) -->
+  <path d="M14 2L16 0L18 2L16 5L14 2Z" fill="#29CC57"/>
+</svg>

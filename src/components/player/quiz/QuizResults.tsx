@@ -1,5 +1,6 @@
-import { CheckCircle, XCircle, Info } from "lucide-react";
-import { Alert, AlertDescription } from "@/components/ui/alert";
+"use client";
+
+import { CheckCircleIcon, XCircleIcon, TrophyIcon, LightbulbIcon, ChartBarIcon, InfoIcon } from "@phosphor-icons/react";
 
 type QuizResultsProps = {
   score: number;
@@ -17,66 +18,88 @@ export const QuizResults = ({
   const scorePercentage = Math.round((score / totalQuestions) * 100);
 
   return (
-    <div className="p-8 text-center">
-      <div
-        className={`w-20 h-20 rounded-full flex items-center justify-center mx-auto mb-4 ${
-          passed ? "bg-green-100" : "bg-red-100"
-        }`}
-      >
-        {passed ? (
-          <CheckCircle className="w-10 h-10 text-green-600" />
-        ) : (
-          <XCircle className="w-10 h-10 text-red-600" />
-        )}
-      </div>
-      <h3 className="text-2xl font-bold mb-2">
-        {passed ? "Амжилттай давлаа!" : "Дахин оролдоорой"}
-      </h3>
-      <p className="text-lg text-muted-foreground mb-6">
-        Та {totalQuestions}-аас {score} оноо авлаа ({scorePercentage}%)
-      </p>
-
-      {xpAwarded > 0 && (
-        <div className="bg-gradient-to-r from-amber-50 to-yellow-50 border border-amber-200 rounded-lg p-6 mb-6 max-w-md mx-auto">
-          <p className="text-amber-900 font-semibold text-lg">
-            🎉 +{xpAwarded} XP
-          </p>
+    <div className="p-8 md:p-12 bg-white">
+      <div className="text-center max-w-xl mx-auto">
+        {/* Icon */}
+        <div className="inline-flex items-center justify-center w-20 h-20 md:w-24 md:h-24 rounded-full mb-6" style={{ backgroundColor: passed ? '#E8F5E9' : '#FFF3E0' }}>
+          {passed ? (
+            <CheckCircleIcon size={48} weight="fill" className="text-green-600 md:w-14 md:h-14" />
+          ) : (
+            <XCircleIcon size={48} weight="fill" className="text-orange-600 md:w-14 md:h-14" />
+          )}
         </div>
-      )}
 
-      {/* Explanation Section */}
-      <div className="mt-6 space-y-3 max-w-md mx-auto">
-        {/* Conditional message based on outcome */}
-        {passed && xpAwarded === 0 && (
-          <Alert>
-            <Info className="h-4 w-4" />
-            <AlertDescription>
-              Та тестийг давсан боловч энэ нь давтан оролдлого тул XP олгогдохгүй.
-              XP зөвхөн анхны амжилттай оролдлогод олгогдоно.
-            </AlertDescription>
-          </Alert>
+        {/* Title */}
+        <h3 className={`text-2xl md:text-3xl font-bold mb-2 ${passed ? 'text-green-700' : 'text-orange-700'}`}>
+          {passed ? "Амжилттай давлаа!" : "Дахин оролдоорой"}
+        </h3>
+
+        {/* Score Display */}
+        <div className="inline-flex items-center gap-3 mb-6 px-6 py-3 rounded-xl bg-gray-50 border">
+          <ChartBarIcon size={24} className="text-gray-600" />
+          <div className="text-left">
+            <p className="text-xs font-medium text-gray-600">Таны үр дүн</p>
+            <p className="text-2xl font-bold text-gray-900">
+              {score}<span className="text-gray-400 text-lg">/{totalQuestions}</span>
+              <span className={`ml-2 text-xl ${passed ? 'text-green-600' : 'text-orange-600'}`}>
+                ({scorePercentage}%)
+              </span>
+            </p>
+          </div>
+        </div>
+
+        {/* XP Award */}
+        {xpAwarded > 0 && (
+          <div className="mb-6">
+            <div className="inline-flex items-center gap-3 px-6 py-4 rounded-xl bg-gradient-to-r from-yellow-400 to-amber-500 shadow-lg">
+              <TrophyIcon size={32} weight="fill" className="text-white" />
+              <div className="text-left">
+                <p className="text-xs font-semibold text-amber-900">XP шагнал</p>
+                <p className="text-3xl font-black text-white">+{xpAwarded}</p>
+              </div>
+            </div>
+          </div>
         )}
 
-        {!passed && (
-          <Alert>
-            <Info className="h-4 w-4" />
-            <AlertDescription>
-              Тестийг давахын тулд 80%-иас дээш үнэлгээ шаардлагатай.
-              Дахин оролдож, XP цуглуулаарай!
-            </AlertDescription>
-          </Alert>
-        )}
+        {/* Info Messages */}
+        <div className="space-y-3 max-w-md mx-auto">
+          {/* No XP message for passed but repeated attempt */}
+          {passed && xpAwarded === 0 && (
+            <div className="flex items-start gap-3 p-4 rounded-xl bg-blue-50 border border-blue-200 text-left">
+              <InfoIcon size={20} className="text-blue-600 flex-shrink-0 mt-0.5" />
+              <div className="text-sm text-blue-900">
+                <p className="font-semibold mb-1">Тестийг давсан!</p>
+                <p>
+                  Энэ нь давтан оролдлого тул XP олгогдохгүй. XP зөвхөн анхны амжилттай оролдлогод олгогдоно.
+                </p>
+              </div>
+            </div>
+          )}
 
-        {/* General Quiz Info */}
-        <div className="text-sm text-muted-foreground space-y-1.5 pt-2">
-          <p className="flex items-center justify-center gap-2">
-            <span>📊</span>
-            <span>Давах босго: 80%</span>
-          </p>
-          <p className="flex items-center justify-center gap-2">
-            <span>⭐</span>
-            <span>XP зөвхөн анхны амжилттай оролдлогод олгогдоно</span>
-          </p>
+          {/* Failed message */}
+          {!passed && (
+            <div className="flex items-start gap-3 p-4 rounded-xl bg-orange-50 border border-orange-200 text-left">
+              <LightbulbIcon size={20} className="text-orange-600 flex-shrink-0 mt-0.5" />
+              <div className="text-sm text-orange-900">
+                <p className="font-semibold mb-1">Бага зэрэг дутуу байна</p>
+                <p>
+                  Тестийг давахын тулд 80%-иас дээш үнэлгээ шаардлагатай. Дахин оролдож, XP цуглуулаарай!
+                </p>
+              </div>
+            </div>
+          )}
+
+          {/* General info */}
+          <div className="pt-2 space-y-2 text-sm text-gray-600">
+            <div className="flex items-center justify-center gap-2">
+              <ChartBarIcon size={16} />
+              <span>Давах босго: 80%</span>
+            </div>
+            <div className="flex items-center justify-center gap-2">
+              <TrophyIcon size={16} />
+              <span>XP зөвхөн анхны амжилттай оролдлогод олгогдоно</span>
+            </div>
+          </div>
         </div>
       </div>
     </div>

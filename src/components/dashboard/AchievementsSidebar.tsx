@@ -44,7 +44,7 @@ export const AchievementsSidebar = ({
         </h3>
         <button
           onClick={onViewAll}
-          className="text-sm text-[#415FF4] hover:text-[#3349D4] font-medium"
+          className="text-sm text-[#415FF4] hover:text-[#3349D4] font-medium cursor-pointer"
         >
           Бүгд
         </button>

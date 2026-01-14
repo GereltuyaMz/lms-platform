@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, createContext, useContext } from "react";
 import { useSearchParams } from "next/navigation";
 import {
   UserIcon,
@@ -14,6 +14,21 @@ import { cn } from "@/lib/utils";
 import { AchievementsSidebar } from "./AchievementsSidebar";
 import { ProfileCompletionBanner } from "./ProfileCompletionBanner";
 import type { BadgeWithProgress } from "@/lib/actions/badges";
+
+// Context for tab navigation
+type DashboardNavContextType = {
+  navigateToSettings: () => void;
+};
+
+const DashboardNavContext = createContext<DashboardNavContextType | null>(null);
+
+export const useDashboardNav = () => {
+  const context = useContext(DashboardNavContext);
+  if (!context) {
+    throw new Error("useDashboardNav must be used within DashboardTabs");
+  }
+  return context;
+};
 
 export type TabId =
   | "courses"
@@ -107,6 +122,8 @@ export const DashboardTabs = ({
     window.history.pushState(null, "", `/dashboard?tab=${tabId}`);
   };
 
+  const navigateToSettings = () => handleTabChange("settings");
+
   const contentMap: Record<TabId, React.ReactNode> = {
     profile: profileOverviewContent,
     courses: coursesContent,
@@ -124,74 +141,79 @@ export const DashboardTabs = ({
     activeTab === "test-results" ? "lg:max-w-[802px]" : "lg:max-w-[518px]";
 
   return (
-    <div className="container mx-auto px-4 py-6 sm:py-8 max-w-[1400px]">
-      <div className="flex flex-col lg:flex-row gap-6 lg:gap-14">
-        {/* Left Sidebar - Navigation */}
-        <aside className="w-full lg:w-80 flex-shrink-0">
-          <nav className="bg-white rounded-2xl border p-5 space-y-1">
-            {tabs.map((tab) => (
-              <button
-                key={tab.id}
-                onClick={() => handleTabChange(tab.id)}
-                className={cn(
-                  "w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-left transition-colors",
-                  activeTab === tab.id
-                    ? "bg-[var(--dashboard-tab-active)]"
-                    : "hover:bg-gray-50"
-                )}
-              >
-                {/* Icon with background */}
-                <span
+    <DashboardNavContext.Provider value={{ navigateToSettings }}>
+      <div className="container mx-auto px-4 py-6 sm:py-8 max-w-[1400px]">
+        <div className="flex flex-col lg:flex-row gap-6 lg:gap-14">
+          {/* Left Sidebar - Navigation */}
+          <aside className="w-full lg:w-80 flex-shrink-0">
+            <nav className="bg-white rounded-2xl border p-5 space-y-1">
+              {tabs.map((tab) => (
+                <button
+                  key={tab.id}
+                  onClick={() => handleTabChange(tab.id)}
                   className={cn(
-                    "w-10 h-10 rounded-full flex items-center justify-center flex-shrink-0",
-                    "bg-[var(--dashboard-icon-bg)] border border-white"
+                    "w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-left transition-colors",
+                    activeTab === tab.id
+                      ? "bg-[var(--dashboard-tab-active)]"
+                      : "hover:bg-gray-50"
                   )}
                 >
+                  {/* Icon with background */}
                   <span
                     className={cn(
-                      activeTab === tab.id
-                        ? "text-[var(--dashboard-text-active)]"
-                        : "text-gray-600"
+                      "w-10 h-10 rounded-full flex items-center justify-center flex-shrink-0",
+                      "bg-[var(--dashboard-icon-bg)] border border-white"
                     )}
                   >
-                    {tab.icon}
+                    <span
+                      className={cn(
+                        activeTab === tab.id
+                          ? "text-[var(--dashboard-text-active)]"
+                          : "text-gray-600"
+                      )}
+                    >
+                      {tab.icon}
+                    </span>
                   </span>
-                </span>
-                {/* Label */}
-                <span
-                  className={cn(
-                    "text-base font-medium",
-                    activeTab === tab.id
-                      ? "text-[var(--dashboard-text-active)]"
-                      : "text-gray-700"
-                  )}
-                >
-                  {tab.label}
-                </span>
-              </button>
-            ))}
-          </nav>
-        </aside>
-
-        {/* Main Content */}
-        <main className={`flex-1 min-w-0 ${mainContentMaxWidth}`}>
-          {contentMap[activeTab]}
-        </main>
-
-        {/* Right Sidebar - Profile Completion + Achievements (only on profile and courses tabs) */}
-        {showRightSidebar && (
-          <aside className="hidden lg:block lg:w-80 flex-shrink-0 space-y-6">
-            {/* Profile Completion Banner */}
-            <ProfileCompletionBanner isProfileComplete={isProfileComplete} />
-
-            {/* Achievements Sidebar */}
-            <AchievementsSidebar
-              achievements={achievements}
-              onViewAll={() => handleTabChange("achievements")}
-            />
+                  {/* Label */}
+                  <span
+                    className={cn(
+                      "text-base font-medium",
+                      activeTab === tab.id
+                        ? "text-[var(--dashboard-text-active)]"
+                        : "text-gray-700"
+                    )}
+                  >
+                    {tab.label}
+                  </span>
+                </button>
+              ))}
+            </nav>
           </aside>
-        )}
+
+          {/* Main Content */}
+          <main className={`flex-1 min-w-0 ${mainContentMaxWidth}`}>
+            {contentMap[activeTab]}
+          </main>
+
+          {/* Right Sidebar - Profile Completion + Achievements (only on profile and courses tabs) */}
+          {showRightSidebar && (
+            <aside className="hidden lg:block lg:w-80 flex-shrink-0 space-y-6">
+              {/* Profile Completion Banner */}
+              <ProfileCompletionBanner
+                isProfileComplete={isProfileComplete}
+                onNavigateToSettings={navigateToSettings}
+              />
+
+              {/* Achievements Sidebar */}
+              <AchievementsSidebar
+                achievements={achievements}
+                onViewAll={() => handleTabChange("achievements")}
+              />
+            </aside>
+          )}
+        </div>
       </div>
-    </div>
+    </DashboardNavContext.Provider>
   );
 };

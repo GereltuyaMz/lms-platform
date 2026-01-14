@@ -12,8 +12,11 @@ const nunito = Nunito({
 });
 
 export const metadata: Metadata = {
-  title: "ExpontMind - LMS Platform",
-  description: "Learn and grow with ExpontMind",
+  title: "Сургалтын платформ",
+  description: "ExpontMind-тэй хамт суралцаж, хөгжөөрэй",
+  icons: {
+    icon: "/favicon.svg",
+  },
 };
 
 export default function RootLayout({

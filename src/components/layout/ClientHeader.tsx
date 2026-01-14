@@ -59,11 +59,11 @@ export const ClientHeader = ({ initialUser }: ClientHeaderProps) => {
           <div className="flex items-center">
             <Link href={homeLink} className="shrink-0">
               <Image
-                src="/edu-logo.png"
-                alt="logo"
-                width={50}
-                height={56}
-                className="h-14 w-auto"
+                src="/logo.svg"
+                alt="ExpontMind"
+                width={48}
+                height={48}
+                className="h-12 w-12"
               />
             </Link>
           </div>

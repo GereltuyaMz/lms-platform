@@ -1,23 +1,20 @@
-import Link from "next/link"
-import { Button } from "@/components/ui/button"
+import Link from "next/link";
+import { GraduationCapIcon } from "@phosphor-icons/react/dist/ssr";
+import { Button } from "@/components/ui/button";
 
 export const EmptyCoursesState = () => {
   return (
-    <div className="text-center py-16 px-4">
-      <div className="w-16 h-16 mx-auto mb-4 bg-gray-100 rounded-full flex items-center justify-center">
-        <span className="text-3xl">📚</span>
-      </div>
-      <h3 className="text-lg font-semibold mb-2">
+    <div className="flex flex-col items-center justify-center py-12 text-center bg-white rounded-2xl border">
+      <GraduationCapIcon size={64} className="text-gray-400 mb-4" />
+      <h3 className="text-xl font-semibold text-gray-900 mb-2">
         Та одоогоор хичээлд бүртгүүлээгүй байна
       </h3>
-      <p className="text-muted-foreground mb-6 max-w-md mx-auto">
+      <p className="text-gray-600 mb-6">
         Хичээлүүдийг судалж, өөрт тохирох хичээлээ олоорой!
       </p>
-      <Link href="/courses">
-        <Button className="cursor-pointer px-6">
-          Хичээлүүдийг үзэх
-        </Button>
-      </Link>
+      <Button asChild variant="landing">
+        <Link href="/courses">Хичээлүүдийг үзэх</Link>
+      </Button>
     </div>
-  )
-}
+  );
+};
