@@ -43,15 +43,20 @@ export default function CoursesLoading() {
       {/* Main Content */}
       <div className="flex flex-col gap-[120px] items-center">
         <div className="container mx-auto px-4 max-w-[1512px] py-12 lg:px-[120px]">
-          <div className="flex gap-6 items-start">
+          <div className="flex flex-col lg:flex-row gap-6 items-start">
+            {/* Mobile Filter Skeleton */}
+            <div className="lg:hidden w-full">
+              <Skeleton className="w-full h-12 rounded-xl" />
+            </div>
+
             {/* Filters Sidebar */}
-            <aside className="w-64 shrink-0 sticky top-24">
+            <aside className="hidden lg:block w-64 shrink-0 sticky top-24">
               <FiltersSkeleton />
             </aside>
 
             {/* Course List */}
-            <main className="flex-1">
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            <main className="flex-1 w-full">
+              <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-4 md:gap-6">
                 {[1, 2, 3, 4, 5, 6].map((i) => (
                   <CourseCardSkeleton key={i} />
                 ))}

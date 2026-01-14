@@ -35,7 +35,9 @@ export const CourseCard = ({ course, enrollment }: CourseCardProps) => {
   const lessonCount = course.lessons?.[0]?.count ?? 0;
 
   // Format duration from seconds
-  const formatDuration = (seconds: number | null | undefined): string | null => {
+  const formatDuration = (
+    seconds: number | null | undefined
+  ): string | null => {
     if (!seconds || seconds === 0) return null;
     const hours = Math.floor(seconds / 3600);
     const minutes = Math.ceil((seconds % 3600) / 60);
@@ -53,13 +55,7 @@ export const CourseCard = ({ course, enrollment }: CourseCardProps) => {
     enrollment?.progress_percentage === 100 || !!enrollment?.completed_at;
 
   return (
-    <Link
-      href={
-        enrollment && enrollment.lastLessonId
-          ? `/courses/${course.slug}/learn/lesson/${enrollment.lastLessonId}`
-          : `/courses/${course.slug}`
-      }
-    >
+    <Link href={`/courses/${course.slug}`}>
       <Card className="overflow-hidden hover:shadow-lg transition-shadow rounded-3xl border-0 bg-[#F8F1F6]">
         <CardContent className="p-0">
           <div className="flex flex-col sm:flex-row">

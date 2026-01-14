@@ -1,5 +1,6 @@
 "use client";
 
+import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { Checkbox } from "@/components/ui/checkbox";
 import type { Lesson } from "@/types/database";
@@ -8,18 +9,39 @@ type LessonCardProps = {
   lesson: Lesson;
   courseSlug: string;
   isCompleted: boolean;
+  isAuthenticated: boolean;
+  hasAccess: boolean;
+  price: number;
 };
 
 export const LessonCard = ({
   lesson,
   courseSlug,
   isCompleted,
+  isAuthenticated,
+  hasAccess,
+  price,
 }: LessonCardProps) => {
+  const router = useRouter();
   const lessonUrl = `/courses/${courseSlug}/learn/lesson/${lesson.id}/theory`;
+
+  const handleAuthCheck = (e: React.MouseEvent) => {
+    if (!isAuthenticated) {
+      e.preventDefault();
+      router.push("/signin");
+      return;
+    }
+
+    if (!hasAccess) {
+      e.preventDefault();
+      router.push(`/courses/${courseSlug}/checkout`);
+    }
+  };
 
   return (
     <Link
       href={lessonUrl}
+      onClick={handleAuthCheck}
       className="block min-w-[160px] w-[160px] sm:min-w-[240px] sm:w-[240px] md:min-w-[260px] md:w-[260px] lg:min-w-[280px] lg:w-[292px] shrink-0 group"
     >
       <div className="bg-white rounded-lg border border-gray-200 p-3 sm:p-3.5 md:p-4 hover:shadow-md transition-all duration-200 h-full flex flex-col">

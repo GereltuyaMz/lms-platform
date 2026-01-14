@@ -3,24 +3,24 @@ import { z } from "zod";
 export const signUpSchema = z.object({
   name: z
     .string()
-    .min(2, "Name must be at least 2 characters")
-    .max(50, "Name must be less than 50 characters"),
+    .min(2, "Нэр дор хаяж 2 тэмдэгт байх ёстой")
+    .max(50, "Нэр 50 тэмдэгтээс бага байх ёстой"),
   email: z
     .string()
-    .min(1, "Email is required")
-    .email("Please enter a valid email address"),
+    .min(1, "Имэйл хаяг шаардлагатай")
+    .email("Зөв имэйл хаяг оруулна уу"),
   password: z
     .string()
-    .min(6, "Password must be at least 6 characters")
-    .max(100, "Password must be less than 100 characters"),
+    .min(6, "Нууц үг дор хаяж 6 тэмдэгт байх ёстой")
+    .max(100, "Нууц үг 100 тэмдэгтээс бага байх ёстой"),
 });
 
 export const signInSchema = z.object({
   email: z
     .string()
-    .min(1, "Email is required")
-    .email("Please enter a valid email address"),
-  password: z.string().min(1, "Password is required"),
+    .min(1, "Имэйл хаяг шаардлагатай")
+    .email("Зөв имэйл хаяг оруулна уу"),
+  password: z.string().min(1, "Нууц үг шаардлагатай"),
 });
 
 export type SignUpFormData = z.infer<typeof signUpSchema>;

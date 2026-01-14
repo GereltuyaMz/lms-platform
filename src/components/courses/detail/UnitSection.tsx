@@ -35,6 +35,9 @@ type UnitSectionProps = {
   canClaimGroupMilestone?: boolean;
   onClaimGroupMilestone?: () => void;
   isClaimingGroupMilestone?: boolean;
+  isAuthenticated: boolean;
+  hasAccess: boolean;
+  price: number;
 };
 
 export const UnitSection = ({
@@ -53,6 +56,9 @@ export const UnitSection = ({
   canClaimGroupMilestone = false,
   onClaimGroupMilestone,
   isClaimingGroupMilestone = false,
+  isAuthenticated,
+  hasAccess,
+  price,
 }: UnitSectionProps) => {
   const router = useRouter();
   const scrollContainerRef = useRef<HTMLDivElement>(null);
@@ -142,19 +148,30 @@ export const UnitSection = ({
                   lesson={lesson}
                   courseSlug={courseSlug}
                   isCompleted={completedLessonIds.includes(lesson.id)}
+                  isAuthenticated={isAuthenticated}
+                  hasAccess={hasAccess}
+                  price={price}
                 />
               ))}
 
               {/* Unit Quiz Card - Inside scroll with lessons */}
               {section.hasUnitQuiz && section.unit && (
                 <div
-                  onClick={() =>
+                  onClick={() => {
+                    if (!isAuthenticated) {
+                      router.push("/signin");
+                      return;
+                    }
+                    if (!hasAccess) {
+                      router.push(`/courses/${courseSlug}/checkout`);
+                      return;
+                    }
                     router.push(
                       `/courses/${courseSlug}/learn/lesson/${
                         section.unit!.id
                       }/unit-quiz`
-                    )
-                  }
+                    );
+                  }}
                   className="bg-white rounded-lg border border-gray-200 p-3 sm:p-3.5 md:p-4 hover:shadow-md transition-all duration-200 cursor-pointer min-w-[160px] w-[160px] sm:min-w-[240px] sm:w-[240px] md:min-w-[260px] md:w-[260px] lg:min-w-[280px] lg:w-[292px] shrink-0 group"
                 >
                   <div className="bg-[#faf9f7] rounded p-2 sm:p-2.5 md:p-3 flex gap-1.5 sm:gap-2 items-start">

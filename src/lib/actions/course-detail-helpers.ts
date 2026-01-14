@@ -131,14 +131,16 @@ export const fetchUserProgress = async (
     completedLessonIds: lessonProgressData?.map((p) => p.lesson_id) || [],
     completedUnitQuizIds: unitQuizAttemptsData?.map((q) => q.unit_id!) || [],
     claimedUnitIds: (enrollment.units_completed as string[]) || [],
-    claimedUnitContentGroups: (enrollment.unit_content_completed as string[]) || [],
+    claimedUnitContentGroups:
+      (enrollment.unit_content_completed as string[]) || [],
   };
 };
 
 export const buildContinueUrl = async (
   courseId: string,
   slug: string,
-  isEnrolled: boolean
+  isEnrolled: boolean,
+  userId?: string
 ) => {
   const units = await getCourseUnits(courseId);
   const hasUnits = units.length > 0;
@@ -151,11 +153,16 @@ export const buildContinueUrl = async (
   }
 
   const supabase = await createClient();
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
 
-  if (!user) {
+  let targetUserId = userId;
+  if (!targetUserId) {
+    const {
+      data: { user },
+    } = await supabase.auth.getUser();
+    targetUserId = user?.id;
+  }
+
+  if (!targetUserId) {
     const firstLessonId = units[0]?.lessons?.[0]?.id || null;
     return firstLessonId
       ? `/courses/${slug}/learn/lesson/${firstLessonId}/theory`
@@ -163,7 +170,7 @@ export const buildContinueUrl = async (
   }
 
   const { completedLessonIds, completedUnitQuizIds } = await fetchUserProgress(
-    user.id,
+    targetUserId,
     courseId
   );
 

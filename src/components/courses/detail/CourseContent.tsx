@@ -19,6 +19,9 @@ type CourseContentProps = {
   unitQuizMap?: Map<string, boolean>;
   claimedUnitIds?: string[];
   claimedUnitContentGroups?: string[];
+  isAuthenticated: boolean;
+  hasAccess: boolean;
+  price: number;
 };
 
 type SectionData = {
@@ -40,11 +43,19 @@ export const CourseContent = ({
   unitQuizMap = new Map(),
   claimedUnitIds = [],
   claimedUnitContentGroups = [],
+  isAuthenticated,
+  hasAccess,
+  price,
 }: CourseContentProps) => {
   const [claimingUnitId, setClaimingUnitId] = useState<string | null>(null);
-  const [localClaimedUnits, setLocalClaimedUnits] = useState<string[]>(claimedUnitIds);
-  const [claimingGroupName, setClaimingGroupName] = useState<string | null>(null);
-  const [localClaimedGroups, setLocalClaimedGroups] = useState<string[]>(claimedUnitContentGroups);
+  const [localClaimedUnits, setLocalClaimedUnits] =
+    useState<string[]>(claimedUnitIds);
+  const [claimingGroupName, setClaimingGroupName] = useState<string | null>(
+    null
+  );
+  const [localClaimedGroups, setLocalClaimedGroups] = useState<string[]>(
+    claimedUnitContentGroups
+  );
 
   const handleClaimReward = async (unitId: string) => {
     setClaimingUnitId(unitId);
@@ -209,8 +220,13 @@ export const CourseContent = ({
                 onClaimReward={() => handleClaimReward(section.id)}
                 isClaimingReward={claimingUnitId === section.id}
                 canClaimGroupMilestone={canClaimGroupMilestone}
-                onClaimGroupMilestone={() => unitContent && handleClaimGroupMilestone(unitContent)}
+                onClaimGroupMilestone={() =>
+                  unitContent && handleClaimGroupMilestone(unitContent)
+                }
                 isClaimingGroupMilestone={claimingGroupName === unitContent}
+                isAuthenticated={isAuthenticated}
+                hasAccess={hasAccess}
+                price={price}
               />
             );
           })}

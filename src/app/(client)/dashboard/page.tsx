@@ -124,7 +124,10 @@ export default async function DashboardPage({
       if (!enrollment.courses) return { ...enrollment, lastLessonId: null };
 
       const lastLessonId = await getLastAccessedLesson(enrollment.courses.id);
-      const stats = courseStats[enrollment.courses.id] || { duration: 0, xp: 0 };
+      const stats = courseStats[enrollment.courses.id] || {
+        duration: 0,
+        xp: 0,
+      };
 
       return {
         ...enrollment,
@@ -166,9 +169,7 @@ export default async function DashboardPage({
           />
         }
         coursesContent={<MyCoursesTab enrollments={userEnrollments} />}
-        achievementsContent={
-          <AchievementsTab achievements={badgeProgress} />
-        }
+        achievementsContent={<AchievementsTab achievements={badgeProgress} />}
         testResultsContent={
           <TestResultsTab attempts={mockTestAttempts.data || []} />
         }
