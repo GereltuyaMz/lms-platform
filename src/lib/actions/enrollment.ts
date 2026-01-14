@@ -185,6 +185,26 @@ export async function getUserEnrollments() {
         return course?.units?.map((u) => u.id) ?? [];
       }) ?? [];
 
+    // Get lesson counts per course (only lessons within units - matching lesson detail view)
+    type LessonCountByCourse = { course_id: string };
+    const lessonCountsMap = new Map<string, number>();
+    if (courseIds.length > 0) {
+      const { data: lessonCounts } = await supabase
+        .from("lessons")
+        .select("course_id")
+        .in("course_id", courseIds)
+        .not("unit_id", "is", null);
+
+      if (lessonCounts) {
+        lessonCounts.forEach((lc: LessonCountByCourse) => {
+          lessonCountsMap.set(
+            lc.course_id,
+            (lessonCountsMap.get(lc.course_id) || 0) + 1
+          );
+        });
+      }
+    }
+
     // Get units that have quizzes (only these count toward progress)
     let unitsWithQuizSet = new Set<string>();
     if (allUnitIds.length > 0) {
@@ -230,8 +250,8 @@ export async function getUserEnrollments() {
 
       if (!course) return enrollment;
 
-      // Count total lessons
-      const totalLessons = course.lessons?.[0]?.count ?? 0;
+      // Count total lessons (only lessons within units - matching lesson detail view)
+      const totalLessons = lessonCountsMap.get(course.id) ?? 0;
 
       // Count completed lessons
       const completedLessons =
