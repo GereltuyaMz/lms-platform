@@ -83,16 +83,11 @@ export const ContentCompleteButton = ({
           }
         }
 
-        if (result.unitXpAwarded && result.unitXpAwarded > 0) {
-          toast.success(`🏆 +${result.unitXpAwarded} XP`, {
-            description: "Unit амжилттай дууссан!",
+        // Update XP for unit completion (no toast - XP claimable via badge)
+        if (result.unitXpAwarded && result.unitXpAwarded > 0 && sidebarData?.progress) {
+          updateProgress({
+            totalPlatformXp: sidebarData.progress.totalPlatformXp + result.unitXpAwarded,
           });
-          // Update XP in sidebar immediately for unit XP
-          if (sidebarData?.progress) {
-            updateProgress({
-              totalPlatformXp: sidebarData.progress.totalPlatformXp + result.unitXpAwarded,
-            });
-          }
         }
 
         if (result.lessonComplete) {

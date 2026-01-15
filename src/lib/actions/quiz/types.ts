@@ -15,6 +15,8 @@ export type QuizAttemptResult = {
   streakBonusMessage?: string;
   currentStreak?: number;
   unitXpAwarded?: number;
+  badgeXpAwarded?: number;
+  badgeMessage?: string;
 };
 
 export type QuizAnswer = {

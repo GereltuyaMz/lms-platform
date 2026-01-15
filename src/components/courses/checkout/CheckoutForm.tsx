@@ -148,7 +148,7 @@ export const CheckoutForm = ({
               <DumbbellIcon width={20} height={20} fill="#10B981" />
               <span className="text-sm">
                 <strong className="font-bold">{course.exerciseCount}</strong>{" "}
-                дасгал
+                бодлого
               </span>
             </div>
             <div className="flex items-center gap-2">

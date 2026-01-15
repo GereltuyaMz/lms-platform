@@ -13,6 +13,7 @@ import {
   showQuizXpNotification,
   showMilestoneNotifications,
   showStreakNotification,
+  showBadgeNotification,
 } from "./useQuizNotifications";
 import {
   saveUnitQuizAttempt,
@@ -102,25 +103,66 @@ export const UnitQuizPlayer = ({
       );
       setXpAwarded(xpResult.xpAwarded || 0);
 
+      // Accumulate all XP to avoid stale state issues
+      let totalXpEarned = 0;
+      let newStreak: number | undefined;
+
+      // Quiz XP
       if (xpResult.success && xpResult.xpAwarded) {
         showQuizXpNotification(
           xpResult.xpAwarded,
           (state.score / quizData.questions.length) * 100,
           true
         );
-        if (sidebarData?.progress)
-          updateProgress({
-            totalPlatformXp:
-              sidebarData.progress.totalPlatformXp + xpResult.xpAwarded,
-          });
+        totalXpEarned += xpResult.xpAwarded;
       }
 
-      showMilestoneNotifications(
-        result.milestoneResults,
-        updateProgress,
-        sidebarData
-      );
-      showStreakNotification(result, updateProgress, sidebarData);
+      // Milestone XP (show toasts only)
+      result.milestoneResults?.forEach((milestone) => {
+        if (milestone.success && milestone.xpAwarded) {
+          toast.success(`🏆 +${milestone.xpAwarded} XP`, {
+            description: milestone.message,
+            duration: 5000,
+          });
+          totalXpEarned += milestone.xpAwarded;
+        }
+      });
+
+      // Streak XP and update
+      if (result.streakBonusAwarded && result.streakBonusMessage) {
+        toast.success(`🔥 +${result.streakBonusAwarded} XP`, {
+          description: result.streakBonusMessage,
+          duration: 5000,
+        });
+        totalXpEarned += result.streakBonusAwarded;
+        newStreak = result.currentStreak;
+      } else if (result.currentStreak && result.currentStreak > 0) {
+        toast.success(`🔥 ${result.currentStreak} өдөр стрик!`, {
+          description: "Ингээд үргэлжлээрэй!",
+          duration: 3000,
+        });
+        newStreak = result.currentStreak;
+      }
+
+      // Badge XP
+      if (result.badgeXpAwarded && result.badgeXpAwarded > 0) {
+        toast.success(`🏅 +${result.badgeXpAwarded} XP`, {
+          description: result.badgeMessage || "Шинэ медаль олж авлаа!",
+          duration: 5000,
+        });
+        totalXpEarned += result.badgeXpAwarded;
+      }
+
+      // Update sidebar ONCE with accumulated XP
+      if (
+        sidebarData?.progress &&
+        (totalXpEarned > 0 || newStreak !== undefined)
+      ) {
+        updateProgress({
+          totalPlatformXp: sidebarData.progress.totalPlatformXp + totalXpEarned,
+          ...(newStreak !== undefined && { streak: newStreak }),
+        });
+      }
 
       const quizPassed =
         state.score >= quizData.questions.length * QUIZ_PASSING_THRESHOLD;
