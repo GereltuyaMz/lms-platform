@@ -29,7 +29,8 @@ export const BunnyVideoPlayer = ({
   contentType,
 }: BunnyVideoPlayerProps) => {
   const router = useRouter();
-  const { markStepComplete, updateProgress, sidebarData, markLessonComplete } = useLessonPlayer();
+  const { markStepComplete, updateProgress, sidebarData, markLessonComplete } =
+    useLessonPlayer();
   const iframeRef = useRef<HTMLIFrameElement>(null);
   const [isCompleted, setIsCompleted] = useState(false);
   const [lastSavedPosition, setLastSavedPosition] = useState(0);
@@ -83,7 +84,8 @@ export const BunnyVideoPlayer = ({
             // Update XP in sidebar immediately
             if (sidebarData?.progress) {
               updateProgress({
-                totalPlatformXp: sidebarData.progress.totalPlatformXp + result.videoXpAwarded,
+                totalPlatformXp:
+                  sidebarData.progress.totalPlatformXp + result.videoXpAwarded,
               });
             }
           }
@@ -96,11 +98,35 @@ export const BunnyVideoPlayer = ({
               // Update XP in sidebar immediately for each milestone
               if (sidebarData?.progress) {
                 updateProgress({
-                  totalPlatformXp: sidebarData.progress.totalPlatformXp + m.xpAwarded,
+                  totalPlatformXp:
+                    sidebarData.progress.totalPlatformXp + m.xpAwarded,
                 });
               }
             }
           });
+          // Show streak notifications and update sidebar
+          if (result.streakBonusAwarded && result.streakBonusMessage) {
+            toast.success(`🔥 +${result.streakBonusAwarded} XP`, {
+              description: result.streakBonusMessage,
+              duration: 5000,
+            });
+            if (sidebarData?.progress) {
+              updateProgress({
+                totalPlatformXp:
+                  sidebarData.progress.totalPlatformXp +
+                  result.streakBonusAwarded,
+                streak: result.currentStreak,
+              });
+            }
+          } else if (result.currentStreak && result.currentStreak > 0) {
+            toast.success(`🔥 ${result.currentStreak} өдөр стрик!`, {
+              description: "Ингээд үргэлжлээрэй!",
+              duration: 3000,
+            });
+            if (sidebarData?.progress) {
+              updateProgress({ streak: result.currentStreak });
+            }
+          }
           // Optimistically mark step as complete for immediate icon update
           markStepComplete(lessonId, contentType);
           markLessonComplete(lessonId);
@@ -123,7 +149,17 @@ export const BunnyVideoPlayer = ({
         if (result.success) setLastSavedPosition(position);
       }
     },
-    [contentId, lessonId, courseId, router, markStepComplete, contentType, sidebarData, updateProgress, markLessonComplete]
+    [
+      contentId,
+      lessonId,
+      courseId,
+      router,
+      markStepComplete,
+      contentType,
+      sidebarData,
+      updateProgress,
+      markLessonComplete,
+    ]
   );
 
   // Handle postMessage events from Bunny iframe

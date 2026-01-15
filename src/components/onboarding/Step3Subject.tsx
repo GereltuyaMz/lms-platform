@@ -10,23 +10,23 @@ type Step3SubjectProps = {
 
 const subjects = [
   {
-    value: "Math",
+    value: "Математик",
     label: "Математик",
     icon: "📚",
   },
   {
-    value: "Science",
+    value: "Шинжлэх ухаан",
     label: "Шинжлэх ухаан",
     icon: "⚗️",
   },
   {
-    value: "Chemistry",
-    label: "Хими",
-    icon: "🧪",
+    value: "Нийгэм судлал",
+    label: "Нийгэм судлал",
+    icon: "🌍",
   },
   {
-    value: "English",
-    label: "Англи хэл",
+    value: "Гадаад хэл",
+    label: "Гадаад хэл",
     icon: "📕",
   },
 ];

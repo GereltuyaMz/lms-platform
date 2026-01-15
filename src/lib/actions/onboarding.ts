@@ -62,10 +62,10 @@ export const completeOnboarding = async ({
       description: "Completed onboarding",
     });
 
-    if (xpError) {
-      console.error("Error awarding XP:", xpError);
-      // Don't fail the whole operation if XP fails
-    }
+    // if (xpError) {
+    //   console.error("Error awarding XP:", xpError);
+    //   // Don't fail the whole operation if XP fails
+    // }
 
     revalidatePath("/dashboard");
 

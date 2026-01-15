@@ -30,18 +30,12 @@ export const CourseHero = ({ course, teacher }: CourseHeroProps) => {
         <div className="absolute left-0 top-0 w-[200px] h-[134px] sm:w-[280px] sm:h-[187px] lg:w-[356px] lg:h-[238px] z-0 pointer-events-none opacity-30 sm:opacity-50 lg:opacity-100">
           <CourseBackground />
         </div>
-
         <div className="relative z-10">
           <CourseBreadcrumb courseTitle={course.title} />
 
           {/* Main content - vertical stack */}
           <div className="flex flex-col gap-2 mt-4">
             {/* Level Badge */}
-            <Badge
-              className={`text-xs text-white bg-[#2563eb] hover:bg-[#1d4ed8] transition-colors rounded-full px-2 py-0.5 w-fit`}
-            >
-              {formatCourseLevel(course.level)}
-            </Badge>
 
             {/* Title */}
             <h1 className="text-2xl sm:text-2xl md:text-3xl lg:text-[40px] font-semibold leading-[1.2] tracking-[-0.4px] text-[#1a1a1a]">

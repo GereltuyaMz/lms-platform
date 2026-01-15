@@ -61,7 +61,11 @@ export const CourseSidebar = ({
           </div>
 
           {/* Title, Price, Stats & CTA - Right side on tablet */}
-          <div className={`flex flex-col sm:flex-1 ${hasPurchased ? "gap-2 lg:gap-3" : "gap-3 lg:gap-4"}`}>
+          <div
+            className={`flex flex-col sm:flex-1 ${
+              hasPurchased ? "gap-2 lg:gap-3" : "gap-3 lg:gap-4"
+            }`}
+          >
             {/* Course Title */}
             <p className="font-semibold text-sm sm:text-base leading-5 text-[#1a1a1a] whitespace-pre-wrap line-clamp-2 sm:line-clamp-3">
               {title}
@@ -94,7 +98,7 @@ export const CourseSidebar = ({
                   <span>•</span>
                   <span>{lessonCount} хичээл</span>
                   <span>•</span>
-                  <span>{exerciseCount} дасгал</span>
+                  <span>{exerciseCount} бодлого</span>
                   <span>•</span>
                   <span>{totalXP} XP</span>
                 </div>
@@ -160,7 +164,7 @@ export const CourseSidebar = ({
           <div className="flex flex-col gap-[7px] font-normal text-xs sm:text-sm leading-4 text-black whitespace-pre-wrap">
             <p>{videoDuration} Видео</p>
             <p>{lessonCount} Хичээл</p>
-            <p>{exerciseCount} Дасгал</p>
+            <p>{exerciseCount} Бодлого</p>
             <p>{totalXP} XP</p>
           </div>
         </div>

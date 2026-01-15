@@ -27,17 +27,29 @@ export async function saveQuizAttempt(
   try {
     const { user, supabase, error: authError } = await getAuthenticatedUser();
     if (authError || !user) {
-      return { success: false, message: "You must be logged in to save quiz attempts" };
+      return {
+        success: false,
+        message: "You must be logged in to save quiz attempts",
+      };
     }
 
-    const { enrollment, error: enrollmentError } = await getUserEnrollment(user.id, courseId);
+    const { enrollment, error: enrollmentError } = await getUserEnrollment(
+      user.id,
+      courseId
+    );
     if (enrollmentError || !enrollment) {
       return { success: false, message: "You must be enrolled in this course" };
     }
 
     const { data: attempt, error: attemptError } = await supabase
       .from("quiz_attempts")
-      .insert({ enrollment_id: enrollment.id, lesson_id: lessonId, score, total_questions: totalQuestions, points_earned: pointsEarned })
+      .insert({
+        enrollment_id: enrollment.id,
+        lesson_id: lessonId,
+        score,
+        total_questions: totalQuestions,
+        points_earned: pointsEarned,
+      })
       .select("id")
       .single();
 
@@ -58,51 +70,91 @@ export async function saveQuizAttempt(
     }
 
     const quizPassed = score >= totalQuestions * 0.8;
-    let milestoneResults: Array<{ success: boolean; message: string; xpAwarded?: number }> = [];
+    let milestoneResults: Array<{
+      success: boolean;
+      message: string;
+      xpAwarded?: number;
+    }> = [];
     let streakBonusAwarded: number | undefined;
     let streakBonusMessage: string | undefined;
     let currentStreak: number | undefined;
     let lessonComplete = false;
     let requiresContentCompletion = false;
     let unitXpAwarded: number | undefined;
+    let badgeXpAwarded: number | undefined;
+    let badgeMessage: string | undefined;
 
     if (quizPassed) {
-      const completionStatus = await checkAndCompleteLessonIfReady(enrollment.id, lessonId, courseId, user.id);
+      const completionStatus = await checkAndCompleteLessonIfReady(
+        enrollment.id,
+        lessonId,
+        courseId,
+        user.id
+      );
       lessonComplete = completionStatus.lessonComplete;
       requiresContentCompletion = !completionStatus.contentComplete;
       unitXpAwarded = completionStatus.unitXpAwarded;
 
       if (lessonComplete) {
-        const [milestones, streakResult, courseData] = await Promise.all([
-          checkAndAwardMilestones(user.id, courseId),
-          updateUserStreak(user.id),
-          supabase.from("courses").select("slug").eq("id", courseId).single(),
-        ]);
+        const [milestones, streakResult, badgeResult, courseData] =
+          await Promise.all([
+            checkAndAwardMilestones(user.id, courseId),
+            updateUserStreak(user.id),
+            checkAndAwardBadges("quiz"),
+            supabase.from("courses").select("slug").eq("id", courseId).single(),
+          ]);
         milestoneResults = milestones;
         if (streakResult.success && streakResult.isNewStreakDay) {
           currentStreak = streakResult.currentStreak;
           streakBonusAwarded = streakResult.streakBonusAwarded;
           streakBonusMessage = streakResult.streakBonusMessage;
         }
-        checkAndAwardBadges("quiz").catch(() => {});
+        if (
+          badgeResult.success &&
+          badgeResult.badgesAwarded &&
+          badgeResult.badgesAwarded.length > 0
+        ) {
+          badgeXpAwarded = badgeResult.badgesAwarded.reduce(
+            (sum, b) => sum + b.xp_bonus,
+            0
+          );
+          badgeMessage = badgeResult.message;
+        }
         revalidateUserPages();
         if (courseData.data?.slug) {
-          revalidatePath(`/courses/${courseData.data.slug}/learn/lesson/${lessonId}`, "page");
+          revalidatePath(
+            `/courses/${courseData.data.slug}/learn/lesson/${lessonId}`,
+            "page"
+          );
           revalidatePath(`/courses/${courseData.data.slug}`, "page");
         }
       } else {
-        const { data: courseData } = await supabase.from("courses").select("slug").eq("id", courseId).single();
+        const { data: courseData } = await supabase
+          .from("courses")
+          .select("slug")
+          .eq("id", courseId)
+          .single();
         revalidateUserPages();
         if (courseData?.slug) {
-          revalidatePath(`/courses/${courseData.slug}/learn/lesson/${lessonId}`, "page");
+          revalidatePath(
+            `/courses/${courseData.slug}/learn/lesson/${lessonId}`,
+            "page"
+          );
           revalidatePath(`/courses/${courseData.slug}`, "page");
         }
       }
     } else {
-      const { data: course } = await supabase.from("courses").select("slug").eq("id", courseId).single();
+      const { data: course } = await supabase
+        .from("courses")
+        .select("slug")
+        .eq("id", courseId)
+        .single();
       revalidateUserPages();
       if (course?.slug) {
-        revalidatePath(`/courses/${course.slug}/learn/lesson/${lessonId}`, "page");
+        revalidatePath(
+          `/courses/${course.slug}/learn/lesson/${lessonId}`,
+          "page"
+        );
         revalidatePath(`/courses/${course.slug}`, "page");
       }
     }
@@ -112,12 +164,17 @@ export async function saveQuizAttempt(
       message: "Quiz attempt saved successfully",
       attemptId: attempt.id,
       lessonComplete,
-      requiresContentCompletion: quizPassed ? requiresContentCompletion : undefined,
-      milestoneResults: milestoneResults.length > 0 ? milestoneResults : undefined,
+      requiresContentCompletion: quizPassed
+        ? requiresContentCompletion
+        : undefined,
+      milestoneResults:
+        milestoneResults.length > 0 ? milestoneResults : undefined,
       streakBonusAwarded,
       streakBonusMessage,
       currentStreak,
       unitXpAwarded,
+      badgeXpAwarded,
+      badgeMessage,
     };
   } catch (error) {
     return handleActionError(error) as QuizAttemptResult;

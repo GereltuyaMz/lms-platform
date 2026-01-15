@@ -38,10 +38,30 @@ export async function saveIndividualContentProgress(
       return { success: false, message: result.message };
     }
 
+    // Update streak if content was just completed
+    let currentStreak: number | undefined;
+    let streakBonusAwarded: number | undefined;
+    let streakBonusMessage: string | undefined;
+
+    if (isCompleted && result.xpAwarded && result.xpAwarded > 0) {
+      const { user } = await getAuthenticatedUser();
+      if (user) {
+        const streakResult = await updateUserStreak(user.id);
+        if (streakResult.success && streakResult.isNewStreakDay) {
+          currentStreak = streakResult.currentStreak;
+          streakBonusAwarded = streakResult.streakBonusAwarded;
+          streakBonusMessage = streakResult.streakBonusMessage;
+        }
+      }
+    }
+
     return {
       success: true,
       message: result.message,
       videoXpAwarded: result.xpAwarded,
+      currentStreak,
+      streakBonusAwarded,
+      streakBonusMessage,
       milestoneResults: result.unitXpAwarded
         ? [
             {
@@ -72,7 +92,10 @@ export async function saveVideoProgress(
     const { user, supabase, error: authError } = await getAuthenticatedUser();
 
     if (authError || !user) {
-      return { success: false, message: "You must be logged in to save progress" };
+      return {
+        success: false,
+        message: "You must be logged in to save progress",
+      };
     }
 
     const { enrollment, error: enrollmentError } = await getUserEnrollment(
@@ -101,14 +124,15 @@ export async function saveVideoProgress(
     let currentStreak: number | undefined;
 
     if (isCompleted) {
-      const [milestones, xpResult, streakResult, courseData] = await Promise.all([
-        checkAndAwardMilestones(user.id, courseId),
-        videoDuration && videoDuration > 0
-          ? awardVideoCompletionXP(lessonId, courseId, videoDuration)
-          : Promise.resolve({ success: false, xpAwarded: 0 }),
-        updateUserStreak(user.id),
-        supabase.from("courses").select("slug").eq("id", courseId).single(),
-      ]);
+      const [milestones, xpResult, streakResult, courseData] =
+        await Promise.all([
+          checkAndAwardMilestones(user.id, courseId),
+          videoDuration && videoDuration > 0
+            ? awardVideoCompletionXP(lessonId, courseId, videoDuration)
+            : Promise.resolve({ success: false, xpAwarded: 0 }),
+          updateUserStreak(user.id),
+          supabase.from("courses").select("slug").eq("id", courseId).single(),
+        ]);
 
       milestoneResults = milestones;
       if (xpResult.success && xpResult.xpAwarded) {
@@ -124,7 +148,10 @@ export async function saveVideoProgress(
       revalidateUserPages();
 
       if (courseData.data?.slug) {
-        revalidatePath(`/courses/${courseData.data.slug}/learn/lesson/${lessonId}`, "page");
+        revalidatePath(
+          `/courses/${courseData.data.slug}/learn/lesson/${lessonId}`,
+          "page"
+        );
         revalidatePath(`/courses/${courseData.data.slug}`, "page");
       }
     }
@@ -132,7 +159,8 @@ export async function saveVideoProgress(
     return {
       success: true,
       message: "Progress saved successfully",
-      milestoneResults: milestoneResults.length > 0 ? milestoneResults : undefined,
+      milestoneResults:
+        milestoneResults.length > 0 ? milestoneResults : undefined,
       streakBonusAwarded,
       streakBonusMessage,
       currentStreak,
