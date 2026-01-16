@@ -2,6 +2,9 @@
 
 import { Check, X } from "lucide-react";
 import type { MockTestProblem, DetailedAnswer } from "@/types/mock-test";
+import Image from "next/image";
+import { getMockTestImageUrl } from "@/lib/storage/mock-test-image";
+import { MathText } from "@/components/shared/MathText";
 
 type MockTestDetailedResultsProps = {
   problems: MockTestProblem[];
@@ -23,7 +26,20 @@ export const MockTestDetailedResults = ({
 
           {problem.context && (
             <div className="mb-6 p-4 bg-blue-50 rounded-lg border border-blue-200">
-              <p className="text-gray-700">{problem.context}</p>
+              <div className="text-gray-700">
+                <MathText>{problem.context}</MathText>
+              </div>
+              {problem.image_url && (
+                <div className="mt-3">
+                  <Image
+                    src={getMockTestImageUrl(problem.image_url)}
+                    alt="Problem context diagram"
+                    width={600}
+                    height={400}
+                    className="rounded-lg border border-gray-300 w-full h-auto max-w-2xl"
+                  />
+                </div>
+              )}
             </div>
           )}
 
@@ -31,7 +47,7 @@ export const MockTestDetailedResults = ({
           <div className="space-y-6">
             {problem.questions.map((question) => {
               const userAnswer = answers[question.id];
-              const selectedOption = question.options.find(
+              const selectedOption = question.options?.find(
                 (o) => o.id === userAnswer?.selected_option_id
               );
 
@@ -47,7 +63,22 @@ export const MockTestDetailedResults = ({
                     <span className="font-bold text-gray-700">
                       {question.question_number})
                     </span>
-                    <p className="flex-1 text-gray-900">{question.question_text}</p>
+                    <div className="flex-1">
+                      <div className="text-gray-900">
+                        <MathText>{question.question_text}</MathText>
+                      </div>
+                      {question.image_url && (
+                        <div className="mt-3">
+                          <Image
+                            src={getMockTestImageUrl(question.image_url)}
+                            alt={`Question ${question.question_number} diagram`}
+                            width={500}
+                            height={300}
+                            className="rounded-lg border border-gray-200 w-full h-auto max-w-xl"
+                          />
+                        </div>
+                      )}
+                    </div>
                     <div
                       className={`px-3 py-1 rounded-full text-sm font-bold whitespace-nowrap ${
                         userAnswer?.is_correct
@@ -61,7 +92,14 @@ export const MockTestDetailedResults = ({
 
                   {/* Options */}
                   <div className="space-y-2 ml-6">
-                    {question.options.map((option) => {
+                    {!question.options || question.options.length === 0 ? (
+                      <div className="p-4 bg-yellow-50 border border-yellow-200 rounded-lg">
+                        <p className="text-sm text-yellow-800">
+                          ⚠️ Энэ асуултын хариултын сонголтууд байхгүй байна.
+                        </p>
+                      </div>
+                    ) : (
+                      question.options.map((option) => {
                       const isSelected =
                         option.id === userAnswer?.selected_option_id;
                       // Determine if this option is correct based on available data
@@ -80,43 +118,59 @@ export const MockTestDetailedResults = ({
                               : "border-gray-200 bg-white"
                           }`}
                         >
-                          <div className="flex items-center gap-2">
+                          <div className="flex items-start gap-2">
                             {isCorrect && (
-                              <Check className="w-5 h-5 text-green-600 flex-shrink-0" />
+                              <Check className="w-5 h-5 text-green-600 flex-shrink-0 mt-1" />
                             )}
                             {isSelected && !isCorrect && (
-                              <X className="w-5 h-5 text-red-600 flex-shrink-0" />
+                              <X className="w-5 h-5 text-red-600 flex-shrink-0 mt-1" />
                             )}
-                            <span
-                              className={`flex-1 ${isSelected ? "font-bold" : ""}`}
-                            >
-                              {option.option_text}
-                            </span>
+                            <div className="flex-1">
+                              {option.option_text && (
+                                <div
+                                  className={`block ${isSelected ? "font-bold" : ""}`}
+                                >
+                                  <MathText>{option.option_text}</MathText>
+                                </div>
+                              )}
+                              {option.image_url && (
+                                <div className="mt-2">
+                                  <Image
+                                    src={getMockTestImageUrl(option.image_url)}
+                                    alt={`Option ${option.option_text || "image"}`}
+                                    width={200}
+                                    height={150}
+                                    className="rounded border border-gray-200 w-full h-auto max-w-xs"
+                                  />
+                                </div>
+                              )}
+                            </div>
                             {isCorrect && (
-                              <span className="text-sm text-green-600 font-semibold">
+                              <span className="text-sm text-green-600 font-semibold whitespace-nowrap">
                                 Зөв хариулт
                               </span>
                             )}
                             {isSelected && !isCorrect && (
-                              <span className="text-sm text-red-600 font-semibold">
+                              <span className="text-sm text-red-600 font-semibold whitespace-nowrap">
                                 Таны хариулт
                               </span>
                             )}
                           </div>
                         </div>
                       );
-                    })}
+                    })
+                    )}
                   </div>
 
                   {/* Explanation */}
                   {question.explanation && (
                     <div className="mt-4 ml-6 p-4 bg-blue-50 rounded-lg border border-blue-200">
-                      <p className="text-sm text-gray-700">
+                      <div className="text-sm text-gray-700">
                         <span className="font-semibold text-blue-900">
                           Тайлбар:
                         </span>{" "}
-                        {question.explanation}
-                      </p>
+                        <MathText>{question.explanation}</MathText>
+                      </div>
                     </div>
                   )}
                 </div>

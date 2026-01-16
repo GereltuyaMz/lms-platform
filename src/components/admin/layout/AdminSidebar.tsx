@@ -9,6 +9,7 @@ import {
   FileText,
   FolderTree,
   ClipboardCheck,
+  FileCheck,
   LogOut,
   ChevronRight,
 } from "lucide-react";
@@ -175,6 +176,21 @@ export const AdminSidebar = () => {
                   <Link href="/admin/quizzes">
                     <ClipboardCheck className="h-4 w-4" />
                     <span>Тест</span>
+                  </Link>
+                </SidebarMenuButton>
+              </SidebarMenuItem>
+
+              {/* Mock Tests */}
+              <SidebarMenuItem>
+                <SidebarMenuButton
+                  asChild
+                  isActive={isActive("/admin/mock-tests")}
+                  tooltip="Элсэлтийн шалгалт"
+                  className="cursor-pointer"
+                >
+                  <Link href="/admin/mock-tests">
+                    <FileCheck className="h-4 w-4" />
+                    <span>Элсэлтийн шалгалт</span>
                   </Link>
                 </SidebarMenuButton>
               </SidebarMenuItem>

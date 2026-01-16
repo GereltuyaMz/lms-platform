@@ -700,7 +700,7 @@ export async function getMockTestAttemptResults(attemptId: string): Promise<
     testData.data.sections.forEach((section) => {
       section.problems.forEach((problem) => {
         problem.questions.forEach((question) => {
-          question.options.forEach((option) => {
+          question.options?.forEach((option) => {
             if (correctOptionIds.has(option.id)) {
               option.is_correct = true;
             }
