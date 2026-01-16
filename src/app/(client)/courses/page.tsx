@@ -105,7 +105,6 @@ const CoursesPage = async ({ searchParams }: PageProps) => {
       }
     }
   }
-  ``;
 
   // Apply pagination
   const startIndex = (page - 1) * pageSize;

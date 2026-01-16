@@ -5,6 +5,7 @@
 export type MockTestOption = {
   id: string;
   option_text: string;
+  image_url?: string | null; // Supabase Storage path for image-based options
   // Note: is_correct is NOT included in initial test data for security
   // However, it MAY be included in detailed results after submission
   is_correct?: boolean;
@@ -15,10 +16,11 @@ export type MockTestQuestion = {
   id: string;
   question_number: string; // "a", "b", "c"
   question_text: string;
+  image_url?: string | null; // Supabase Storage path for question images (diagrams, charts)
   explanation: string;
   points: number;
   order_index: number;
-  options: MockTestOption[];
+  options?: MockTestOption[]; // Optional to handle data loading edge cases
 };
 
 export type MockTestProblem = {
@@ -26,6 +28,7 @@ export type MockTestProblem = {
   problem_number: number; // 1, 2, 3, 4
   title: string | null;
   context: string | null; // Shared context for sub-questions
+  image_url?: string | null; // Supabase Storage path for problem context images
   order_index: number;
   questions: MockTestQuestion[];
 };
